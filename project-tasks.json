@@ -84,7 +84,7 @@
       "title": "MapStruct Category Mapper",
       "description": "Create MapStruct mapper interfaces for converting between Category entities, DTOs, and view models",
       "acceptanceCriteria": "Feature: Category Mapper\n  Scenario: Map Category entity to CategoryDTO\n    Given a Category entity with all fields populated\n    When the mapper toDTO method is called\n    Then a CategoryDTO should be returned with all fields correctly mapped\n\n  Scenario: Map CategoryDTO to Category entity\n    Given a CategoryDTO from the UI layer\n    When the mapper toEntity method is called\n    Then a Category entity should be created with all fields correctly mapped",
-      "passes": false
+      "passes": true
     },
     {
       "id": 13,
