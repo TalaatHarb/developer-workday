@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -12,13 +13,17 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -31,7 +36,7 @@ import net.talaatharb.workday.model.TaskStatus;
 
 /**
  * Controller for the task list view.
- * Handles displaying, filtering, sorting, and searching tasks.
+ * Handles displaying, filtering, sorting, searching, and keyboard navigation for tasks.
  */
 @Slf4j
 public class TaskListViewController implements Initializable {
@@ -85,6 +90,12 @@ public class TaskListViewController implements Initializable {
             currentSearchKeyword = newValue;
             applyFilters();
         });
+        
+        // Setup keyboard shortcuts for search field
+        searchField.setOnKeyPressed(this::handleSearchFieldKeyPress);
+        
+        // Setup keyboard navigation for task list
+        taskListView.setOnKeyPressed(this::handleTaskListKeyPress);
         
         // Setup category filter
         categoryFilterChoice.setItems(FXCollections.observableArrayList(
@@ -146,6 +157,126 @@ public class TaskListViewController implements Initializable {
         searchField.clear();
         currentSearchKeyword = "";
         applyFilters();
+    }
+    
+    /**
+     * Handle keyboard navigation in task list
+     */
+    private void handleTaskListKeyPress(KeyEvent event) {
+        Task selectedTask = taskListView.getSelectionModel().getSelectedItem();
+        
+        if (selectedTask == null) {
+            return;
+        }
+        
+        switch (event.getCode()) {
+            case ENTER:
+                log.info("Opening task details for: {}", selectedTask.getTitle());
+                handleOpenTaskDetails(selectedTask);
+                event.consume();
+                break;
+                
+            case DELETE:
+                log.info("Delete key pressed for task: {}", selectedTask.getTitle());
+                handleDeleteTask(selectedTask);
+                event.consume();
+                break;
+                
+            case SPACE:
+                log.info("Space key pressed for task: {}", selectedTask.getTitle());
+                handleToggleTaskComplete(selectedTask);
+                event.consume();
+                break;
+                
+            default:
+                // Let other keys pass through for default list navigation
+                break;
+        }
+    }
+    
+    /**
+     * Handle keyboard shortcuts in search field
+     */
+    private void handleSearchFieldKeyPress(KeyEvent event) {
+        if (event.getCode() == KeyCode.ESCAPE) {
+            log.info("Escape pressed in search field");
+            handleClearSearch();
+            taskListView.requestFocus();
+            event.consume();
+        }
+    }
+    
+    /**
+     * Open task details dialog
+     */
+    private void handleOpenTaskDetails(Task task) {
+        // TODO: Implement task details dialog
+        log.info("Would open details for task: {}", task.getTitle());
+        
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Task Details");
+        alert.setHeaderText(task.getTitle());
+        alert.setContentText("Task ID: " + task.getId() + "\n" +
+                           "Status: " + task.getStatus() + "\n" +
+                           "Priority: " + task.getPriority() + "\n" +
+                           "Description: " + (task.getDescription() != null ? task.getDescription() : "No description"));
+        alert.showAndWait();
+    }
+    
+    /**
+     * Delete task with confirmation
+     */
+    private void handleDeleteTask(Task task) {
+        log.info("Attempting to delete task: {}", task.getTitle());
+        
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Delete Task");
+        confirmAlert.setHeaderText("Delete task: " + task.getTitle() + "?");
+        confirmAlert.setContentText("This action cannot be undone.");
+        
+        Optional<ButtonType> result = confirmAlert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            allTasks.remove(task);
+            applyFilters();
+            log.info("Task deleted: {}", task.getTitle());
+        }
+    }
+    
+    /**
+     * Toggle task completion status
+     */
+    private void handleToggleTaskComplete(Task task) {
+        log.info("Toggling completion for task: {}", task.getTitle());
+        
+        if (task.getStatus() == TaskStatus.COMPLETED) {
+            task.setStatus(TaskStatus.TODO);
+            log.info("Task marked as TODO: {}", task.getTitle());
+        } else {
+            task.setStatus(TaskStatus.COMPLETED);
+            log.info("Task marked as COMPLETED: {}", task.getTitle());
+        }
+        
+        applyFilters();
+    }
+    
+    /**
+     * Focus the search field (for Ctrl+F shortcut)
+     */
+    public void focusSearch() {
+        searchField.requestFocus();
+    }
+    
+    /**
+     * Focus the task list
+     */
+    public void focusTaskList() {
+        taskListView.requestFocus();
+        if (taskListView.getItems().isEmpty()) {
+            return;
+        }
+        if (taskListView.getSelectionModel().getSelectedIndex() < 0) {
+            taskListView.getSelectionModel().selectFirst();
+        }
     }
     
     @FXML

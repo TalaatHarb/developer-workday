@@ -245,7 +245,7 @@
       "title": "Keyboard Navigation and Shortcuts",
       "description": "Implement comprehensive keyboard navigation and shortcuts throughout the application",
       "acceptanceCriteria": "Feature: Keyboard Navigation\n  Scenario: Navigate task list with keyboard\n    Given the task list is focused\n    When pressing Up/Down arrows\n    Then focus should move between tasks\n    And pressing Enter should open task details\n    And pressing Delete should delete the task with confirmation\n\n  Scenario: Application shortcuts\n    Given the application is focused\n    When pressing Ctrl+N\n    Then a new task dialog should open\n    When pressing Ctrl+F\n    Then the search bar should be focused\n    When pressing Ctrl+1/2/3/4\n    Then the view should switch to Today/Upcoming/Calendar/All Tasks",
-      "passes": false
+      "passes": true
     },
     {
       "id": 36,
