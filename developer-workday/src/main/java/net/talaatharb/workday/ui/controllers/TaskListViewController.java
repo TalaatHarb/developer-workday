@@ -18,12 +18,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -34,6 +37,7 @@ import net.talaatharb.workday.model.Priority;
 import net.talaatharb.workday.model.Task;
 import net.talaatharb.workday.model.TaskStatus;
 import net.talaatharb.workday.utils.AnimationHelper;
+import net.talaatharb.workday.utils.ContextMenuHelper;
 
 /**
  * Controller for the task list view.
@@ -97,6 +101,9 @@ public class TaskListViewController implements Initializable {
         
         // Setup keyboard navigation for task list
         taskListView.setOnKeyPressed(this::handleTaskListKeyPress);
+        
+        // Enable multiple selection for task list
+        taskListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         
         // Setup category filter
         categoryFilterChoice.setItems(FXCollections.observableArrayList(
@@ -258,6 +265,115 @@ public class TaskListViewController implements Initializable {
         }
         
         applyFilters();
+    }
+    
+    /**
+     * Handle task edit action
+     */
+    private void handleEditTask(Task task) {
+        log.info("Editing task: {}", task.getTitle());
+        handleOpenTaskDetails(task);
+    }
+    
+    /**
+     * Handle task schedule action
+     */
+    private void handleScheduleTask(Task task) {
+        log.info("Scheduling task: {}", task.getTitle());
+        // TODO: Open date/time picker dialog
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Schedule Task");
+        alert.setHeaderText("Schedule: " + task.getTitle());
+        alert.setContentText("Date/time picker dialog will be implemented here.");
+        alert.showAndWait();
+    }
+    
+    /**
+     * Handle move task to category action
+     */
+    private void handleMoveToCategory(Task task) {
+        log.info("Moving task to category: {}", task.getTitle());
+        // TODO: Show category selection dialog
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Move to Category");
+        alert.setHeaderText("Move: " + task.getTitle());
+        alert.setContentText("Category selection dialog will be implemented here.");
+        alert.showAndWait();
+    }
+    
+    /**
+     * Handle duplicate task action
+     */
+    private void handleDuplicateTask(Task task) {
+        log.info("Duplicating task: {}", task.getTitle());
+        
+        Task duplicatedTask = Task.builder()
+            .title(task.getTitle() + " (Copy)")
+            .description(task.getDescription())
+            .status(TaskStatus.TODO)
+            .priority(task.getPriority())
+            .dueDate(task.getDueDate())
+            .dueTime(task.getDueTime())
+            .tags(task.getTags() != null ? new ArrayList<>(task.getTags()) : null)
+            .build();
+        
+        allTasks.add(duplicatedTask);
+        applyFilters();
+        
+        log.info("Task duplicated: {}", duplicatedTask.getTitle());
+    }
+    
+    /**
+     * Handle bulk complete all tasks
+     */
+    private void handleCompleteAllTasks(List<Task> tasks) {
+        log.info("Completing {} tasks", tasks.size());
+        
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Complete All Tasks");
+        confirmAlert.setHeaderText(String.format("Complete %d tasks?", tasks.size()));
+        confirmAlert.setContentText("This will mark all selected tasks as completed.");
+        
+        Optional<ButtonType> result = confirmAlert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            for (Task task : tasks) {
+                task.setStatus(TaskStatus.COMPLETED);
+            }
+            applyFilters();
+            log.info("{} tasks marked as completed", tasks.size());
+        }
+    }
+    
+    /**
+     * Handle bulk move all tasks to category
+     */
+    private void handleMoveAllTasks(List<Task> tasks) {
+        log.info("Moving {} tasks to category", tasks.size());
+        // TODO: Show category selection dialog for bulk move
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Move All Tasks");
+        alert.setHeaderText(String.format("Move %d tasks", tasks.size()));
+        alert.setContentText("Category selection dialog will be implemented here.");
+        alert.showAndWait();
+    }
+    
+    /**
+     * Handle bulk delete all tasks
+     */
+    private void handleDeleteAllTasks(List<Task> tasks) {
+        log.info("Attempting to delete {} tasks", tasks.size());
+        
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Delete All Tasks");
+        confirmAlert.setHeaderText(String.format("Delete %d tasks?", tasks.size()));
+        confirmAlert.setContentText("This action cannot be undone.");
+        
+        Optional<ButtonType> result = confirmAlert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            allTasks.removeAll(tasks);
+            applyFilters();
+            log.info("{} tasks deleted", tasks.size());
+        }
     }
     
     /**
@@ -483,11 +599,56 @@ public class TaskListViewController implements Initializable {
     }
     
     /**
+     * Show context menu for task based on selection state
+     */
+    private void showContextMenuForTask(Task task, TaskCell cell) {
+        List<Task> selectedTasks = new ArrayList<>(taskListView.getSelectionModel().getSelectedItems());
+        
+        ContextMenu contextMenu;
+        if (selectedTasks.size() > 1) {
+            // Multiple selection - show bulk actions menu
+            contextMenu = ContextMenuHelper.createBulkTaskContextMenu(
+                selectedTasks,
+                () -> handleCompleteAllTasks(selectedTasks),
+                () -> handleMoveAllTasks(selectedTasks),
+                () -> handleDeleteAllTasks(selectedTasks)
+            );
+        } else {
+            // Single selection - show standard task menu
+            contextMenu = ContextMenuHelper.createTaskContextMenu(
+                task,
+                () -> handleEditTask(task),
+                () -> handleToggleTaskComplete(task),
+                () -> handleScheduleTask(task),
+                () -> handleMoveToCategory(task),
+                () -> handleDuplicateTask(task),
+                () -> handleDeleteTask(task)
+            );
+        }
+        
+        contextMenu.show(cell, cell.getLayoutX(), cell.getLayoutY());
+    }
+    
+    /**
      * Custom cell for task list items
      */
     private class TaskCell extends ListCell<Task> {
         private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM d, yyyy");
         private boolean firstRender = true;
+        
+        public TaskCell() {
+            super();
+            
+            // Add context menu on right-click
+            setOnMouseClicked(event -> {
+                if (event.getButton() == MouseButton.SECONDARY && !isEmpty()) {
+                    Task task = getItem();
+                    if (task != null) {
+                        showContextMenuForTask(task, this);
+                    }
+                }
+            });
+        }
         
         @Override
         protected void updateItem(Task task, boolean empty) {

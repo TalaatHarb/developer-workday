@@ -455,7 +455,7 @@
       "title": "Context Menu Actions",
       "description": "Implement context menus (right-click menus) for tasks and categories with relevant actions",
       "acceptanceCriteria": "Feature: Context Menus\n  Scenario: Task context menu\n    Given a task in the list\n    When right-clicking the task\n    Then a context menu should appear with options: Edit, Complete, Schedule, Move to Category, Duplicate, Delete\n\n  Scenario: Category context menu\n    Given a category in the sidebar\n    When right-clicking the category\n    Then a context menu should appear with options: Edit, Add Task, Delete\n\n  Scenario: Multiple selection context menu\n    Given multiple selected tasks\n    When right-clicking\n    Then bulk actions should be available (Complete All, Move All, Delete All)",
-      "passes": false
+      "passes": true
     },
     {
       "id": 66,

@@ -14,11 +14,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -29,6 +31,7 @@ import net.talaatharb.workday.facade.FocusModeFacade;
 import net.talaatharb.workday.facade.UpdateCheckFacade;
 import net.talaatharb.workday.dtos.FocusModeDTO;
 import net.talaatharb.workday.model.UpdateInfo;
+import net.talaatharb.workday.utils.ContextMenuHelper;
 
 @Slf4j
 public class MainUiController implements Initializable {
@@ -96,7 +99,7 @@ public class MainUiController implements Initializable {
         log.info("Initializing UI application Main window controller...");
         
         // Set up category list view with custom cell factory
-        categoryListView.setCellFactory(listView -> new CategoryCell());
+        categoryListView.setCellFactory(listView -> new CategoryCell(this));
         
         // Load sample categories for demonstration
         loadSampleCategories();
@@ -154,6 +157,51 @@ public class MainUiController implements Initializable {
     private void handleAddCategory() {
         log.info("Add new category");
         // TODO: Open add category dialog
+    }
+    
+    /**
+     * Handle edit category action
+     */
+    private void handleEditCategory(CategoryItem category) {
+        log.info("Editing category: {}", category.getName());
+        // TODO: Open edit category dialog
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Edit Category");
+        alert.setHeaderText("Edit: " + category.getName());
+        alert.setContentText("Edit category dialog will be implemented here.");
+        alert.showAndWait();
+    }
+    
+    /**
+     * Handle add task to category action
+     */
+    private void handleAddTaskToCategory(CategoryItem category) {
+        log.info("Adding task to category: {}", category.getName());
+        // TODO: Open quick add task dialog with pre-selected category
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Add Task");
+        alert.setHeaderText("Add task to: " + category.getName());
+        alert.setContentText("Quick add task dialog will be implemented here.");
+        alert.showAndWait();
+    }
+    
+    /**
+     * Handle delete category action
+     */
+    private void handleDeleteCategory(CategoryItem category) {
+        log.info("Deleting category: {}", category.getName());
+        
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Delete Category");
+        confirmAlert.setHeaderText("Delete category: " + category.getName() + "?");
+        confirmAlert.setContentText(String.format("This will delete the category and affect %d tasks.", category.getTaskCount()));
+        
+        confirmAlert.showAndWait().ifPresent(response -> {
+            if (response == javafx.scene.control.ButtonType.OK) {
+                categoryListView.getItems().remove(category);
+                log.info("Category deleted: {}", category.getName());
+            }
+        });
     }
     
     @FXML
@@ -496,6 +544,34 @@ public class MainUiController implements Initializable {
      * Custom cell for category list items
      */
     private static class CategoryCell extends ListCell<CategoryItem> {
+        private final MainUiController controller;
+        
+        public CategoryCell(MainUiController controller) {
+            super();
+            this.controller = controller;
+            
+            // Add context menu on right-click
+            setOnMouseClicked(event -> {
+                if (event.getButton() == MouseButton.SECONDARY && !isEmpty()) {
+                    CategoryItem item = getItem();
+                    if (item != null) {
+                        showContextMenuForCategory(item, this);
+                    }
+                }
+            });
+        }
+        
+        private void showContextMenuForCategory(CategoryItem category, CategoryCell cell) {
+            ContextMenu contextMenu = ContextMenuHelper.createCategoryContextMenu(
+                category.getName(),
+                () -> controller.handleEditCategory(category),
+                () -> controller.handleAddTaskToCategory(category),
+                () -> controller.handleDeleteCategory(category)
+            );
+            
+            contextMenu.show(cell, cell.getLayoutX(), cell.getLayoutY());
+        }
+        
         @Override
         protected void updateItem(CategoryItem item, boolean empty) {
             super.updateItem(item, empty);
