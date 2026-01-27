@@ -285,8 +285,9 @@ class CalendarViewControllerTest {
                 Label monthYearLabel = (Label) root.lookup("#monthYearLabel");
                 String initialText = monthYearLabel.getText();
                 
-                // Click next button
-                controller.handleNext();
+                // Click next button using the button lookup
+                javafx.scene.control.Button nextButton = (javafx.scene.control.Button) root.lookup("#nextButton");
+                nextButton.fire();
                 Thread.sleep(100);
                 
                 // Label should change

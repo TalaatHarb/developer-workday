@@ -266,7 +266,7 @@
       "title": "Task Time Tracking",
       "description": "Implement time tracking for tasks with start/stop timer and manual time entry",
       "acceptanceCriteria": "Feature: Time Tracking\n  Scenario: Start task timer\n    Given a task without active timer\n    When clicking the play button\n    Then a timer should start for that task\n    And the elapsed time should be displayed and updating\n\n  Scenario: Stop task timer\n    Given a task with active timer\n    When clicking the stop button\n    Then the timer should stop\n    And the elapsed time should be added to actual duration\n    And a TimeTrackedEvent should be published\n\n  Scenario: View time report\n    Given tasks with tracked time\n    When viewing time report for a date range\n    Then total time per category and per task should be displayed",
-      "passes": false
+      "passes": true
     },
     {
       "id": 39,

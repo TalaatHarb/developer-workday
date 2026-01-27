@@ -17,6 +17,15 @@ public class EventDispatcher {
     private final Map<Class<? extends Event>, List<EventListener<? extends Event>>> listeners = new ConcurrentHashMap<>();
     private final EventLogger eventLogger;
     
+    /**
+     * Create an EventDispatcher without an event logger.
+     * Events will not be logged but will still be dispatched to listeners.
+     * Primarily used for testing purposes.
+     */
+    public EventDispatcher() {
+        this(null);
+    }
+    
     public EventDispatcher(EventLogger eventLogger) {
         this.eventLogger = eventLogger;
     }

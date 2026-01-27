@@ -28,6 +28,17 @@ public class DatabaseConfig {
     private Path databasePath;
     
     /**
+     * Create an in-memory database for testing purposes.
+     * This database is not persisted and will be lost when closed.
+     * @return An in-memory MapDB database instance
+     */
+    public static DB inMemoryDatabase() {
+        return DBMaker
+            .memoryDB()
+            .make();
+    }
+    
+    /**
      * Initialize the database with default location
      */
     public void initialize() {

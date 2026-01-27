@@ -223,8 +223,9 @@ class TaskDetailPanelControllerTest {
                 // Verify there are unsaved changes
                 assertTrue(controller.hasUnsavedChanges(), "Should have unsaved changes");
                 
-                // When: clicking close button
-                controller.handleClose();
+                // When: clicking close button using the button lookup
+                javafx.scene.control.Button closeButton = (javafx.scene.control.Button) root.lookup("#closeButton");
+                closeButton.fire();
                 
                 // Then: any unsaved changes should be saved
                 verify(mockTaskFacade, timeout(1000).atLeastOnce()).updateTask(any(Task.class));
