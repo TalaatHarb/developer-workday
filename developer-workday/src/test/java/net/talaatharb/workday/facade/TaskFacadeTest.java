@@ -454,4 +454,78 @@ class TaskFacadeTest {
         // Then: view should return to the previous state (all tasks)
         assertEquals(3, allResults.size());
     }
+    
+    @Test
+    @DisplayName("Quick add with 'next Friday' - parses correctly")
+    void testQuickAddTask_NextFriday() {
+        // Given: quick add input with 'next Friday'
+        Task task = taskFacade.quickAddTask("Report due next Friday");
+        
+        // Then: the task should be created
+        assertNotNull(task);
+        assertEquals("Report due", task.getTitle());
+        
+        // And: date should be next Friday
+        assertEquals(java.time.DayOfWeek.FRIDAY, task.getScheduledDate().getDayOfWeek());
+        
+        // And: should be in the future
+        LocalDate today = LocalDate.now();
+        assertTrue(task.getScheduledDate().isAfter(today) || 
+                   (today.getDayOfWeek() == java.time.DayOfWeek.FRIDAY && 
+                    task.getScheduledDate().equals(today.plusWeeks(1))));
+    }
+    
+    @Test
+    @DisplayName("Quick add with 'Monday' - parses as next Monday")
+    void testQuickAddTask_Monday() {
+        Task task = taskFacade.quickAddTask("Team meeting Monday");
+        
+        assertNotNull(task);
+        assertEquals("Team meeting", task.getTitle());
+        assertEquals(java.time.DayOfWeek.MONDAY, task.getScheduledDate().getDayOfWeek());
+    }
+    
+    @Test
+    @DisplayName("Quick add with 'next week' - parses as 7 days from now")
+    void testQuickAddTask_NextWeek() {
+        Task task = taskFacade.quickAddTask("Review next week");
+        
+        assertNotNull(task);
+        assertEquals("Review", task.getTitle());
+        assertEquals(LocalDate.now().plusWeeks(1), task.getScheduledDate());
+    }
+    
+    @Test
+    @DisplayName("Quick add with complex expression - 'Buy milk tomorrow at 3pm #groceries'")
+    void testQuickAddTask_ComplexExpression() {
+        // Given: a complex quick add expression
+        Task task = taskFacade.quickAddTask("Buy milk tomorrow at 3pm #groceries");
+        
+        // Then: all parts should be parsed correctly
+        assertNotNull(task);
+        assertEquals("Buy milk", task.getTitle());
+        assertEquals(LocalDate.now().plusDays(1), task.getScheduledDate());
+        assertEquals(LocalTime.of(15, 0), task.getDueTime());
+        assertTrue(task.getTags().contains("groceries"));
+    }
+    
+    @Test
+    @DisplayName("Quick add handles edge case: Saturday")
+    void testQuickAddTask_Saturday() {
+        Task task = taskFacade.quickAddTask("Workout Saturday");
+        
+        assertNotNull(task);
+        assertEquals("Workout", task.getTitle());
+        assertEquals(java.time.DayOfWeek.SATURDAY, task.getScheduledDate().getDayOfWeek());
+    }
+    
+    @Test
+    @DisplayName("Quick add handles edge case: Sunday")
+    void testQuickAddTask_Sunday() {
+        Task task = taskFacade.quickAddTask("Meal prep Sunday");
+        
+        assertNotNull(task);
+        assertEquals("Meal prep", task.getTitle());
+        assertEquals(java.time.DayOfWeek.SUNDAY, task.getScheduledDate().getDayOfWeek());
+    }
 }

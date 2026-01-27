@@ -22,6 +22,7 @@ import net.talaatharb.workday.model.Task;
 import net.talaatharb.workday.model.TaskStatus;
 import net.talaatharb.workday.service.ReminderService;
 import net.talaatharb.workday.service.TaskService;
+import net.talaatharb.workday.utils.NaturalLanguageDateParser;
 
 /**
  * Facade for task-related operations, coordinating between multiple services.
@@ -118,8 +119,9 @@ public class TaskFacade {
             remaining = remaining.replace(timeMatcher.group(), "").trim();
         }
         
-        // Extract date (e.g., "tomorrow", "today", "next monday")
-        Pattern datePattern = Pattern.compile("(today|tomorrow|next\\s+\\w+)", Pattern.CASE_INSENSITIVE);
+        // Extract date (e.g., "tomorrow", "today", "next monday", "friday")
+        // Match "next [weekday]", standalone weekdays, or today/tomorrow
+        Pattern datePattern = Pattern.compile("(today|tomorrow|next\\s+\\w+|monday|tuesday|wednesday|thursday|friday|saturday|sunday)", Pattern.CASE_INSENSITIVE);
         Matcher dateMatcher = datePattern.matcher(remaining);
         if (dateMatcher.find()) {
             result.date = parseDate(dateMatcher.group());
@@ -138,49 +140,17 @@ public class TaskFacade {
     }
     
     /**
-     * Parse time string
+     * Parse time string using NaturalLanguageDateParser
      */
     private LocalTime parseTime(String timeStr) {
-        timeStr = timeStr.toLowerCase().replaceAll("at\\s+", "").trim();
-        
-        try {
-            if (timeStr.contains("pm") || timeStr.contains("am")) {
-                String cleaned = timeStr.replaceAll("[^0-9:]", "").trim();
-                int hour = Integer.parseInt(cleaned.split(":")[0]);
-                int minute = cleaned.contains(":") ? Integer.parseInt(cleaned.split(":")[1]) : 0;
-                
-                if (timeStr.contains("pm") && hour < 12) {
-                    hour += 12;
-                } else if (timeStr.contains("am") && hour == 12) {
-                    hour = 0;
-                }
-                
-                return LocalTime.of(hour, minute);
-            } else {
-                return LocalTime.parse(timeStr, DateTimeFormatter.ofPattern("H:mm"));
-            }
-        } catch (Exception e) {
-            log.warn("Failed to parse time: {}", timeStr, e);
-            return null;
-        }
+        return NaturalLanguageDateParser.parseNaturalTime(timeStr);
     }
     
     /**
-     * Parse date string
+     * Parse date string using NaturalLanguageDateParser
      */
     private LocalDate parseDate(String dateStr) {
-        dateStr = dateStr.toLowerCase().trim();
-        
-        if (dateStr.equals("today")) {
-            return LocalDate.now();
-        } else if (dateStr.equals("tomorrow")) {
-            return LocalDate.now().plusDays(1);
-        } else if (dateStr.startsWith("next ")) {
-            // Simplified: just add 7 days for "next [day]"
-            return LocalDate.now().plusDays(7);
-        }
-        
-        return LocalDate.now(); // Default
+        return NaturalLanguageDateParser.parseRelativeDate(dateStr);
     }
     
     /**
