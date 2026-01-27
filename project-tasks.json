@@ -294,7 +294,7 @@
       "title": "Task Tags/Labels System",
       "description": "Implement a tagging system for tasks allowing multiple tags per task with autocomplete and filtering",
       "acceptanceCriteria": "Feature: Task Tags\n  Scenario: Add tags to task\n    Given a task being created or edited\n    When adding tags\n    Then multiple tags should be supported\n    And tags should autocomplete from existing tags\n    And new tags should be created if not existing\n\n  Scenario: Filter by tags\n    Given tasks with various tags\n    When selecting a tag filter\n    Then only tasks with that tag should be displayed\n    And multiple tag filters should work with AND logic\n\n  Scenario: Tag management\n    Given existing tags\n    When managing tags\n    Then tags can be renamed or deleted\n    And deleting a tag should remove it from all tasks",
-      "passes": false
+      "passes": true
     },
     {
       "id": 43,
