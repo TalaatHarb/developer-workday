@@ -36,21 +36,27 @@ public class TaskFacade {
     private final ReminderService reminderService;
     
     /**
-     * Get tasks for today's view: overdue tasks first, then today's tasks
+     * Get tasks for today's view: overdue tasks first, then today's tasks.
+     * Filters out snoozed tasks.
      */
     public List<Task> getTasksForToday() {
         LocalDate today = LocalDate.now();
+        LocalDateTime now = LocalDateTime.now();
         
-        // Get overdue tasks
-        List<Task> overdueTasks = taskService.findOverdueTasks();
+        // Get overdue tasks (excluding snoozed)
+        List<Task> overdueTasks = taskService.findOverdueTasks().stream()
+            .filter(t -> !net.talaatharb.workday.model.SnoozeOption.isSnoozed(t.getSnoozeUntil()))
+            .collect(Collectors.toList());
         
         // Sort overdue tasks by time and priority
         overdueTasks.sort(Comparator
             .comparing((Task t) -> t.getDueTime() != null ? t.getDueTime() : LocalTime.MAX)
             .thenComparing((Task t) -> getPriorityValue(t.getPriority())));
         
-        // Get tasks scheduled for today
-        List<Task> todaysTasks = taskService.findByScheduledDate(today);
+        // Get tasks scheduled for today (excluding snoozed)
+        List<Task> todaysTasks = taskService.findByScheduledDate(today).stream()
+            .filter(t -> !net.talaatharb.workday.model.SnoozeOption.isSnoozed(t.getSnoozeUntil()))
+            .collect(Collectors.toList());
         
         // Sort today's tasks by time and priority
         todaysTasks.sort(Comparator
@@ -222,6 +228,28 @@ public class TaskFacade {
         
         // Delete task
         taskService.deleteTask(taskId);
+    }
+    
+    /**
+     * Snooze a task using a predefined snooze option
+     */
+    public Task snoozeTask(UUID taskId, net.talaatharb.workday.model.SnoozeOption option) {
+        LocalDateTime snoozeUntil = option.calculateSnoozeTime();
+        return taskService.snoozeTask(taskId, snoozeUntil);
+    }
+    
+    /**
+     * Snooze a task with a custom date/time
+     */
+    public Task snoozeTaskCustom(UUID taskId, LocalDateTime snoozeUntil) {
+        return taskService.snoozeTask(taskId, snoozeUntil);
+    }
+    
+    /**
+     * Unsnooze a task (remove snooze)
+     */
+    public Task unsnoozeTask(UUID taskId) {
+        return taskService.unsnoozeTask(taskId);
     }
     
     /**

@@ -55,6 +55,9 @@ public class Task implements Serializable {
     private RecurrenceRule recurrence;
     private Integer reminderMinutesBefore;
     
+    // Snooze
+    private LocalDateTime snoozeUntil;
+    
     // Duration tracking
     private Duration estimatedDuration;
     private Duration actualDuration;

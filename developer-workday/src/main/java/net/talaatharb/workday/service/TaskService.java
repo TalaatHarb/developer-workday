@@ -253,6 +253,45 @@ public class TaskService {
     }
     
     /**
+     * Snooze a task until the specified date/time
+     */
+    public Task snoozeTask(UUID taskId, LocalDateTime snoozeUntil) {
+        Task task = findById(taskId)
+            .orElseThrow(() -> new IllegalArgumentException("Task not found: " + taskId));
+        
+        task.setSnoozeUntil(snoozeUntil);
+        task.setUpdatedAt(LocalDateTime.now());
+        
+        Task savedTask = taskRepository.save(task);
+        
+        // Publish event
+        TaskSnoozedEvent event = TaskSnoozedEvent.builder()
+            .taskId(taskId)
+            .snoozeUntil(snoozeUntil)
+            .build();
+        eventDispatcher.publish(event);
+        
+        log.info("Snoozed task {} until {}", taskId, snoozeUntil);
+        return savedTask;
+    }
+    
+    /**
+     * Unsnooze a task (remove snooze)
+     */
+    public Task unsnoozeTask(UUID taskId) {
+        Task task = findById(taskId)
+            .orElseThrow(() -> new IllegalArgumentException("Task not found: " + taskId));
+        
+        task.setSnoozeUntil(null);
+        task.setUpdatedAt(LocalDateTime.now());
+        
+        Task savedTask = taskRepository.save(task);
+        
+        log.info("Unsnoozed task {}", taskId);
+        return savedTask;
+    }
+    
+    /**
      * Find task by ID
      */
     public Optional<Task> findById(UUID taskId) {

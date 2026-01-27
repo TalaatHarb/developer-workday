@@ -24,6 +24,7 @@ public class ContextMenuHelper {
      * @param onEdit Callback when Edit is selected
      * @param onComplete Callback when Complete is selected
      * @param onSchedule Callback when Schedule is selected
+     * @param onSnooze Callback when Snooze is selected
      * @param onMoveToCategory Callback when Move to Category is selected
      * @param onDuplicate Callback when Duplicate is selected
      * @param onDelete Callback when Delete is selected
@@ -34,6 +35,7 @@ public class ContextMenuHelper {
             Runnable onEdit,
             Runnable onComplete,
             Runnable onSchedule,
+            Runnable onSnooze,
             Runnable onMoveToCategory,
             Runnable onDuplicate,
             Runnable onDelete) {
@@ -56,6 +58,12 @@ public class ContextMenuHelper {
         MenuItem scheduleItem = new MenuItem("Schedule");
         scheduleItem.setOnAction(e -> {
             if (onSchedule != null) onSchedule.run();
+        });
+        
+        // Snooze action
+        MenuItem snoozeItem = new MenuItem("Snooze");
+        snoozeItem.setOnAction(e -> {
+            if (onSnooze != null) onSnooze.run();
         });
         
         // Move to Category action
@@ -84,6 +92,7 @@ public class ContextMenuHelper {
             editItem,
             completeItem,
             scheduleItem,
+            snoozeItem,
             moveToCategoryItem,
             duplicateItem,
             separator,

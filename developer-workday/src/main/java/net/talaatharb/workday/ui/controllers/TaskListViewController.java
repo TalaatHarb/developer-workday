@@ -289,6 +289,51 @@ public class TaskListViewController implements Initializable {
     }
     
     /**
+     * Handle task snooze action
+     */
+    private void handleSnoozeTask(Task task) {
+        log.info("Snoozing task: {}", task.getTitle());
+        
+        // Show quick snooze options dialog
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Snooze Task");
+        alert.setHeaderText("Snooze: " + task.getTitle());
+        alert.setContentText("Choose a snooze duration:");
+        
+        // Add snooze option buttons
+        ButtonType laterTodayButton = new ButtonType("Later Today (3h)");
+        ButtonType tomorrowButton = new ButtonType("Tomorrow");
+        ButtonType nextWeekButton = new ButtonType("Next Week");
+        ButtonType customButton = new ButtonType("Custom...");
+        ButtonType cancelButton = ButtonType.CANCEL;
+        
+        alert.getButtonTypes().setAll(laterTodayButton, tomorrowButton, nextWeekButton, customButton, cancelButton);
+        
+        alert.showAndWait().ifPresent(response -> {
+            if (response == laterTodayButton) {
+                task.setSnoozeUntil(java.time.LocalDateTime.now().plusHours(3));
+                applyFilters();
+                log.info("Task snoozed until later today");
+            } else if (response == tomorrowButton) {
+                task.setSnoozeUntil(java.time.LocalDateTime.now().plusDays(1).with(java.time.LocalTime.of(9, 0)));
+                applyFilters();
+                log.info("Task snoozed until tomorrow");
+            } else if (response == nextWeekButton) {
+                task.setSnoozeUntil(java.time.LocalDateTime.now().plusWeeks(1).with(java.time.LocalTime.of(9, 0)));
+                applyFilters();
+                log.info("Task snoozed until next week");
+            } else if (response == customButton) {
+                // TODO: Open custom date/time picker
+                Alert customAlert = new Alert(Alert.AlertType.INFORMATION);
+                customAlert.setTitle("Custom Snooze");
+                customAlert.setHeaderText("Custom date/time picker");
+                customAlert.setContentText("Custom date/time picker will be implemented here.");
+                customAlert.showAndWait();
+            }
+        });
+    }
+    
+    /**
      * Handle move task to category action
      */
     private void handleMoveToCategory(Task task) {
@@ -620,6 +665,7 @@ public class TaskListViewController implements Initializable {
                 () -> handleEditTask(task),
                 () -> handleToggleTaskComplete(task),
                 () -> handleScheduleTask(task),
+                () -> handleSnoozeTask(task),
                 () -> handleMoveToCategory(task),
                 () -> handleDuplicateTask(task),
                 () -> handleDeleteTask(task)

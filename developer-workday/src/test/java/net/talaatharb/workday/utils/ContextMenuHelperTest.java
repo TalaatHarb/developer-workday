@@ -58,23 +58,24 @@ class ContextMenuHelperTest {
             () -> {},
             () -> {},
             () -> {},
+            () -> {},
             () -> {}
         );
         
         // Then
         assertNotNull(menu);
-        assertEquals(7, menu.getItems().size()); // 6 menu items + 1 separator
+        assertEquals(8, menu.getItems().size()); // 7 menu items + 1 separator
         
         // Verify menu item labels
-        List<String> expectedLabels = Arrays.asList("Edit", "Complete", "Schedule", "Move to Category", "Duplicate", "Delete");
-        for (int i = 0; i < 5; i++) {
+        List<String> expectedLabels = Arrays.asList("Edit", "Complete", "Schedule", "Snooze", "Move to Category", "Duplicate", "Delete");
+        for (int i = 0; i < 6; i++) {
             MenuItem item = menu.getItems().get(i);
             assertInstanceOf(MenuItem.class, item);
             assertTrue(expectedLabels.contains(item.getText()), "Expected menu item: " + item.getText());
         }
         
         // Verify delete item has red styling
-        MenuItem deleteItem = (MenuItem) menu.getItems().get(6);
+        MenuItem deleteItem = (MenuItem) menu.getItems().get(7);
         assertEquals("Delete", deleteItem.getText());
         assertTrue(deleteItem.getStyle().contains("#e74c3c"), "Delete item should have red text");
     }
@@ -87,6 +88,7 @@ class ContextMenuHelperTest {
         ContextMenu menu = ContextMenuHelper.createTaskContextMenu(
             sampleTask,
             () -> editCalled.set(true),
+            () -> {},
             () -> {},
             () -> {},
             () -> {},
@@ -114,6 +116,7 @@ class ContextMenuHelperTest {
             () -> {},
             () -> {},
             () -> {},
+            () -> {},
             () -> {}
         );
         
@@ -137,11 +140,12 @@ class ContextMenuHelperTest {
             () -> {},
             () -> {},
             () -> {},
+            () -> {},
             () -> deleteCalled.set(true)
         );
         
         // When
-        MenuItem deleteItem = (MenuItem) menu.getItems().get(6);
+        MenuItem deleteItem = (MenuItem) menu.getItems().get(7);
         deleteItem.fire();
         
         // Then
@@ -308,7 +312,7 @@ class ContextMenuHelperTest {
         // When - create menu with null callbacks
         ContextMenu taskMenu = ContextMenuHelper.createTaskContextMenu(
             sampleTask,
-            null, null, null, null, null, null
+            null, null, null, null, null, null, null
         );
         
         ContextMenu bulkMenu = ContextMenuHelper.createBulkTaskContextMenu(

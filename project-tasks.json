@@ -462,7 +462,7 @@
       "title": "Task Snooze Functionality",
       "description": "Implement the ability to snooze tasks to a later time or date",
       "acceptanceCriteria": "Feature: Task Snooze\n  Scenario: Snooze task from list\n    Given a task in the Today view\n    When clicking snooze button\n    Then quick snooze options should appear (Later Today, Tomorrow, Next Week)\n    And custom date/time option should be available\n\n  Scenario: Snoozed task behavior\n    Given a task is snoozed to tomorrow\n    When viewing Today\n    Then the task should not appear in Today\n    And the task should appear tomorrow\n\n  Scenario: Snooze from notification\n    Given a task reminder notification\n    When clicking snooze on notification\n    Then snooze options should be available",
-      "passes": false
+      "passes": true
     },
     {
       "id": 67,
