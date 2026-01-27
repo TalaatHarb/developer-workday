@@ -26,6 +26,7 @@ public class KeyboardShortcutHandler {
     public static final KeyCombination CLOSE = new KeyCodeCombination(KeyCode.W, KeyCombination.CONTROL_DOWN);
     public static final KeyCombination QUIT = new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN);
     public static final KeyCombination REFRESH = new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN);
+    public static final KeyCombination QUICK_ACTIONS = new KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
     
     /**
      * Create a new keyboard shortcut handler for the given scene

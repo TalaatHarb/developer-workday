@@ -483,7 +483,7 @@
       "title": "Quick Actions Menu",
       "description": "Implement a command palette style quick actions menu accessible via keyboard shortcut",
       "acceptanceCriteria": "Feature: Quick Actions Menu\n  Scenario: Open quick actions\n    Given the application is focused\n    When pressing Ctrl+Shift+P\n    Then a quick actions menu should appear\n    And recently used actions should be shown first\n\n  Scenario: Search actions\n    Given the quick actions menu is open\n    When typing a search query\n    Then matching actions should be filtered and shown\n    And actions can be selected with keyboard\n\n  Scenario: Execute action\n    Given an action is selected in quick actions menu\n    When pressing Enter\n    Then the action should be executed\n    And the menu should close",
-      "passes": false
+      "passes": true
     },
     {
       "id": 70,
