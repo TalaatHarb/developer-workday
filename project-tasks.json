@@ -147,7 +147,7 @@
       "title": "Task Detail Panel Controller",
       "description": "Implement the controller for the task detail/edit panel that slides in from the right when a task is selected",
       "acceptanceCriteria": "Feature: Task Detail Panel\n  Scenario: View task details\n    Given a task is selected from the list\n    When the detail panel opens\n    Then all task fields should be displayed\n    And the panel should slide in with smooth animation\n\n  Scenario: Edit task inline\n    Given the task detail panel is open\n    When editing any field\n    Then changes should be saved automatically after a brief delay\n    And a visual indicator should show unsaved changes\n    And a TaskUpdatedEvent should be published on save\n\n  Scenario: Close panel\n    Given the task detail panel is open\n    When clicking outside or pressing Escape\n    Then the panel should slide out\n    And any unsaved changes should be saved",
-      "passes": false
+      "passes": true
     },
     {
       "id": 22,
