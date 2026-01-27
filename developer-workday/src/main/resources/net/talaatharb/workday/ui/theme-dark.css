@@ -1,0 +1,359 @@
+/**
+ * Dark Theme for Developer Workday
+ */
+
+/* Main Window */
+.main-window {
+    -fx-background-color: #1e1e1e;
+}
+
+/* Menu Bar */
+.menu-bar {
+    -fx-background-color: #2d2d30;
+    -fx-border-color: #3e3e42;
+    -fx-border-width: 0 0 1 0;
+}
+
+.menu-bar .label {
+    -fx-text-fill: #cccccc;
+}
+
+.menu-bar .menu:hover,
+.menu-bar .menu:showing {
+    -fx-background-color: #3e3e42;
+}
+
+.context-menu {
+    -fx-background-color: #2d2d30;
+    -fx-border-color: #3e3e42;
+}
+
+.menu-item .label {
+    -fx-text-fill: #cccccc;
+}
+
+.menu-item:focused {
+    -fx-background-color: #3e3e42;
+}
+
+/* Quick Add Bar */
+.quick-add-bar {
+    -fx-background-color: #252526;
+    -fx-border-color: #3e3e42;
+    -fx-border-width: 0 0 1 0;
+}
+
+.quick-add-label {
+    -fx-text-fill: #cccccc;
+}
+
+.quick-add-field {
+    -fx-background-color: #3c3c3c;
+    -fx-text-fill: #cccccc;
+    -fx-border-color: #3e3e42;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 8;
+}
+
+.quick-add-field:focused {
+    -fx-border-color: #007acc;
+}
+
+.quick-add-button {
+    -fx-background-color: #007acc;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 4;
+    -fx-cursor: hand;
+    -fx-padding: 8 16;
+}
+
+.quick-add-button:hover {
+    -fx-background-color: #005a9e;
+}
+
+/* Sidebar */
+.sidebar {
+    -fx-background-color: #252526;
+}
+
+.sidebar-section-title {
+    -fx-text-fill: #969696;
+    -fx-font-size: 11px;
+}
+
+.sidebar-nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #cccccc;
+    -fx-alignment: center-left;
+    -fx-font-size: 13px;
+    -fx-padding: 10 15;
+    -fx-cursor: hand;
+    -fx-background-radius: 4;
+}
+
+.sidebar-nav-button:hover {
+    -fx-background-color: rgba(0, 122, 204, 0.2);
+}
+
+.sidebar-nav-button.active {
+    -fx-background-color: #007acc;
+    -fx-font-weight: bold;
+}
+
+.nav-icon {
+    -fx-font-size: 16px;
+}
+
+.add-category-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #007acc;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 2 8;
+}
+
+.add-category-button:hover {
+    -fx-background-color: rgba(0, 122, 204, 0.2);
+}
+
+.category-scroll {
+    -fx-background-color: transparent;
+}
+
+.category-list {
+    -fx-background-color: transparent;
+}
+
+.category-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #cccccc;
+    -fx-padding: 8 5;
+    -fx-cursor: hand;
+}
+
+.category-list .list-cell:hover {
+    -fx-background-color: rgba(0, 122, 204, 0.2);
+}
+
+.category-list .list-cell:selected {
+    -fx-background-color: rgba(0, 122, 204, 0.3);
+}
+
+.sidebar-toggle-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #858585;
+    -fx-font-size: 11px;
+    -fx-cursor: hand;
+    -fx-border-color: #3e3e42;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 8;
+}
+
+.sidebar-toggle-button:hover {
+    -fx-text-fill: #cccccc;
+}
+
+/* Content Area */
+.content-area {
+    -fx-background-color: #1e1e1e;
+}
+
+.welcome-title {
+    -fx-text-fill: #cccccc;
+}
+
+.welcome-subtitle {
+    -fx-text-fill: #969696;
+}
+
+/* Dialog Styles */
+.settings-dialog {
+    -fx-background-color: #252526;
+}
+
+.dialog-title {
+    -fx-text-fill: #cccccc;
+}
+
+.section-label {
+    -fx-text-fill: #cccccc;
+}
+
+.hint-text {
+    -fx-text-fill: #858585;
+}
+
+.shortcut-label {
+    -fx-text-fill: #cccccc;
+    -fx-background-color: #3c3c3c;
+    -fx-border-color: #3e3e42;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+    -fx-padding: 2 6;
+}
+
+/* Buttons */
+.primary-button {
+    -fx-background-color: #007acc;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 4;
+    -fx-cursor: hand;
+    -fx-padding: 6 12;
+}
+
+.primary-button:hover {
+    -fx-background-color: #005a9e;
+}
+
+.secondary-button {
+    -fx-background-color: #3e3e42;
+    -fx-text-fill: #cccccc;
+    -fx-background-radius: 4;
+    -fx-cursor: hand;
+    -fx-padding: 6 12;
+}
+
+.secondary-button:hover {
+    -fx-background-color: #505050;
+}
+
+.danger-button {
+    -fx-background-color: #c5000b;
+    -fx-text-fill: white;
+    -fx-background-radius: 4;
+    -fx-cursor: hand;
+    -fx-padding: 6 12;
+}
+
+.danger-button:hover {
+    -fx-background-color: #9e0008;
+}
+
+/* Form Controls */
+.text-field, .text-area {
+    -fx-background-color: #3c3c3c;
+    -fx-text-fill: #cccccc;
+    -fx-border-color: #3e3e42;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+}
+
+.text-field:focused, .text-area:focused {
+    -fx-border-color: #007acc;
+}
+
+.choice-box {
+    -fx-background-color: #3c3c3c;
+    -fx-border-color: #3e3e42;
+}
+
+.choice-box .label {
+    -fx-text-fill: #cccccc;
+}
+
+.spinner {
+    -fx-background-color: #3c3c3c;
+}
+
+.spinner .text-field {
+    -fx-text-fill: #cccccc;
+}
+
+.check-box .box {
+    -fx-background-color: #3c3c3c;
+    -fx-border-color: #3e3e42;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: #007acc;
+}
+
+.check-box .label {
+    -fx-text-fill: #cccccc;
+}
+
+.label {
+    -fx-text-fill: #cccccc;
+}
+
+/* Tabs */
+.tab-pane {
+    -fx-background-color: #252526;
+}
+
+.tab-pane .tab-header-area {
+    -fx-background-color: #2d2d30;
+}
+
+.tab {
+    -fx-background-color: #2d2d30;
+    -fx-border-color: #3e3e42;
+}
+
+.tab .tab-label {
+    -fx-text-fill: #cccccc;
+}
+
+.tab:selected {
+    -fx-background-color: #252526;
+}
+
+.tab:hover {
+    -fx-background-color: #3e3e42;
+}
+
+.tab-pane .tab-content-area {
+    -fx-background-color: #252526;
+}
+
+/* Separator */
+.separator .line {
+    -fx-border-color: #3e3e42;
+}
+
+/* Scrollbar styling */
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: rgba(133, 133, 133, 0.5);
+    -fx-background-radius: 5;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: rgba(133, 133, 133, 0.8);
+}
+
+.scroll-bar .track {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+}
+
+/* List View */
+.list-view {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: #3e3e42;
+}
+
+.list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #cccccc;
+}
+
+.list-cell:hover {
+    -fx-background-color: #2d2d30;
+}
+
+.list-cell:selected {
+    -fx-background-color: #007acc;
+    -fx-text-fill: white;
+}

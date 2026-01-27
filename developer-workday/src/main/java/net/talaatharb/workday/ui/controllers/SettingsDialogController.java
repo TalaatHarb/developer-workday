@@ -12,6 +12,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.talaatharb.workday.facade.PreferencesFacade;
 import net.talaatharb.workday.model.UserPreferences;
+import net.talaatharb.workday.utils.ThemeManager;
 
 /**
  * Controller for the settings/preferences dialog.
@@ -158,7 +159,13 @@ public class SettingsDialogController implements Initializable {
         if (preferencesFacade != null) {
             try {
                 UserPreferences preferences = buildPreferencesFromUI();
-                preferencesFacade.updatePreferences(preferences);
+                UserPreferences saved = preferencesFacade.updatePreferences(preferences);
+                
+                // Apply theme immediately if changed
+                if (!saved.getTheme().equals(currentPreferences.getTheme())) {
+                    ThemeManager.getInstance().applyTheme(saved.getTheme());
+                }
+                
                 log.info("Saved user preferences");
                 closeDialog();
             } catch (Exception e) {

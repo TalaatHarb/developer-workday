@@ -217,7 +217,7 @@
       "title": "Light and Dark Theme Support",
       "description": "Implement light and dark theme support with the ability to switch themes and optionally follow system preferences",
       "acceptanceCriteria": "Feature: Theme Support\n  Scenario: Switch to dark theme\n    Given the application is using light theme\n    When switching to dark theme in settings\n    Then all UI components should update to dark colors\n    And the change should be immediate without restart\n\n  Scenario: Follow system theme\n    Given 'Follow system theme' is enabled\n    When the system theme changes\n    Then the application theme should automatically update\n\n  Scenario: Theme persistence\n    Given a theme has been selected\n    When restarting the application\n    Then the selected theme should be applied on startup",
-      "passes": false
+      "passes": true
     },
     {
       "id": 32,

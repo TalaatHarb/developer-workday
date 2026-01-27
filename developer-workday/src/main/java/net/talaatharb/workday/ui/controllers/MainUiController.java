@@ -132,9 +132,18 @@ public class MainUiController implements Initializable {
             Stage dialogStage = new Stage();
             dialogStage.setTitle("Settings");
             dialogStage.initModality(Modality.APPLICATION_MODAL);
-            dialogStage.setScene(new Scene(dialogRoot));
             
-            controller.setOnCloseCallback(() -> dialogStage.close());
+            Scene dialogScene = new Scene(dialogRoot);
+            
+            // Register scene with theme manager for immediate theme application
+            net.talaatharb.workday.utils.ThemeManager.getInstance().registerScene(dialogScene);
+            
+            dialogStage.setScene(dialogScene);
+            
+            controller.setOnCloseCallback(() -> {
+                net.talaatharb.workday.utils.ThemeManager.getInstance().unregisterScene(dialogScene);
+                dialogStage.close();
+            });
             controller.loadPreferences();
             
             dialogStage.showAndWait();
