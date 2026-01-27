@@ -364,28 +364,28 @@
       "title": "Unit Tests - Facade Layer",
       "description": "Write comprehensive unit tests for all facade classes",
       "acceptanceCriteria": "Feature: Facade Unit Tests\n  Scenario: Test TaskFacade operations\n    Given a TaskFacade with mocked services\n    When testing getTasksForToday, quickAddTask, getTaskStatistics\n    Then services should be coordinated correctly\n    And correct DTOs should be returned\n\n  Scenario: Test quick add parsing\n    Given a TaskFacade\n    When testing quickAddTask with various natural language inputs\n    Then dates, times, priorities, and tags should be parsed correctly\n\n  Scenario: Test CalendarFacade\n    Given a CalendarFacade with mocked services\n    When testing getTasksForMonth, getTasksForWeek\n    Then data should be formatted correctly for calendar display",
-      "passes": false
+      "passes": true
     },
     {
       "id": 53,
       "title": "Unit Tests - Mapper Layer",
       "description": "Write unit tests for MapStruct mappers to ensure correct field mapping",
       "acceptanceCriteria": "Feature: Mapper Unit Tests\n  Scenario: Test TaskMapper conversions\n    Given a Task entity with all fields populated\n    When mapping to TaskDTO and back\n    Then all fields should be correctly mapped\n    And null handling should be correct\n\n  Scenario: Test CategoryMapper conversions\n    Given a Category entity\n    When mapping to CategoryDTO and back\n    Then all fields should be correctly mapped\n\n  Scenario: Test collection mapping\n    Given a list of entities\n    When mapping to list of DTOs\n    Then all items should be correctly mapped",
-      "passes": false
+      "passes": true
     },
     {
       "id": 54,
       "title": "Unit Tests - UI Controllers",
       "description": "Write unit tests for UI controllers using TestFX or similar JavaFX testing framework",
       "acceptanceCriteria": "Feature: Controller Unit Tests\n  Scenario: Test TaskListViewController\n    Given a TaskListViewController with mocked facade\n    When testing task list loading and filtering\n    Then correct data should be displayed\n\n  Scenario: Test QuickAddController parsing\n    Given a QuickAddController\n    When testing input parsing and task creation\n    Then facade should be called with correct parameters\n\n  Scenario: Test UI event handling\n    Given a controller\n    When simulating user interactions\n    Then correct actions should be triggered",
-      "passes": false
+      "passes": true
     },
     {
       "id": 55,
       "title": "Unit Tests - Event System",
       "description": "Write unit tests for the event setup and all event classes",
       "acceptanceCriteria": "Feature: Event System Unit Tests\n  Scenario: Test Event setup subscription and publishing\n    Given an Event setup instance\n    When subscribing and publishing events\n    Then subscribers should receive events correctly\n    And unsubscribed handlers should not receive events\n\n  Scenario: Test event serialization\n    Given event classes\n    When serializing and deserializing events\n    Then all event data should be preserved\n\n  Scenario: Test event ordering\n    Given multiple events published\n    When processing events\n    Then they should be processed in order",
-      "passes": false
+      "passes": true
     },
     {
       "id": 56,
