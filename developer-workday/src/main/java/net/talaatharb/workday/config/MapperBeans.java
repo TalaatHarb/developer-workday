@@ -1,7 +1,5 @@
 package net.talaatharb.workday.config;
 
-import org.mapstruct.factory.Mappers;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

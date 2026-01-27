@@ -1,9 +1,5 @@
 package net.talaatharb.workday.config;
 
-import java.awt.AWTException;
-import java.awt.GraphicsEnvironment;
-import java.awt.Robot;
-
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
