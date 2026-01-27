@@ -280,7 +280,7 @@
       "title": "Today View with Smart Grouping",
       "description": "Implement a Today view that shows overdue tasks, today's scheduled tasks, and suggested tasks with smart grouping",
       "acceptanceCriteria": "Feature: Today View\n  Scenario: Today view sections\n    Given tasks with various due dates\n    When viewing the Today view\n    Then 'Overdue' section should show past due tasks\n    And 'Today' section should show tasks due today\n    And sections should be collapsible\n\n  Scenario: Morning and afternoon grouping\n    Given tasks scheduled for different times today\n    When viewing Today view\n    Then tasks should be grouped into time blocks (Morning, Afternoon, Evening)\n\n  Scenario: Today view empty state\n    Given no tasks for today\n    When viewing Today view\n    Then a friendly empty state message should be displayed\n    And a quick add button should be prominently displayed",
-      "passes": false
+      "passes": true
     },
     {
       "id": 41,

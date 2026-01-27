@@ -88,7 +88,7 @@ public class MainUiController implements Initializable {
     @FXML
     private void handleShowToday() {
         log.info("Show today view");
-        // TODO: Load today view into contentArea
+        loadViewIntoContentArea("/net/talaatharb/workday/ui/TodayView.fxml");
         setActiveNavButton(todayButton);
     }
     
@@ -195,6 +195,35 @@ public class MainUiController implements Initializable {
         // Add active style to clicked button
         if (!activeButton.getStyleClass().contains("active")) {
             activeButton.getStyleClass().add("active");
+        }
+    }
+    
+    /**
+     * Load a view into the content area
+     */
+    private void loadViewIntoContentArea(String fxmlPath) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            javafx.scene.Node view = loader.load();
+            
+            // Get the controller and initialize if needed
+            Object controller = loader.getController();
+            if (controller instanceof TodayViewController todayController) {
+                // TODO: Inject TaskFacade when available
+                todayController.loadTasks();
+            }
+            
+            contentArea.getChildren().clear();
+            contentArea.getChildren().add(view);
+            
+            log.info("Loaded view: {}", fxmlPath);
+        } catch (IOException e) {
+            log.error("Failed to load view: {}", fxmlPath, e);
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Failed to load view");
+            alert.setContentText("Could not load " + fxmlPath);
+            alert.showAndWait();
         }
     }
     
