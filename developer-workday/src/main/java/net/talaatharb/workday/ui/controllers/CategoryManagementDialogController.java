@@ -89,7 +89,7 @@ public class CategoryManagementDialogController implements Initializable {
             // TODO: Add confirmation dialog
             categoryFacade.deleteCategory(selected.getId());
             if (eventDispatcher != null) {
-                eventDispatcher.publish(new CategoryDeletedEvent(selected.getId(), selected.getName()));
+                eventDispatcher.publish(new CategoryDeletedEvent(selected, java.util.Collections.emptyList()));
             }
             loadCategories();
         }

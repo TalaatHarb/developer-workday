@@ -20,6 +20,7 @@ public class CategoryDTO {
     private String icon;
     private UUID parentCategoryId;
     private Integer sortOrder;
+    private Integer displayOrder;
     private Boolean isDefault;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

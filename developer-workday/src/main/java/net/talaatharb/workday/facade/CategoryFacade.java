@@ -131,4 +131,32 @@ public class CategoryFacade {
             .taskCount(taskCount)
             .build();
     }
+    
+    /**
+     * Get all categories.
+     */
+    public List<Category> findAll() {
+        return categoryService.findAllOrdered();
+    }
+    
+    /**
+     * Create a new category.
+     */
+    public Category createCategory(Category category) {
+        return categoryService.createCategory(category);
+    }
+    
+    /**
+     * Update an existing category.
+     */
+    public Category updateCategory(Category category) {
+        return categoryService.updateCategory(category);
+    }
+    
+    /**
+     * Delete a category by ID.
+     */
+    public void deleteCategory(java.util.UUID categoryId) {
+        categoryService.deleteCategory(categoryId, CategoryService.TaskHandlingStrategy.LEAVE_ORPHANED);
+    }
 }

@@ -19,7 +19,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import lombok.extern.slf4j.Slf4j;
@@ -324,7 +323,7 @@ public class TaskListViewController implements Initializable {
                 priorityLabel.setStyle("-fx-font-size: 16px;");
                 
                 Region spacer = new Region();
-                HBox.setHgrow(spacer, Priority.ALWAYS);
+                HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
                 
                 topRow.getChildren().addAll(priorityLabel, titleLabel, spacer);
                 

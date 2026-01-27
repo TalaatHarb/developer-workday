@@ -395,7 +395,7 @@ public class TaskDetailPanelController implements Initializable {
         
         // Fade-in animation
         FadeTransition fadeTransition = new FadeTransition(Duration.millis(300), panelNode);
-        fadeTransition.setToOpacity(1.0);
+        fadeTransition.setToValue(1.0);
         
         // Play both animations
         slideTransition.play();
@@ -421,7 +421,7 @@ public class TaskDetailPanelController implements Initializable {
         
         // Fade-out animation
         FadeTransition fadeTransition = new FadeTransition(Duration.millis(300), panelNode);
-        fadeTransition.setToOpacity(0);
+        fadeTransition.setToValue(0);
         
         // Execute callback when complete
         slideTransition.setOnFinished(e -> {

@@ -31,6 +31,8 @@ public class Category implements Serializable {
     
     private Integer sortOrder;
     
+    private Integer displayOrder;
+    
     @Builder.Default
     private Boolean isDefault = false;
     

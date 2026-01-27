@@ -143,4 +143,27 @@ public class CalendarFacade {
         
         return weekView;
     }
+    
+    /**
+     * Get tasks for a specified date period.
+     *
+     * @param startDate the start of the period
+     * @param endDate the end of the period
+     * @return list of tasks within the period
+     */
+    public List<Task> getTasksForPeriod(LocalDate startDate, LocalDate endDate) {
+        log.debug("Getting tasks for period: {} to {}", startDate, endDate);
+        return taskService.findByDueDateBetween(startDate, endDate);
+    }
+    
+    /**
+     * Get tasks for a specific day.
+     *
+     * @param date the date to get tasks for
+     * @return list of tasks for that day
+     */
+    public List<Task> getTasksForDay(LocalDate date) {
+        log.debug("Getting tasks for day: {}", date);
+        return taskService.findByDueDateBetween(date, date);
+    }
 }

@@ -451,7 +451,6 @@ public class CalendarViewController implements Initializable {
             if (eventDispatcher != null) {
                 eventDispatcher.publish(new TaskScheduledEvent(
                     updatedTask.getId(),
-                    task.getScheduledDate(),
                     newDate
                 ));
             }
