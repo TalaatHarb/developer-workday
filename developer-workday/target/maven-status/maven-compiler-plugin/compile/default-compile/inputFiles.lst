@@ -66,7 +66,11 @@ D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\wo
 D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\workday\ui\startup\LinuxStartupManager.java
 D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\workday\ui\startup\WindowsStartupManager.java
 D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\workday\ui\SystemTrayManager.java
+D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\workday\utils\Command.java
+D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\workday\utils\commands\DeleteTaskCommand.java
+D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\workday\utils\commands\UpdateTaskCommand.java
 D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\workday\utils\DragAndDropHelper.java
 D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\workday\utils\FileUtils.java
 D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\workday\utils\PriorityIndicators.java
 D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\workday\utils\ThemeManager.java
+D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\workday\utils\UndoRedoManager.java

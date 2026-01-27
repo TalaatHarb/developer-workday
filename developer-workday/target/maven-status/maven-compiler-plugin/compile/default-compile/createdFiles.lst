@@ -47,6 +47,7 @@ net\talaatharb\workday\ui\shortcuts\WindowsGlobalShortcutManager.class
 net\talaatharb\workday\event\task\TaskMovedToCategoryEvent.class
 net\talaatharb\workday\service\NotificationService.class
 net\talaatharb\workday\event\category\CategoryReorderedEvent.class
+net\talaatharb\workday\utils\commands\UpdateTaskCommand.class
 net\talaatharb\workday\event\category\CategoryCreatedEvent.class
 net\talaatharb\workday\service\CategoryService.class
 net\talaatharb\workday\event\EventListener.class
@@ -54,6 +55,7 @@ net\talaatharb\workday\facade\TaskFacade.class
 net\talaatharb\workday\DevloperWorkdayApplication.class
 net\talaatharb\workday\event\task\TaskCreatedEvent.class
 net\talaatharb\workday\repository\package-info.class
+net\talaatharb\workday\utils\UndoRedoManager.class
 net\talaatharb\workday\ui\controllers\MainUiController$CategoryCell.class
 net\talaatharb\workday\model\UserPreferences.class
 net\talaatharb\workday\ui\controllers\CategoryManagementDialogController$CategoryCell.class
@@ -83,11 +85,13 @@ net\talaatharb\workday\event\task\TaskUpdatedEvent.class
 net\talaatharb\workday\service\TimeTrackingService.class
 net\talaatharb\workday\ui\controllers\SettingsDialogController.class
 net\talaatharb\workday\dtos\CategoryTreeNode.class
+net\talaatharb\workday\utils\Command.class
 net\talaatharb\workday\ui\controllers\QuickAddController.class
 net\talaatharb\workday\ui\SystemTrayManager.class
 net\talaatharb\workday\JavafxApplication.class
 net\talaatharb\workday\ui\controllers\CalendarViewController$ViewMode.class
 net\talaatharb\workday\dtos\TaskDTO.class
+net\talaatharb\workday\utils\commands\DeleteTaskCommand.class
 net\talaatharb\workday\config\ApplicationContext.class
 net\talaatharb\workday\service\CategoryService$TaskHandlingStrategy.class
 net\talaatharb\workday\event\time\TimeTrackedEvent.class

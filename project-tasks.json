@@ -273,7 +273,7 @@
       "title": "Undo/Redo Functionality",
       "description": "Implement undo/redo functionality for task and category operations",
       "acceptanceCriteria": "Feature: Undo Redo\n  Scenario: Undo task deletion\n    Given a task was just deleted\n    When pressing Ctrl+Z or clicking Undo\n    Then the task should be restored\n    And a toast notification should confirm the undo\n\n  Scenario: Redo undone action\n    Given an action was undone\n    When pressing Ctrl+Y or clicking Redo\n    Then the action should be reapplied\n\n  Scenario: Undo toast notification\n    Given an action was performed (like delete)\n    When the action completes\n    Then a toast should appear with Undo option\n    And the toast should auto-dismiss after 5 seconds",
-      "passes": false
+      "passes": true
     },
     {
       "id": 40,
