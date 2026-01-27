@@ -284,6 +284,41 @@ public class TaskFacade {
     }
     
     /**
+     * Search tasks by keyword in title, description, and tags
+     */
+    public List<Task> searchTasks(String keyword) {
+        log.debug("Searching tasks with keyword: {}", keyword);
+        return taskService.searchTasks(keyword);
+    }
+    
+    /**
+     * Search tasks with filters applied
+     */
+    public List<Task> searchTasksWithFilters(String keyword, TaskStatus status, Priority priority, UUID categoryId) {
+        log.debug("Searching tasks with keyword: {}, status: {}, priority: {}, category: {}", 
+            keyword, status, priority, categoryId);
+        
+        List<Task> results = taskService.searchTasks(keyword);
+        
+        // Apply filters
+        Stream<Task> stream = results.stream();
+        
+        if (status != null) {
+            stream = stream.filter(t -> t.getStatus() == status);
+        }
+        
+        if (priority != null) {
+            stream = stream.filter(t -> t.getPriority() == priority);
+        }
+        
+        if (categoryId != null) {
+            stream = stream.filter(t -> categoryId.equals(t.getCategoryId()));
+        }
+        
+        return stream.collect(Collectors.toList());
+    }
+    
+    /**
      * Helper to get priority value for sorting
      */
     private int getPriorityValue(Priority priority) {

@@ -327,4 +327,131 @@ class TaskFacadeTest {
         assertEquals(1, taskFacade.findByStatus(TaskStatus.TODO).size());
         assertEquals(1, taskFacade.findByCategoryId(categoryId).size());
     }
+    
+    @Test
+    @DisplayName("Search tasks by keyword in title, description, and tags")
+    void testSearchTasks() {
+        // Given: tasks with various titles, descriptions, and tags
+        taskRepository.save(Task.builder()
+            .title("Fix critical bug")
+            .description("Memory leak causing crashes")
+            .tags(List.of("urgent", "production"))
+            .status(TaskStatus.TODO)
+            .build());
+        
+        taskRepository.save(Task.builder()
+            .title("Update documentation")
+            .description("Add API documentation for endpoints")
+            .tags(List.of("docs", "api"))
+            .status(TaskStatus.TODO)
+            .build());
+        
+        taskRepository.save(Task.builder()
+            .title("Review code changes")
+            .description("Check code quality and tests")
+            .tags(List.of("review", "code"))
+            .status(TaskStatus.IN_PROGRESS)
+            .build());
+        
+        // When: searching by keyword in title
+        List<Task> bugResults = taskFacade.searchTasks("bug");
+        
+        // Then: matching tasks should be displayed
+        assertEquals(1, bugResults.size());
+        assertTrue(bugResults.get(0).getTitle().toLowerCase().contains("bug"));
+        
+        // When: searching by keyword in description
+        List<Task> apiResults = taskFacade.searchTasks("api");
+        
+        // Then: matching tasks should be displayed
+        assertEquals(1, apiResults.size());
+        assertTrue(apiResults.get(0).getDescription().toLowerCase().contains("api"));
+        
+        // When: searching by keyword in tags
+        List<Task> reviewResults = taskFacade.searchTasks("review");
+        
+        // Then: matching tasks should be displayed
+        assertEquals(1, reviewResults.size());
+        assertTrue(reviewResults.get(0).getTags().stream()
+            .anyMatch(tag -> tag.toLowerCase().contains("review")));
+    }
+    
+    @Test
+    @DisplayName("Search with filters - narrows results by status, priority, and category")
+    void testSearchTasksWithFilters() {
+        // Given: tasks with various attributes
+        UUID category1 = UUID.randomUUID();
+        UUID category2 = UUID.randomUUID();
+        
+        taskRepository.save(Task.builder()
+            .title("Fix bug in login")
+            .status(TaskStatus.TODO)
+            .priority(Priority.HIGH)
+            .categoryId(category1)
+            .build());
+        
+        taskRepository.save(Task.builder()
+            .title("Fix bug in search")
+            .status(TaskStatus.IN_PROGRESS)
+            .priority(Priority.MEDIUM)
+            .categoryId(category1)
+            .build());
+        
+        taskRepository.save(Task.builder()
+            .title("Fix bug in logout")
+            .status(TaskStatus.TODO)
+            .priority(Priority.LOW)
+            .categoryId(category2)
+            .build());
+        
+        // When: searching with status filter
+        List<Task> todoResults = taskFacade.searchTasksWithFilters("bug", TaskStatus.TODO, null, null);
+        
+        // Then: results should be narrowed by selected filters
+        assertEquals(2, todoResults.size());
+        assertTrue(todoResults.stream().allMatch(t -> t.getStatus() == TaskStatus.TODO));
+        
+        // When: searching with priority filter
+        List<Task> highPriorityResults = taskFacade.searchTasksWithFilters("bug", null, Priority.HIGH, null);
+        
+        // Then: results should be narrowed by priority
+        assertEquals(1, highPriorityResults.size());
+        assertEquals(Priority.HIGH, highPriorityResults.get(0).getPriority());
+        
+        // When: searching with category filter
+        List<Task> category1Results = taskFacade.searchTasksWithFilters("bug", null, null, category1);
+        
+        // Then: results should be narrowed by category
+        assertEquals(2, category1Results.size());
+        assertTrue(category1Results.stream().allMatch(t -> t.getCategoryId().equals(category1)));
+        
+        // When: searching with multiple filters
+        List<Task> multiFilterResults = taskFacade.searchTasksWithFilters("bug", TaskStatus.TODO, Priority.HIGH, category1);
+        
+        // Then: results should match all filters
+        assertEquals(1, multiFilterResults.size());
+        Task result = multiFilterResults.get(0);
+        assertEquals(TaskStatus.TODO, result.getStatus());
+        assertEquals(Priority.HIGH, result.getPriority());
+        assertEquals(category1, result.getCategoryId());
+    }
+    
+    @Test
+    @DisplayName("Clear search - returns to previous state")
+    void testClearSearch() {
+        // Given: tasks exist
+        taskRepository.save(Task.builder().title("Task 1").build());
+        taskRepository.save(Task.builder().title("Task 2").build());
+        taskRepository.save(Task.builder().title("Different").build());
+        
+        // When: searching with keyword
+        List<Task> searchResults = taskFacade.searchTasks("Task");
+        assertEquals(2, searchResults.size());
+        
+        // When: clearing search (empty keyword)
+        List<Task> allResults = taskFacade.searchTasks("");
+        
+        // Then: view should return to the previous state (all tasks)
+        assertEquals(3, allResults.size());
+    }
 }

@@ -18,9 +18,12 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import lombok.extern.slf4j.Slf4j;
 import net.talaatharb.workday.model.Priority;
 import net.talaatharb.workday.model.Task;
@@ -28,7 +31,7 @@ import net.talaatharb.workday.model.TaskStatus;
 
 /**
  * Controller for the task list view.
- * Handles displaying, filtering, and sorting tasks.
+ * Handles displaying, filtering, sorting, and searching tasks.
  */
 @Slf4j
 public class TaskListViewController implements Initializable {
@@ -38,6 +41,12 @@ public class TaskListViewController implements Initializable {
     
     @FXML
     private Button newTaskButton;
+    
+    @FXML
+    private TextField searchField;
+    
+    @FXML
+    private Button clearSearchButton;
     
     @FXML
     private ChoiceBox<String> categoryFilterChoice;
@@ -65,10 +74,17 @@ public class TaskListViewController implements Initializable {
     
     private List<Task> allTasks = new ArrayList<>();
     private List<Task> filteredTasks = new ArrayList<>();
+    private String currentSearchKeyword = "";
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         log.info("Initializing Task List View Controller");
+        
+        // Setup search field listener
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            currentSearchKeyword = newValue;
+            applyFilters();
+        });
         
         // Setup category filter
         categoryFilterChoice.setItems(FXCollections.observableArrayList(
@@ -125,6 +141,14 @@ public class TaskListViewController implements Initializable {
     }
     
     @FXML
+    private void handleClearSearch() {
+        log.info("Clearing search");
+        searchField.clear();
+        currentSearchKeyword = "";
+        applyFilters();
+    }
+    
+    @FXML
     private void handleToggleShowCompleted() {
         log.info("Toggle show completed: {}", showCompletedCheck.isSelected());
         applyFilters();
@@ -134,9 +158,10 @@ public class TaskListViewController implements Initializable {
      * Apply filters to the task list
      */
     private void applyFilters() {
-        log.debug("Applying filters");
+        log.debug("Applying filters with search keyword: {}", currentSearchKeyword);
         
         filteredTasks = allTasks.stream()
+            .filter(task -> filterBySearch(task))
             .filter(task -> filterByCategory(task))
             .filter(task -> filterByPriority(task))
             .filter(task -> filterByStatus(task))
@@ -144,6 +169,35 @@ public class TaskListViewController implements Initializable {
             .collect(Collectors.toList());
         
         applySorting();
+    }
+    
+    private boolean filterBySearch(Task task) {
+        if (currentSearchKeyword == null || currentSearchKeyword.trim().isEmpty()) {
+            return true;
+        }
+        
+        String lowerKeyword = currentSearchKeyword.toLowerCase().trim();
+        
+        // Search in title
+        if (task.getTitle() != null && task.getTitle().toLowerCase().contains(lowerKeyword)) {
+            return true;
+        }
+        
+        // Search in description
+        if (task.getDescription() != null && task.getDescription().toLowerCase().contains(lowerKeyword)) {
+            return true;
+        }
+        
+        // Search in tags
+        if (task.getTags() != null) {
+            for (String tag : task.getTags()) {
+                if (tag != null && tag.toLowerCase().contains(lowerKeyword)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
     
     private boolean filterByCategory(Task task) {
@@ -243,40 +297,50 @@ public class TaskListViewController implements Initializable {
         // Sample task 1: Overdue high priority
         Task task1 = Task.builder()
             .title("Fix critical bug in production")
+            .description("Memory leak causing server crashes")
             .status(TaskStatus.IN_PROGRESS)
             .priority(Priority.URGENT)
             .dueDate(java.time.LocalDate.now().minusDays(1))
+            .tags(List.of("bug", "production", "urgent"))
             .build();
         
         // Sample task 2: Today medium priority
         Task task2 = Task.builder()
             .title("Review pull requests")
+            .description("Check code quality and test coverage")
             .status(TaskStatus.TODO)
             .priority(Priority.MEDIUM)
             .dueDate(java.time.LocalDate.now())
+            .tags(List.of("code-review", "team"))
             .build();
         
         // Sample task 3: Completed task
         Task task3 = Task.builder()
             .title("Write unit tests")
+            .description("Add tests for new search functionality")
             .status(TaskStatus.COMPLETED)
             .priority(Priority.HIGH)
             .dueDate(java.time.LocalDate.now().minusDays(2))
+            .tags(List.of("testing", "development"))
             .build();
         
         // Sample task 4: Future low priority
         Task task4 = Task.builder()
             .title("Update documentation")
+            .description("Add API documentation for new endpoints")
             .status(TaskStatus.TODO)
             .priority(Priority.LOW)
             .dueDate(java.time.LocalDate.now().plusDays(3))
+            .tags(List.of("documentation", "api"))
             .build();
         
         // Sample task 5: No due date
         Task task5 = Task.builder()
             .title("Brainstorm new features")
+            .description("Research competitor features and user feedback")
             .status(TaskStatus.TODO)
             .priority(Priority.LOW)
+            .tags(List.of("planning", "research"))
             .build();
         
         allTasks.add(task1);
@@ -289,7 +353,7 @@ public class TaskListViewController implements Initializable {
     /**
      * Custom cell for task list items
      */
-    private static class TaskCell extends ListCell<Task> {
+    private class TaskCell extends ListCell<Task> {
         private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM d, yyyy");
         
         @Override
@@ -308,26 +372,32 @@ public class TaskListViewController implements Initializable {
                 HBox topRow = new HBox(10);
                 topRow.setAlignment(Pos.CENTER_LEFT);
                 
-                // Task title
-                Label titleLabel = new Label(task.getTitle());
-                titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
-                
-                // Apply completed style
-                if (task.getStatus() == TaskStatus.COMPLETED) {
-                    titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; " +
-                                      "-fx-text-fill: #95a5a6; -fx-strikethrough: true;");
-                }
-                
                 // Priority indicator
                 Label priorityLabel = new Label(getPrioritySymbol(task.getPriority()));
                 priorityLabel.setStyle("-fx-font-size: 16px;");
                 
+                // Task title with highlighting
+                Region titleRegion;
+                if (currentSearchKeyword != null && !currentSearchKeyword.trim().isEmpty()) {
+                    titleRegion = createHighlightedText(task.getTitle(), currentSearchKeyword);
+                } else {
+                    Label titleLabel = new Label(task.getTitle());
+                    titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+                    
+                    // Apply completed style
+                    if (task.getStatus() == TaskStatus.COMPLETED) {
+                        titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; " +
+                                          "-fx-text-fill: #95a5a6; -fx-strikethrough: true;");
+                    }
+                    titleRegion = titleLabel;
+                }
+                
                 Region spacer = new Region();
                 HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
                 
-                topRow.getChildren().addAll(priorityLabel, titleLabel, spacer);
+                topRow.getChildren().addAll(priorityLabel, titleRegion, spacer);
                 
-                // Bottom row: due date, status, category
+                // Bottom row: due date, status, tags
                 HBox bottomRow = new HBox(15);
                 bottomRow.setAlignment(Pos.CENTER_LEFT);
                 
@@ -350,6 +420,24 @@ public class TaskListViewController implements Initializable {
                 statusLabel.setStyle(getStatusStyle(task.getStatus()));
                 bottomRow.getChildren().add(statusLabel);
                 
+                // Tags with highlighting
+                if (task.getTags() != null && !task.getTags().isEmpty()) {
+                    for (String tag : task.getTags()) {
+                        if (currentSearchKeyword != null && !currentSearchKeyword.trim().isEmpty() 
+                            && tag.toLowerCase().contains(currentSearchKeyword.toLowerCase())) {
+                            TextFlow tagFlow = createHighlightedTextFlow("#" + tag, currentSearchKeyword);
+                            tagFlow.setStyle("-fx-font-size: 10px; -fx-padding: 2 6 2 6; " +
+                                           "-fx-background-color: #ecf0f1; -fx-background-radius: 3;");
+                            bottomRow.getChildren().add(tagFlow);
+                        } else {
+                            Label tagLabel = new Label("#" + tag);
+                            tagLabel.setStyle("-fx-font-size: 10px; -fx-padding: 2 6 2 6; " +
+                                            "-fx-background-color: #ecf0f1; -fx-background-radius: 3;");
+                            bottomRow.getChildren().add(tagLabel);
+                        }
+                    }
+                }
+                
                 container.getChildren().addAll(topRow, bottomRow);
                 setGraphic(container);
                 
@@ -363,6 +451,52 @@ public class TaskListViewController implements Initializable {
                     setStyle("");
                 }
             }
+        }
+        
+        private Region createHighlightedText(String text, String keyword) {
+            if (text == null || keyword == null || keyword.trim().isEmpty()) {
+                Label label = new Label(text);
+                label.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+                return label;
+            }
+            
+            return createHighlightedTextFlow(text, keyword);
+        }
+        
+        private TextFlow createHighlightedTextFlow(String text, String keyword) {
+            TextFlow textFlow = new TextFlow();
+            String lowerText = text.toLowerCase();
+            String lowerKeyword = keyword.toLowerCase().trim();
+            
+            int lastIndex = 0;
+            int index = lowerText.indexOf(lowerKeyword);
+            
+            while (index >= 0) {
+                // Add text before match
+                if (index > lastIndex) {
+                    Text normalText = new Text(text.substring(lastIndex, index));
+                    normalText.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+                    textFlow.getChildren().add(normalText);
+                }
+                
+                // Add highlighted match
+                Text highlightedText = new Text(text.substring(index, index + lowerKeyword.length()));
+                highlightedText.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; " +
+                                       "-fx-fill: #e74c3c; -fx-background-color: #fff3cd;");
+                textFlow.getChildren().add(highlightedText);
+                
+                lastIndex = index + lowerKeyword.length();
+                index = lowerText.indexOf(lowerKeyword, lastIndex);
+            }
+            
+            // Add remaining text
+            if (lastIndex < text.length()) {
+                Text normalText = new Text(text.substring(lastIndex));
+                normalText.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+                textFlow.getChildren().add(normalText);
+            }
+            
+            return textFlow;
         }
         
         private String getPrioritySymbol(Priority priority) {

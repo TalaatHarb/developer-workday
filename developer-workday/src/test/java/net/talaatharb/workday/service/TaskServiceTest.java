@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -346,5 +347,52 @@ class TaskServiceTest {
         
         // Test findById
         assertTrue(taskService.findById(task1.getId()).isPresent());
+    }
+    
+    @Test
+    @DisplayName("Search tasks by keyword in title, description, and tags")
+    void testSearchTasks() {
+        // Create tasks with various content
+        taskRepository.save(Task.builder()
+            .title("Fix critical bug")
+            .description("Memory leak in production")
+            .tags(List.of("urgent", "production"))
+            .build());
+        
+        taskRepository.save(Task.builder()
+            .title("Update documentation")
+            .description("Add API documentation")
+            .tags(List.of("docs", "api"))
+            .build());
+        
+        taskRepository.save(Task.builder()
+            .title("Review pull request")
+            .description("Check code quality")
+            .tags(List.of("review", "code"))
+            .build());
+        
+        // Search by title keyword
+        List<Task> bugResults = taskService.searchTasks("bug");
+        assertEquals(1, bugResults.size());
+        assertTrue(bugResults.get(0).getTitle().toLowerCase().contains("bug"));
+        
+        // Search by description keyword
+        List<Task> apiResults = taskService.searchTasks("api");
+        assertEquals(1, apiResults.size());
+        assertTrue(apiResults.get(0).getDescription().toLowerCase().contains("api"));
+        
+        // Search by tag keyword
+        List<Task> reviewResults = taskService.searchTasks("review");
+        assertEquals(1, reviewResults.size());
+        assertTrue(reviewResults.get(0).getTags().stream()
+            .anyMatch(tag -> tag.toLowerCase().contains("review")));
+        
+        // Search with no keyword returns all
+        List<Task> allResults = taskService.searchTasks("");
+        assertEquals(3, allResults.size());
+        
+        // Search with non-matching keyword returns empty
+        List<Task> noResults = taskService.searchTasks("nonexistent");
+        assertTrue(noResults.isEmpty());
     }
 }

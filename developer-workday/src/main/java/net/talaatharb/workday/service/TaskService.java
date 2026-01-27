@@ -302,6 +302,14 @@ public class TaskService {
     }
     
     /**
+     * Search tasks by keyword in title, description, and tags
+     */
+    public List<Task> searchTasks(String keyword) {
+        log.debug("Searching tasks with keyword: {}", keyword);
+        return taskRepository.searchTasks(keyword);
+    }
+    
+    /**
      * Helper method to compare objects safely
      */
     private boolean equals(Object a, Object b) {

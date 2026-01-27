@@ -148,4 +148,45 @@ public class TaskRepository {
     public boolean existsById(UUID id) {
         return tasksMap.containsKey(id);
     }
+    
+    /**
+     * Search tasks by keyword in title, description, and tags
+     */
+    public List<Task> searchTasks(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return findAll();
+        }
+        
+        String lowerKeyword = keyword.toLowerCase().trim();
+        
+        return tasksMap.values().stream()
+            .filter(task -> matchesKeyword(task, lowerKeyword))
+            .collect(Collectors.toList());
+    }
+    
+    /**
+     * Helper method to check if a task matches a keyword
+     */
+    private boolean matchesKeyword(Task task, String lowerKeyword) {
+        // Check title
+        if (task.getTitle() != null && task.getTitle().toLowerCase().contains(lowerKeyword)) {
+            return true;
+        }
+        
+        // Check description
+        if (task.getDescription() != null && task.getDescription().toLowerCase().contains(lowerKeyword)) {
+            return true;
+        }
+        
+        // Check tags
+        if (task.getTags() != null) {
+            for (String tag : task.getTags()) {
+                if (tag != null && tag.toLowerCase().contains(lowerKeyword)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
 }

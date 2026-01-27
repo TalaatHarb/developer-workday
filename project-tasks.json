@@ -238,7 +238,7 @@
       "title": "Task Search Functionality",
       "description": "Implement full-text search across task titles, descriptions, and tags",
       "acceptanceCriteria": "Feature: Task Search\n  Scenario: Search tasks by keyword\n    Given tasks with various titles and descriptions\n    When entering a search query\n    Then matching tasks should be displayed\n    And matching text should be highlighted\n    And search should include title, description, and tags\n\n  Scenario: Search filters\n    Given search results are displayed\n    When applying additional filters\n    Then results should be narrowed by selected filters\n\n  Scenario: Clear search\n    Given an active search\n    When clearing the search box\n    Then the view should return to the previous state",
-      "passes": false
+      "passes": true
     },
     {
       "id": 35,

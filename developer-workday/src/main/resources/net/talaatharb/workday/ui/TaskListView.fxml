@@ -7,6 +7,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.Region?>
@@ -28,6 +29,21 @@
          </Label>
          <Region HBox.hgrow="ALWAYS" />
          <Button fx:id="newTaskButton" text="+ New Task" onAction="#handleNewTask" styleClass="new-task-button" />
+      </children>
+   </HBox>
+   
+   <Separator />
+   
+   <!-- Search Box -->
+   <HBox alignment="CENTER_LEFT" spacing="10">
+      <children>
+         <Label text="🔍">
+            <font>
+               <Font size="16.0" />
+            </font>
+         </Label>
+         <TextField fx:id="searchField" promptText="Search tasks by title, description, or tags..." HBox.hgrow="ALWAYS" />
+         <Button fx:id="clearSearchButton" text="Clear Search" onAction="#handleClearSearch" />
       </children>
    </HBox>
    

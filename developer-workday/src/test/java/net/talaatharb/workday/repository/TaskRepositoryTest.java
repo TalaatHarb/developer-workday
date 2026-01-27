@@ -163,4 +163,116 @@ class TaskRepositoryTest {
         List<Task> allTasks = repository.findAll();
         assertEquals(3, allTasks.size());
     }
+    
+    @Test
+    void testSearchTasks_ByTitle() {
+        repository.save(Task.builder().title("Fix bug in login").build());
+        repository.save(Task.builder().title("Update documentation").build());
+        repository.save(Task.builder().title("Fix bug in search").build());
+        
+        List<Task> results = repository.searchTasks("bug");
+        assertEquals(2, results.size());
+        assertTrue(results.stream().allMatch(t -> t.getTitle().toLowerCase().contains("bug")));
+    }
+    
+    @Test
+    void testSearchTasks_ByDescription() {
+        repository.save(Task.builder()
+            .title("Task 1")
+            .description("This task involves fixing a critical bug")
+            .build());
+        repository.save(Task.builder()
+            .title("Task 2")
+            .description("Update the user interface")
+            .build());
+        repository.save(Task.builder()
+            .title("Task 3")
+            .description("Critical performance issue")
+            .build());
+        
+        List<Task> results = repository.searchTasks("critical");
+        assertEquals(2, results.size());
+    }
+    
+    @Test
+    void testSearchTasks_ByTags() {
+        repository.save(Task.builder()
+            .title("Task 1")
+            .tags(List.of("bug", "production"))
+            .build());
+        repository.save(Task.builder()
+            .title("Task 2")
+            .tags(List.of("feature", "development"))
+            .build());
+        repository.save(Task.builder()
+            .title("Task 3")
+            .tags(List.of("bug", "testing"))
+            .build());
+        
+        List<Task> results = repository.searchTasks("bug");
+        assertEquals(2, results.size());
+    }
+    
+    @Test
+    void testSearchTasks_CaseInsensitive() {
+        repository.save(Task.builder().title("FIX BUG").build());
+        repository.save(Task.builder().title("Update Docs").build());
+        
+        List<Task> results = repository.searchTasks("FIX");
+        assertEquals(1, results.size());
+        
+        results = repository.searchTasks("fix");
+        assertEquals(1, results.size());
+        
+        results = repository.searchTasks("Fix");
+        assertEquals(1, results.size());
+    }
+    
+    @Test
+    void testSearchTasks_EmptyKeyword() {
+        repository.save(Task.builder().title("Task 1").build());
+        repository.save(Task.builder().title("Task 2").build());
+        
+        List<Task> results = repository.searchTasks("");
+        assertEquals(2, results.size());
+        
+        results = repository.searchTasks(null);
+        assertEquals(2, results.size());
+    }
+    
+    @Test
+    void testSearchTasks_NoResults() {
+        repository.save(Task.builder().title("Task 1").build());
+        repository.save(Task.builder().title("Task 2").build());
+        
+        List<Task> results = repository.searchTasks("nonexistent");
+        assertTrue(results.isEmpty());
+    }
+    
+    @Test
+    void testSearchTasks_MultipleFields() {
+        // Task that matches in title
+        repository.save(Task.builder()
+            .title("Bug fix needed")
+            .description("Update the login page")
+            .tags(List.of("feature"))
+            .build());
+        
+        // Task that matches in description
+        repository.save(Task.builder()
+            .title("Update UI")
+            .description("Fix the bug in the navigation")
+            .tags(List.of("ui"))
+            .build());
+        
+        // Task that matches in tags
+        repository.save(Task.builder()
+            .title("Refactor code")
+            .description("Improve performance")
+            .tags(List.of("bug", "refactoring"))
+            .build());
+        
+        List<Task> results = repository.searchTasks("bug");
+        assertEquals(3, results.size());
+    }
 }
