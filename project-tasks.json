@@ -56,7 +56,7 @@
       "title": "Task Repository with MapDB",
       "description": "Implement TaskRepository class that handles all database operations for tasks using MapDB, hiding the implementation details from the service layer",
       "acceptanceCriteria": "Feature: Task Repository\n  Scenario: Save a new task\n    Given a Task entity\n    When the repository save method is called\n    Then the task should be persisted in MapDB\n    And the task should be retrievable by its ID\n\n  Scenario: Find tasks by category\n    Given multiple tasks in different categories\n    When findByCategoryId is called with a specific category ID\n    Then only tasks belonging to that category should be returned\n\n  Scenario: Find tasks by date range\n    Given tasks with various due dates\n    When findByDueDateBetween is called with a date range\n    Then only tasks within that date range should be returned\n\n  Scenario: Find overdue tasks\n    Given tasks with past due dates that are not completed\n    When findOverdueTasks is called\n    Then all uncompleted tasks with past due dates should be returned",
-      "passes": false
+      "passes": true
     },
     {
       "id": 9,
