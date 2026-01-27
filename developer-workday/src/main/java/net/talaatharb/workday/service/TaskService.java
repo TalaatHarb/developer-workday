@@ -389,4 +389,65 @@ public class TaskService {
             .actualDuration(task.getActualDuration())
             .build();
     }
+    
+    /**
+     * Update task notes
+     */
+    public Task updateNotes(UUID taskId, String notes) {
+        log.debug("Updating notes for task: {}", taskId);
+        Task task = findById(taskId)
+            .orElseThrow(() -> new IllegalArgumentException("Task not found: " + taskId));
+        
+        task.setNotes(notes);
+        task.setUpdatedAt(LocalDateTime.now());
+        
+        Task savedTask = taskRepository.save(task);
+        eventDispatcher.publish(new TaskUpdatedEvent(task, savedTask));
+        
+        log.info("Updated notes for task: {}", taskId);
+        return savedTask;
+    }
+    
+    /**
+     * Add attachment to task
+     */
+    public Task addAttachment(UUID taskId, net.talaatharb.workday.model.Attachment attachment) {
+        log.debug("Adding attachment to task: {}", taskId);
+        Task task = findById(taskId)
+            .orElseThrow(() -> new IllegalArgumentException("Task not found: " + taskId));
+        
+        if (task.getAttachments() == null) {
+            task.setAttachments(new java.util.ArrayList<>());
+        }
+        task.getAttachments().add(attachment);
+        task.setUpdatedAt(LocalDateTime.now());
+        
+        Task savedTask = taskRepository.save(task);
+        eventDispatcher.publish(new TaskUpdatedEvent(task, savedTask));
+        
+        log.info("Added attachment {} to task: {}", attachment.getFileName(), taskId);
+        return savedTask;
+    }
+    
+    /**
+     * Remove attachment from task
+     */
+    public Task removeAttachment(UUID taskId, String fileName) {
+        log.debug("Removing attachment from task: {}", taskId);
+        Task task = findById(taskId)
+            .orElseThrow(() -> new IllegalArgumentException("Task not found: " + taskId));
+        
+        if (task.getAttachments() != null) {
+            task.getAttachments().removeIf(att -> att.getFileName().equals(fileName));
+            task.setUpdatedAt(LocalDateTime.now());
+            
+            Task savedTask = taskRepository.save(task);
+            eventDispatcher.publish(new TaskUpdatedEvent(task, savedTask));
+            
+            log.info("Removed attachment {} from task: {}", fileName, taskId);
+            return savedTask;
+        }
+        
+        return task;
+    }
 }

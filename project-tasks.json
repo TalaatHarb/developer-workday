@@ -476,7 +476,7 @@
       "title": "Task Notes and Attachments",
       "description": "Allow adding rich notes and file attachments to tasks",
       "acceptanceCriteria": "Feature: Notes and Attachments\n  Scenario: Add notes to task\n    Given a task being edited\n    When adding notes\n    Then rich text formatting should be supported (bold, italic, lists)\n    And notes should be saved with the task\n\n  Scenario: Add file attachment\n    Given a task being edited\n    When attaching a file\n    Then the file should be stored with the task\n    And the attachment should be openable from the task detail\n\n  Scenario: Attachment size limits\n    Given file attachment\n    When attaching a very large file\n    Then a warning should be shown about file size\n    And reasonable size limits should be enforced",
-      "passes": false
+      "passes": true
     },
     {
       "id": 69,

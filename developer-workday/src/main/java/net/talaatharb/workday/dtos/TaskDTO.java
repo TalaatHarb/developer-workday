@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.talaatharb.workday.model.Attachment;
 import net.talaatharb.workday.model.Priority;
 import net.talaatharb.workday.model.RecurrenceRule;
 import net.talaatharb.workday.model.TaskStatus;
@@ -31,6 +32,8 @@ public class TaskDTO {
     private UUID categoryId;
     private List<String> tags;
     private List<SubtaskDTO> subtasks;
+    private String notes;
+    private List<Attachment> attachments;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime completedAt;

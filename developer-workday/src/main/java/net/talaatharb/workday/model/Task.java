@@ -46,6 +46,12 @@ public class Task implements Serializable {
     @Builder.Default
     private List<Subtask> subtasks = new ArrayList<>();
     
+    // Notes and attachments
+    private String notes;  // Rich text notes (HTML format)
+    
+    @Builder.Default
+    private List<Attachment> attachments = new ArrayList<>();
+    
     // Timestamps
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
