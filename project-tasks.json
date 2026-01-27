@@ -7,7 +7,7 @@
       "title": "Project Architecture Setup",
       "description": "Set up the base project architecture following MVC pattern with clear separation of concerns: UI Controllers, Facades, Services, Mappers, and Repositories",
       "acceptanceCriteria": "Feature: Project Architecture Setup\n  Scenario: Project has proper package structure\n    Given a Maven project with JavaFX dependencies\n    When the project is initialized\n    Then it should have packages for 'ui.controllers', 'facade', 'service', 'mapper', 'repository', 'model', 'event', 'config', and 'utils'\n    And each layer should only communicate with its adjacent layers\n    And dependency injection should be configured properly",
-      "passes": false
+      "passes": true
     },
     {
       "id": 2,
