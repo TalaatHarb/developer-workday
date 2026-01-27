@@ -84,6 +84,7 @@ public class MainUiController implements Initializable {
     private boolean sidebarCollapsed = false;
     private FocusModeFacade focusModeFacade;
     private UpdateCheckFacade updateCheckFacade;
+    private net.talaatharb.workday.facade.WeeklyReviewFacade weeklyReviewFacade;
     private Timer focusModeUpdateTimer;
     
     public void setFocusModeFacade(FocusModeFacade focusModeFacade) {
@@ -92,6 +93,10 @@ public class MainUiController implements Initializable {
     
     public void setUpdateCheckFacade(UpdateCheckFacade updateCheckFacade) {
         this.updateCheckFacade = updateCheckFacade;
+    }
+    
+    public void setWeeklyReviewFacade(net.talaatharb.workday.facade.WeeklyReviewFacade weeklyReviewFacade) {
+        this.weeklyReviewFacade = weeklyReviewFacade;
     }
     
     @Override
@@ -234,6 +239,48 @@ public class MainUiController implements Initializable {
             dialogStage.showAndWait();
         } catch (IOException e) {
             log.error("Failed to open settings dialog", e);
+        }
+    }
+    
+    @FXML
+    private void handleOpenWeeklyReview() {
+        log.info("Opening weekly review dialog");
+        
+        if (weeklyReviewFacade == null) {
+            log.warn("WeeklyReviewFacade not initialized");
+            showError("Weekly Review feature is not available.");
+            return;
+        }
+        
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/net/talaatharb/workday/ui/WeeklyReview.fxml"));
+            VBox dialogRoot = loader.load();
+            
+            net.talaatharb.workday.ui.controllers.WeeklyReviewController controller = loader.getController();
+            controller.setWeeklyReviewFacade(weeklyReviewFacade);
+            
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Weekly Review");
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            
+            Scene dialogScene = new Scene(dialogRoot, 800, 600);
+            
+            // Register scene with theme manager
+            net.talaatharb.workday.utils.ThemeManager.getInstance().registerScene(dialogScene);
+            
+            dialogStage.setScene(dialogScene);
+            
+            controller.setDialogStage(dialogStage);
+            controller.loadReviewData();
+            
+            dialogStage.setOnHidden(event -> {
+                net.talaatharb.workday.utils.ThemeManager.getInstance().unregisterScene(dialogScene);
+            });
+            
+            dialogStage.showAndWait();
+        } catch (IOException e) {
+            log.error("Failed to open weekly review dialog", e);
+            showError("Failed to open weekly review: " + e.getMessage());
         }
     }
     

@@ -469,7 +469,7 @@
       "title": "Weekly Review Feature",
       "description": "Implement a weekly review feature that helps users review completed tasks and plan for the upcoming week",
       "acceptanceCriteria": "Feature: Weekly Review\n  Scenario: Start weekly review\n    Given it's time for weekly review (or manual trigger)\n    When starting the review\n    Then a guided review wizard should open\n\n  Scenario: Review completed tasks\n    Given the weekly review wizard\n    When on the review step\n    Then completed tasks from past week should be shown\n    And statistics about completion rate should be displayed\n\n  Scenario: Plan next week\n    Given the weekly review wizard\n    When on the planning step\n    Then upcoming tasks should be reviewable\n    And tasks can be rescheduled or prioritized",
-      "passes": false
+      "passes": true
     },
     {
       "id": 68,
