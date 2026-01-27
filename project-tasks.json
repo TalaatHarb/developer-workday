@@ -231,7 +231,7 @@
       "title": "Drag and Drop Task Reordering",
       "description": "Implement drag and drop functionality to reorder tasks in the list and move tasks between categories",
       "acceptanceCriteria": "Feature: Drag and Drop Tasks\n  Scenario: Reorder tasks in list\n    Given a task list with multiple tasks\n    When dragging a task to a new position\n    Then the task should move to the new position\n    And a visual indicator should show the drop target\n    And other tasks should shift to accommodate\n\n  Scenario: Move task to different category\n    Given a task in one category\n    When dragging the task to a different category in the sidebar\n    Then the task should be moved to the new category\n    And a TaskMovedToCategoryEvent should be published",
-      "passes": false
+      "passes": true
     },
     {
       "id": 34,
