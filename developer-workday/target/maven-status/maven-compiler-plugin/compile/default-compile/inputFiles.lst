@@ -45,7 +45,9 @@ D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\wo
 D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\workday\service\CategoryService.java
 D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\workday\service\ReminderService.java
 D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\workday\service\TaskService.java
+D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\workday\ui\controllers\CalendarViewController.java
 D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\workday\ui\controllers\MainUiController.java
+D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\workday\ui\controllers\QuickAddController.java
 D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\workday\ui\controllers\TaskDetailPanelController.java
 D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\workday\ui\controllers\TaskListViewController.java
 D:\workspace\developer-workday\developer-workday\src\main\java\net\talaatharb\workday\utils\FileUtils.java

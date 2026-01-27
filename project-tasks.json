@@ -161,7 +161,7 @@
       "title": "Calendar View Controller",
       "description": "Implement the calendar view with month, week, and day views showing scheduled tasks",
       "acceptanceCriteria": "Feature: Calendar View\n  Scenario: Month view display\n    Given the calendar view is in month mode\n    When viewing the calendar\n    Then a monthly grid should be displayed\n    And days with tasks should show task indicators\n    And clicking a day should show tasks for that day\n\n  Scenario: Week view display\n    Given the calendar view is in week mode\n    When viewing the calendar\n    Then a weekly time grid should be displayed\n    And tasks should be positioned according to their scheduled time\n    And tasks can be dragged to reschedule\n\n  Scenario: Drag and drop scheduling\n    Given a task in the calendar view\n    When dragging the task to a different time slot\n    Then the task schedule should be updated\n    And a TaskScheduledEvent should be published",
-      "passes": false
+      "passes": true
     },
     {
       "id": 24,

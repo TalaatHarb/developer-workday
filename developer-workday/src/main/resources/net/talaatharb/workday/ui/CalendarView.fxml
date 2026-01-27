@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="10" styleClass="calendar-view" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.talaatharb.workday.ui.controllers.CalendarViewController">
+   <padding>
+      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+   </padding>
+   
+   <!-- Header with navigation and view selector -->
+   <HBox alignment="CENTER_LEFT" spacing="15">
+      <children>
+         <Label fx:id="monthYearLabel" text="January 2024" styleClass="calendar-title">
+            <font>
+               <Font name="System Bold" size="18.0" />
+            </font>
+         </Label>
+         
+         <Region HBox.hgrow="ALWAYS" />
+         
+         <Button fx:id="previousButton" text="◀ Previous" onAction="#handlePrevious" />
+         <Button fx:id="todayButton" text="Today" onAction="#handleToday" />
+         <Button fx:id="nextButton" text="Next ▶" onAction="#handleNext" />
+         
+         <Region prefWidth="20.0" />
+         
+         <Label text="View:">
+            <font>
+               <Font name="System Bold" size="12.0" />
+            </font>
+         </Label>
+         <ChoiceBox fx:id="viewModeChoice" prefWidth="120.0" />
+      </children>
+   </HBox>
+   
+   <!-- Calendar content area -->
+   <BorderPane VBox.vgrow="ALWAYS">
+      <center>
+         <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="calendar-scroll">
+            <content>
+               <!-- Month view grid -->
+               <VBox fx:id="monthViewContainer" managed="true" visible="true">
+                  <children>
+                     <!-- Day headers -->
+                     <GridPane fx:id="dayHeadersGrid" styleClass="day-headers-grid" />
+                     
+                     <!-- Calendar grid -->
+                     <GridPane fx:id="calendarGrid" styleClass="calendar-grid" VBox.vgrow="ALWAYS" />
+                  </children>
+               </VBox>
+               
+               <!-- Week view container -->
+               <VBox fx:id="weekViewContainer" managed="false" visible="false">
+                  <children>
+                     <!-- Time headers and week grid will be added dynamically -->
+                     <GridPane fx:id="weekGrid" styleClass="week-grid" VBox.vgrow="ALWAYS" />
+                  </children>
+               </VBox>
+               
+               <!-- Day view container -->
+               <VBox fx:id="dayViewContainer" managed="false" visible="false">
+                  <children>
+                     <!-- Hour slots for day view -->
+                     <GridPane fx:id="dayGrid" styleClass="day-grid" VBox.vgrow="ALWAYS" />
+                  </children>
+               </VBox>
+            </content>
+         </ScrollPane>
+      </center>
+   </BorderPane>
+   
+   <!-- Footer with task count -->
+   <HBox alignment="CENTER_LEFT" spacing="10">
+      <children>
+         <Label fx:id="taskCountLabel" text="0 tasks scheduled" styleClass="task-count-label">
+            <font>
+               <Font size="11.0" />
+            </font>
+         </Label>
+      </children>
+   </HBox>
+</VBox>
