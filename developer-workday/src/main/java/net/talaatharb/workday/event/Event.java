@@ -1,5 +1,6 @@
 package net.talaatharb.workday.event;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -7,9 +8,11 @@ import lombok.Getter;
 
 /**
  * Abstract base class for all domain events in the application.
+ * Implements Serializable for event store persistence.
  */
 @Getter
-public abstract class Event {
+public abstract class Event implements Serializable {
+    private static final long serialVersionUID = 1L;
     private final UUID eventId;
     private final LocalDateTime timestamp;
     private final String eventType;

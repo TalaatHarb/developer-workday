@@ -70,7 +70,7 @@
       "title": "Event Store Repository",
       "description": "Implement EventStoreRepository to persist all application events for audit trail and potential event replay functionality",
       "acceptanceCriteria": "Feature: Event Store Repository\n  Scenario: Persist application events\n    Given any application event\n    When the event is published\n    Then it should be saved to the event store with timestamp\n    And it should be retrievable for audit purposes\n\n  Scenario: Query events by type and date range\n    Given stored events of various types\n    When querying by event type and date range\n    Then matching events should be returned in chronological order",
-      "passes": false
+      "passes": true
     },
     {
       "id": 11,
