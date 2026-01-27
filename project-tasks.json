@@ -35,7 +35,7 @@
       "title": "Event Base Classes and Event setup",
       "description": "Create the event-driven architecture foundation with base event classes and an event setup for keeping track of user events and resolve the state changes due to them, that keeps track of the timing of eventsas well",
       "acceptanceCriteria": "Feature: Event Base Classes\n  Scenario: Base event class is created\n    Given an abstract Event class\n    Then it should have fields for 'eventId' (UUID), 'timestamp' (LocalDateTime), 'eventType' (String)\n    And it should have methods for getting event details\n\n  Scenario: Event dispatcher is implemented\n    Given an EventDispatcher class\n    When an event is published\n    Then all registered listeners for that event type should be notified\n    And listeners should be able to subscribe and unsubscribe from events\n\n  Scenario: Event logging is functional\n    Given an event is published\n    When the event occurs\n    Then the event details should be logged to a persistent store for audit purposes",
-      "passes": false
+      "passes": true
     },
     {
       "id": 6,
