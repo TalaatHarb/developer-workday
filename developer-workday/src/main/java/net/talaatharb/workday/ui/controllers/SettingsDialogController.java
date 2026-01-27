@@ -12,6 +12,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.talaatharb.workday.facade.PreferencesFacade;
 import net.talaatharb.workday.model.UserPreferences;
+import net.talaatharb.workday.utils.LocalizationManager;
 import net.talaatharb.workday.utils.ThemeManager;
 
 /**
@@ -164,6 +165,11 @@ public class SettingsDialogController implements Initializable {
                 // Apply theme immediately if changed
                 if (!saved.getTheme().equals(currentPreferences.getTheme())) {
                     ThemeManager.getInstance().applyTheme(saved.getTheme());
+                }
+                
+                // Apply language immediately if changed
+                if (!saved.getLanguage().equals(currentPreferences.getLanguage())) {
+                    LocalizationManager.getInstance().setLocale(saved.getLanguage());
                 }
                 
                 log.info("Saved user preferences");

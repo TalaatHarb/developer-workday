@@ -434,7 +434,7 @@
       "title": "Localization Infrastructure",
       "description": "Set up localization infrastructure for internationalization with support for multiple languages",
       "acceptanceCriteria": "Feature: Localization\n  Scenario: Load language resources\n    Given resource bundles for different languages\n    When the application starts\n    Then the appropriate language bundle should be loaded based on user preference or system locale\n\n  Scenario: Change language at runtime\n    Given the settings dialog\n    When changing the language\n    Then all UI text should update to the selected language\n    And the preference should be saved\n\n  Scenario: Handle missing translations\n    Given a translation key without translation in current language\n    When rendering text\n    Then fallback to default language should occur gracefully",
-      "passes": false
+      "passes": true
     },
     {
       "id": 63,
