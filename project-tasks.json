@@ -119,7 +119,7 @@
       "title": "Category Facade Implementation",
       "description": "Implement CategoryFacade as the main entry point for UI controllers to interact with category-related functionality",
       "acceptanceCriteria": "Feature: Category Facade\n  Scenario: Get category tree\n    Given categories with parent-child relationships\n    When getCategoryTree is called\n    Then a hierarchical tree structure of categories should be returned\n\n  Scenario: Get category with task count\n    Given categories with associated tasks\n    When getCategoriesWithTaskCount is called\n    Then each category should include the count of active tasks",
-      "passes": false
+      "passes": true
     },
     {
       "id": 18,
