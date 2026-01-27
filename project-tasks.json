@@ -77,7 +77,7 @@
       "title": "MapStruct Task Mapper",
       "description": "Create MapStruct mapper interfaces for converting between Task entities, DTOs, and view models",
       "acceptanceCriteria": "Feature: Task Mapper\n  Scenario: Map Task entity to TaskDTO\n    Given a Task entity with all fields populated\n    When the mapper toDTO method is called\n    Then a TaskDTO should be returned with all fields correctly mapped\n\n  Scenario: Map TaskDTO to Task entity\n    Given a TaskDTO from the UI layer\n    When the mapper toEntity method is called\n    Then a Task entity should be created with all fields correctly mapped\n\n  Scenario: Map Task to TaskListItemViewModel\n    Given a Task entity\n    When mapping to TaskListItemViewModel\n    Then only display-relevant fields should be included\n    And formatted date and time strings should be generated",
-      "passes": false
+      "passes": true
     },
     {
       "id": 12,
