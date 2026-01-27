@@ -1,0 +1,496 @@
+{
+  "name": "Developer Workday",
+  "description": "A task management application inspired by Akiflow - an event-driven task management system with JavaFX UI, MapDB persistence, global shortcuts, and system tray integration",
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Project Architecture Setup",
+      "description": "Set up the base project architecture following MVC pattern with clear separation of concerns: UI Controllers, Facades, Services, Mappers, and Repositories",
+      "acceptanceCriteria": "Feature: Project Architecture Setup\n  Scenario: Project has proper package structure\n    Given a Maven project with JavaFX dependencies\n    When the project is initialized\n    Then it should have packages for 'ui.controllers', 'facade', 'service', 'mapper', 'repository', 'model', 'event', 'config', and 'utils'\n    And each layer should only communicate with its adjacent layers\n    And dependency injection should be configured properly",
+      "passes": false
+    },
+    {
+      "id": 2,
+      "title": "MapDB Integration and Configuration",
+      "description": "Integrate MapDB library for file-based persistence. Configure database connection, file location, and serialization settings",
+      "acceptanceCriteria": "Feature: MapDB Integration\n  Scenario: MapDB database is initialized on application start\n    Given the application is starting\n    When the database configuration is loaded\n    Then a MapDB file-backed database should be created in the user's application data directory\n    And the database should support transactions\n    And the database should be closed gracefully on application shutdown\n\n  Scenario: Database file persistence\n    Given tasks have been saved to the database\n    When the application is restarted\n    Then all previously saved tasks should be loaded from the database file",
+      "passes": false
+    },
+    {
+      "id": 3,
+      "title": "Task Entity Model",
+      "description": "Create the Task entity model with all necessary fields: id, title, description, dueDate, dueTime, priority, status, categoryId, createdAt, updatedAt, completedAt, recurrence, reminder settings, and tags",
+      "acceptanceCriteria": "Feature: Task Entity Model\n  Scenario: Task entity has all required fields\n    Given a Task entity class\n    Then it should have fields for 'id' (UUID), 'title' (String), 'description' (String)\n    And it should have 'dueDate' (LocalDate), 'dueTime' (LocalTime), 'scheduledDate' (LocalDate)\n    And it should have 'priority' (enum: LOW, MEDIUM, HIGH, URGENT)\n    And it should have 'status' (enum: TODO, IN_PROGRESS, COMPLETED, CANCELLED)\n    And it should have 'categoryId' (UUID), 'tags' (List<String>)\n    And it should have 'createdAt', 'updatedAt', 'completedAt' (LocalDateTime)\n    And it should have 'recurrence' (RecurrenceRule), 'reminderMinutesBefore' (Integer)\n    And it should have 'estimatedDuration' (Duration), 'actualDuration' (Duration)\n    And it should implement Serializable for MapDB storage",
+      "passes": false
+    },
+    {
+      "id": 4,
+      "title": "Category Entity Model",
+      "description": "Create the Category entity model with fields for organizing tasks into groups with customizable colors and icons",
+      "acceptanceCriteria": "Feature: Category Entity Model\n  Scenario: Category entity has all required fields\n    Given a Category entity class\n    Then it should have fields for 'id' (UUID), 'name' (String), 'description' (String)\n    And it should have 'color' (String - hex code), 'icon' (String - icon identifier)\n    And it should have 'parentCategoryId' (UUID) for nested categories\n    And it should have 'sortOrder' (Integer), 'isDefault' (Boolean)\n    And it should have 'createdAt', 'updatedAt' (LocalDateTime)\n    And it should implement Serializable for MapDB storage",
+      "passes": false
+    },
+    {
+      "id": 5,
+      "title": "Event Base Classes and Event setup",
+      "description": "Create the event-driven architecture foundation with base event classes and an event setup for keeping track of user events and resolve the state changes due to them, that keeps track of the timing of eventsas well",
+      "acceptanceCriteria": "Feature: Event Base Classes\n  Scenario: Base event class is created\n    Given an abstract Event class\n    Then it should have fields for 'eventId' (UUID), 'timestamp' (LocalDateTime), 'eventType' (String)\n    And it should have methods for getting event details\n\n  Scenario: Event dispatcher is implemented\n    Given an EventDispatcher class\n    When an event is published\n    Then all registered listeners for that event type should be notified\n    And listeners should be able to subscribe and unsubscribe from events\n\n  Scenario: Event logging is functional\n    Given an event is published\n    When the event occurs\n    Then the event details should be logged to a persistent store for audit purposes",
+      "passes": false
+    },
+    {
+      "id": 6,
+      "title": "Task-Related Events",
+      "description": "Create event classes for all task-related user actions: TaskCreatedEvent, TaskUpdatedEvent, TaskDeletedEvent, TaskCompletedEvent, TaskScheduledEvent, TaskPriorityChangedEvent, TaskMovedToCategoryEvent",
+      "acceptanceCriteria": "Feature: Task Events\n  Scenario: TaskCreatedEvent is published when a task is created\n    Given a user creates a new task\n    When the task is saved successfully\n    Then a TaskCreatedEvent should be published\n    And the event should contain the complete task data\n\n  Scenario: TaskCompletedEvent is published when a task is marked complete\n    Given a user marks a task as complete\n    When the task status is updated\n    Then a TaskCompletedEvent should be published\n    And the event should contain the task id and completion timestamp\n\n  Scenario: TaskUpdatedEvent contains before and after states\n    Given a user edits a task\n    When the task is updated\n    Then a TaskUpdatedEvent should be published\n    And the event should contain both old and new task states",
+      "passes": false
+    },
+    {
+      "id": 7,
+      "title": "Category-Related Events",
+      "description": "Create event classes for category actions: CategoryCreatedEvent, CategoryUpdatedEvent, CategoryDeletedEvent, CategoryReorderedEvent",
+      "acceptanceCriteria": "Feature: Category Events\n  Scenario: CategoryCreatedEvent is published when a category is created\n    Given a user creates a new category\n    When the category is saved successfully\n    Then a CategoryCreatedEvent should be published\n    And the event should contain the complete category data\n\n  Scenario: CategoryDeletedEvent handles task reassignment\n    Given a category with tasks is deleted\n    When the CategoryDeletedEvent is published\n    Then it should contain information about affected tasks\n    And listeners should handle task reassignment to default category",
+      "passes": false
+    },
+    {
+      "id": 8,
+      "title": "Task Repository with MapDB",
+      "description": "Implement TaskRepository class that handles all database operations for tasks using MapDB, hiding the implementation details from the service layer",
+      "acceptanceCriteria": "Feature: Task Repository\n  Scenario: Save a new task\n    Given a Task entity\n    When the repository save method is called\n    Then the task should be persisted in MapDB\n    And the task should be retrievable by its ID\n\n  Scenario: Find tasks by category\n    Given multiple tasks in different categories\n    When findByCategoryId is called with a specific category ID\n    Then only tasks belonging to that category should be returned\n\n  Scenario: Find tasks by date range\n    Given tasks with various due dates\n    When findByDueDateBetween is called with a date range\n    Then only tasks within that date range should be returned\n\n  Scenario: Find overdue tasks\n    Given tasks with past due dates that are not completed\n    When findOverdueTasks is called\n    Then all uncompleted tasks with past due dates should be returned",
+      "passes": false
+    },
+    {
+      "id": 9,
+      "title": "Category Repository with MapDB",
+      "description": "Implement CategoryRepository class that handles all database operations for categories using MapDB",
+      "acceptanceCriteria": "Feature: Category Repository\n  Scenario: Save a new category\n    Given a Category entity\n    When the repository save method is called\n    Then the category should be persisted in MapDB\n    And the category should be retrievable by its ID\n\n  Scenario: Find all categories ordered by sort order\n    Given multiple categories with different sort orders\n    When findAllOrdered is called\n    Then categories should be returned in ascending sort order\n\n  Scenario: Find child categories\n    Given categories with parent-child relationships\n    When findByParentId is called\n    Then only direct child categories should be returned",
+      "passes": false
+    },
+    {
+      "id": 10,
+      "title": "Event Store Repository",
+      "description": "Implement EventStoreRepository to persist all application events for audit trail and potential event replay functionality",
+      "acceptanceCriteria": "Feature: Event Store Repository\n  Scenario: Persist application events\n    Given any application event\n    When the event is published\n    Then it should be saved to the event store with timestamp\n    And it should be retrievable for audit purposes\n\n  Scenario: Query events by type and date range\n    Given stored events of various types\n    When querying by event type and date range\n    Then matching events should be returned in chronological order",
+      "passes": false
+    },
+    {
+      "id": 11,
+      "title": "MapStruct Task Mapper",
+      "description": "Create MapStruct mapper interfaces for converting between Task entities, DTOs, and view models",
+      "acceptanceCriteria": "Feature: Task Mapper\n  Scenario: Map Task entity to TaskDTO\n    Given a Task entity with all fields populated\n    When the mapper toDTO method is called\n    Then a TaskDTO should be returned with all fields correctly mapped\n\n  Scenario: Map TaskDTO to Task entity\n    Given a TaskDTO from the UI layer\n    When the mapper toEntity method is called\n    Then a Task entity should be created with all fields correctly mapped\n\n  Scenario: Map Task to TaskListItemViewModel\n    Given a Task entity\n    When mapping to TaskListItemViewModel\n    Then only display-relevant fields should be included\n    And formatted date and time strings should be generated",
+      "passes": false
+    },
+    {
+      "id": 12,
+      "title": "MapStruct Category Mapper",
+      "description": "Create MapStruct mapper interfaces for converting between Category entities, DTOs, and view models",
+      "acceptanceCriteria": "Feature: Category Mapper\n  Scenario: Map Category entity to CategoryDTO\n    Given a Category entity with all fields populated\n    When the mapper toDTO method is called\n    Then a CategoryDTO should be returned with all fields correctly mapped\n\n  Scenario: Map CategoryDTO to Category entity\n    Given a CategoryDTO from the UI layer\n    When the mapper toEntity method is called\n    Then a Category entity should be created with all fields correctly mapped",
+      "passes": false
+    },
+    {
+      "id": 13,
+      "title": "Task Service Implementation",
+      "description": "Implement TaskService class with business logic for task operations: create, update, delete, complete, schedule, and search tasks",
+      "acceptanceCriteria": "Feature: Task Service\n  Scenario: Create a new task\n    Given valid task creation data\n    When createTask is called\n    Then the task should be saved via repository\n    And a TaskCreatedEvent should be published\n    And the created task should be returned\n\n  Scenario: Complete a task\n    Given an existing incomplete task\n    When completeTask is called\n    Then the task status should be set to COMPLETED\n    And completedAt should be set to current timestamp\n    And a TaskCompletedEvent should be published\n\n  Scenario: Handle recurring task completion\n    Given a recurring task\n    When the task is completed\n    Then a new task instance should be created for the next occurrence\n    And the original task should be marked complete",
+      "passes": false
+    },
+    {
+      "id": 14,
+      "title": "Category Service Implementation",
+      "description": "Implement CategoryService class with business logic for category operations: create, update, delete, reorder, and manage category hierarchy",
+      "acceptanceCriteria": "Feature: Category Service\n  Scenario: Create a new category\n    Given valid category creation data\n    When createCategory is called\n    Then the category should be saved via repository\n    And a CategoryCreatedEvent should be published\n\n  Scenario: Delete a category with tasks\n    Given a category containing tasks\n    When deleteCategory is called\n    Then the user should be prompted for task handling (move to default or delete)\n    And tasks should be handled according to user choice\n    And the category should be deleted\n    And a CategoryDeletedEvent should be published",
+      "passes": false
+    },
+    {
+      "id": 15,
+      "title": "Reminder Service Implementation",
+      "description": "Implement ReminderService to schedule and trigger task reminders based on configured reminder times",
+      "acceptanceCriteria": "Feature: Reminder Service\n  Scenario: Schedule a reminder for a task\n    Given a task with a due date and reminder minutes before set\n    When the task is created or updated\n    Then a reminder should be scheduled for the specified time before due\n\n  Scenario: Trigger reminder notification\n    Given a scheduled reminder\n    When the reminder time is reached\n    Then a system notification should be displayed\n    And a ReminderTriggeredEvent should be published\n\n  Scenario: Cancel reminder when task is completed\n    Given a task with a scheduled reminder\n    When the task is completed before the reminder time\n    Then the scheduled reminder should be cancelled",
+      "passes": false
+    },
+    {
+      "id": 16,
+      "title": "Task Facade Implementation",
+      "description": "Implement TaskFacade as the main entry point for UI controllers to interact with task-related functionality, coordinating between multiple services",
+      "acceptanceCriteria": "Feature: Task Facade\n  Scenario: Get tasks for today view\n    Given tasks scheduled for today and overdue tasks\n    When getTasksForToday is called\n    Then overdue tasks should be returned first\n    And tasks scheduled for today should follow\n    And tasks should be sorted by time and priority\n\n  Scenario: Quick add task\n    Given a quick add task string like 'Buy groceries tomorrow at 5pm #personal'\n    When quickAddTask is called\n    Then the string should be parsed for task details\n    And a task should be created with extracted title, date, time, and tags\n\n  Scenario: Get task statistics\n    Given a date range\n    When getTaskStatistics is called\n    Then statistics should include total tasks, completed, overdue, and completion rate",
+      "passes": false
+    },
+    {
+      "id": 17,
+      "title": "Category Facade Implementation",
+      "description": "Implement CategoryFacade as the main entry point for UI controllers to interact with category-related functionality",
+      "acceptanceCriteria": "Feature: Category Facade\n  Scenario: Get category tree\n    Given categories with parent-child relationships\n    When getCategoryTree is called\n    Then a hierarchical tree structure of categories should be returned\n\n  Scenario: Get category with task count\n    Given categories with associated tasks\n    When getCategoriesWithTaskCount is called\n    Then each category should include the count of active tasks",
+      "passes": false
+    },
+    {
+      "id": 18,
+      "title": "Calendar Facade Implementation",
+      "description": "Implement CalendarFacade to provide calendar-view specific operations and data formatting",
+      "acceptanceCriteria": "Feature: Calendar Facade\n  Scenario: Get tasks for calendar month view\n    Given a specific month and year\n    When getTasksForMonth is called\n    Then tasks should be grouped by date\n    And the result should be optimized for calendar grid display\n\n  Scenario: Get tasks for calendar week view\n    Given a specific week\n    When getTasksForWeek is called\n    Then tasks should be grouped by date and time slots\n    And all-day tasks should be separated from timed tasks",
+      "passes": false
+    },
+    {
+      "id": 19,
+      "title": "Main Application Window UI",
+      "description": "Design and implement the main application window with a modern, clean interface including sidebar navigation, main content area, and quick action bar",
+      "acceptanceCriteria": "Feature: Main Application Window\n  Scenario: Main window layout\n    Given the application is launched\n    When the main window is displayed\n    Then it should have a collapsible sidebar on the left\n    And a main content area in the center\n    And a quick add bar at the top\n    And the window should be resizable with minimum dimensions\n\n  Scenario: Sidebar navigation\n    Given the main window is displayed\n    When viewing the sidebar\n    Then it should show 'Today', 'Upcoming', 'Calendar', and 'All Tasks' sections\n    And it should show the list of categories below\n    And each category should display task count badge",
+      "passes": false
+    },
+    {
+      "id": 20,
+      "title": "Task List View Controller",
+      "description": "Implement the controller for displaying and managing the task list view with sorting, filtering, and grouping options",
+      "acceptanceCriteria": "Feature: Task List View\n  Scenario: Display task list\n    Given tasks exist in the system\n    When viewing the task list\n    Then tasks should be displayed with title, due date, priority indicator, and category\n    And completed tasks should be visually distinguished\n    And overdue tasks should be highlighted\n\n  Scenario: Filter tasks\n    Given the task list is displayed\n    When a filter is applied (by category, priority, or status)\n    Then only matching tasks should be displayed\n    And the filter state should be visually indicated\n\n  Scenario: Sort tasks\n    Given the task list is displayed\n    When a sort option is selected (by date, priority, or name)\n    Then tasks should be reordered according to the selected criteria",
+      "passes": false
+    },
+    {
+      "id": 21,
+      "title": "Task Detail Panel Controller",
+      "description": "Implement the controller for the task detail/edit panel that slides in from the right when a task is selected",
+      "acceptanceCriteria": "Feature: Task Detail Panel\n  Scenario: View task details\n    Given a task is selected from the list\n    When the detail panel opens\n    Then all task fields should be displayed\n    And the panel should slide in with smooth animation\n\n  Scenario: Edit task inline\n    Given the task detail panel is open\n    When editing any field\n    Then changes should be saved automatically after a brief delay\n    And a visual indicator should show unsaved changes\n    And a TaskUpdatedEvent should be published on save\n\n  Scenario: Close panel\n    Given the task detail panel is open\n    When clicking outside or pressing Escape\n    Then the panel should slide out\n    And any unsaved changes should be saved",
+      "passes": false
+    },
+    {
+      "id": 22,
+      "title": "Quick Add Task Controller",
+      "description": "Implement the quick add task bar that allows rapid task creation with natural language parsing",
+      "acceptanceCriteria": "Feature: Quick Add Task\n  Scenario: Quick add with natural language\n    Given the quick add bar is focused\n    When typing 'Call John tomorrow at 3pm #work !high'\n    Then the input should be parsed in real-time\n    And parsed elements should be highlighted (date, time, category, priority)\n\n  Scenario: Submit quick add task\n    Given a task has been typed in the quick add bar\n    When pressing Enter\n    Then the task should be created with parsed attributes\n    And the input should be cleared\n    And the new task should appear in the list\n\n  Scenario: Quick add suggestions\n    Given the user is typing in the quick add bar\n    When typing '#' or '@'\n    Then autocomplete suggestions should appear for categories or contacts",
+      "passes": false
+    },
+    {
+      "id": 23,
+      "title": "Calendar View Controller",
+      "description": "Implement the calendar view with month, week, and day views showing scheduled tasks",
+      "acceptanceCriteria": "Feature: Calendar View\n  Scenario: Month view display\n    Given the calendar view is in month mode\n    When viewing the calendar\n    Then a monthly grid should be displayed\n    And days with tasks should show task indicators\n    And clicking a day should show tasks for that day\n\n  Scenario: Week view display\n    Given the calendar view is in week mode\n    When viewing the calendar\n    Then a weekly time grid should be displayed\n    And tasks should be positioned according to their scheduled time\n    And tasks can be dragged to reschedule\n\n  Scenario: Drag and drop scheduling\n    Given a task in the calendar view\n    When dragging the task to a different time slot\n    Then the task schedule should be updated\n    And a TaskScheduledEvent should be published",
+      "passes": false
+    },
+    {
+      "id": 24,
+      "title": "Category Management Dialog Controller",
+      "description": "Implement the dialog for managing categories: create, edit, delete, and reorder",
+      "acceptanceCriteria": "Feature: Category Management Dialog\n  Scenario: Create new category\n    Given the category management dialog is open\n    When filling in category name, color, and icon\n    And clicking Save\n    Then the category should be created\n    And the dialog should close\n    And the sidebar should update with the new category\n\n  Scenario: Edit category\n    Given an existing category\n    When editing its properties\n    Then changes should be saved\n    And all tasks in that category should reflect visual changes\n\n  Scenario: Reorder categories\n    Given multiple categories\n    When dragging a category to a new position\n    Then the sort order should be updated\n    And the sidebar should reflect the new order",
+      "passes": false
+    },
+    {
+      "id": 25,
+      "title": "System Tray Integration",
+      "description": "Implement system tray icon with context menu for quick actions and application visibility control",
+      "acceptanceCriteria": "Feature: System Tray Integration\n  Scenario: Application minimizes to tray\n    Given the application is running\n    When minimizing the window\n    Then the application should minimize to system tray\n    And a tray icon should be visible\n\n  Scenario: Tray context menu\n    Given the application is in system tray\n    When right-clicking the tray icon\n    Then a context menu should appear with 'Show', 'Quick Add', 'Today's Tasks', and 'Exit' options\n\n  Scenario: Restore from tray\n    Given the application is minimized to tray\n    When clicking the tray icon\n    Then the main window should be restored and focused",
+      "passes": false
+    },
+    {
+      "id": 26,
+      "title": "Global Keyboard Shortcut - Windows",
+      "description": "Implement global keyboard shortcut (e.g., Ctrl+Shift+A) that works system-wide on Windows to show the quick add dialog",
+      "acceptanceCriteria": "Feature: Global Shortcut Windows\n  Scenario: Register global shortcut on Windows\n    Given the application is running on Windows\n    When the application starts\n    Then a global keyboard shortcut should be registered using JNativeHook or JNA\n    And the shortcut should work even when the application is not focused\n\n  Scenario: Trigger quick add from global shortcut\n    Given the application is running in background on Windows\n    When pressing the global shortcut (Ctrl+Shift+A)\n    Then a floating quick add dialog should appear\n    And the dialog should be focused and ready for input\n\n  Scenario: Dismiss quick add dialog\n    Given the quick add dialog is open via global shortcut\n    When pressing Escape or clicking outside\n    Then the dialog should close\n    And focus should return to the previous application",
+      "passes": false
+    },
+    {
+      "id": 27,
+      "title": "Global Keyboard Shortcut - Linux",
+      "description": "Implement global keyboard shortcut that works system-wide on Linux to show the quick add dialog",
+      "acceptanceCriteria": "Feature: Global Shortcut Linux\n  Scenario: Register global shortcut on Linux\n    Given the application is running on Linux\n    When the application starts\n    Then a global keyboard shortcut should be registered using JNativeHook or X11 bindings\n    And the shortcut should work across different desktop environments (GNOME, KDE, XFCE)\n\n  Scenario: Trigger quick add from global shortcut on Linux\n    Given the application is running in background on Linux\n    When pressing the global shortcut (Ctrl+Shift+A)\n    Then a floating quick add dialog should appear centered on screen",
+      "passes": false
+    },
+    {
+      "id": 28,
+      "title": "Startup on System Boot - Windows",
+      "description": "Implement functionality to optionally start the application when Windows boots up",
+      "acceptanceCriteria": "Feature: Startup on Boot Windows\n  Scenario: Enable startup on Windows\n    Given the application settings\n    When 'Start on system boot' is enabled\n    Then a registry entry or startup folder shortcut should be created\n    And the application should start minimized on next boot\n\n  Scenario: Disable startup on Windows\n    Given startup is enabled\n    When 'Start on system boot' is disabled\n    Then the registry entry or shortcut should be removed",
+      "passes": false
+    },
+    {
+      "id": 29,
+      "title": "Startup on System Boot - Linux",
+      "description": "Implement functionality to optionally start the application when Linux boots up",
+      "acceptanceCriteria": "Feature: Startup on Boot Linux\n  Scenario: Enable startup on Linux\n    Given the application settings\n    When 'Start on system boot' is enabled\n    Then a .desktop file should be created in ~/.config/autostart/\n    And the application should start minimized on next boot\n\n  Scenario: Disable startup on Linux\n    Given startup is enabled\n    When 'Start on system boot' is disabled\n    Then the autostart .desktop file should be removed",
+      "passes": false
+    },
+    {
+      "id": 30,
+      "title": "Settings/Preferences Dialog",
+      "description": "Implement a settings dialog for user preferences including appearance, shortcuts, notifications, and startup behavior",
+      "acceptanceCriteria": "Feature: Settings Dialog\n  Scenario: Open settings dialog\n    Given the application is running\n    When opening settings (via menu or shortcut)\n    Then a settings dialog should appear with categorized options\n\n  Scenario: General settings\n    Given the settings dialog is open\n    When viewing general settings\n    Then options for startup behavior, default view, and language should be available\n\n  Scenario: Appearance settings\n    Given the settings dialog is open\n    When viewing appearance settings\n    Then options for theme (light/dark), accent color, and font size should be available\n\n  Scenario: Save settings\n    Given settings have been modified\n    When clicking Save or closing the dialog\n    Then settings should be persisted\n    And applicable changes should take effect immediately",
+      "passes": false
+    },
+    {
+      "id": 31,
+      "title": "Light and Dark Theme Support",
+      "description": "Implement light and dark theme support with the ability to switch themes and optionally follow system preferences",
+      "acceptanceCriteria": "Feature: Theme Support\n  Scenario: Switch to dark theme\n    Given the application is using light theme\n    When switching to dark theme in settings\n    Then all UI components should update to dark colors\n    And the change should be immediate without restart\n\n  Scenario: Follow system theme\n    Given 'Follow system theme' is enabled\n    When the system theme changes\n    Then the application theme should automatically update\n\n  Scenario: Theme persistence\n    Given a theme has been selected\n    When restarting the application\n    Then the selected theme should be applied on startup",
+      "passes": false
+    },
+    {
+      "id": 32,
+      "title": "Task Priority Visual Indicators",
+      "description": "Implement visual indicators for task priority levels using colors, icons, or badges that are consistent throughout the application",
+      "acceptanceCriteria": "Feature: Priority Visual Indicators\n  Scenario: Priority colors in task list\n    Given tasks with different priorities\n    When viewing the task list\n    Then URGENT tasks should have red indicator\n    And HIGH priority tasks should have orange indicator\n    And MEDIUM priority tasks should have yellow indicator\n    And LOW priority tasks should have gray or no indicator\n\n  Scenario: Priority in calendar view\n    Given tasks in calendar view\n    When viewing scheduled tasks\n    Then task blocks should be color-coded by priority",
+      "passes": false
+    },
+    {
+      "id": 33,
+      "title": "Drag and Drop Task Reordering",
+      "description": "Implement drag and drop functionality to reorder tasks in the list and move tasks between categories",
+      "acceptanceCriteria": "Feature: Drag and Drop Tasks\n  Scenario: Reorder tasks in list\n    Given a task list with multiple tasks\n    When dragging a task to a new position\n    Then the task should move to the new position\n    And a visual indicator should show the drop target\n    And other tasks should shift to accommodate\n\n  Scenario: Move task to different category\n    Given a task in one category\n    When dragging the task to a different category in the sidebar\n    Then the task should be moved to the new category\n    And a TaskMovedToCategoryEvent should be published",
+      "passes": false
+    },
+    {
+      "id": 34,
+      "title": "Task Search Functionality",
+      "description": "Implement full-text search across task titles, descriptions, and tags",
+      "acceptanceCriteria": "Feature: Task Search\n  Scenario: Search tasks by keyword\n    Given tasks with various titles and descriptions\n    When entering a search query\n    Then matching tasks should be displayed\n    And matching text should be highlighted\n    And search should include title, description, and tags\n\n  Scenario: Search filters\n    Given search results are displayed\n    When applying additional filters\n    Then results should be narrowed by selected filters\n\n  Scenario: Clear search\n    Given an active search\n    When clearing the search box\n    Then the view should return to the previous state",
+      "passes": false
+    },
+    {
+      "id": 35,
+      "title": "Keyboard Navigation and Shortcuts",
+      "description": "Implement comprehensive keyboard navigation and shortcuts throughout the application",
+      "acceptanceCriteria": "Feature: Keyboard Navigation\n  Scenario: Navigate task list with keyboard\n    Given the task list is focused\n    When pressing Up/Down arrows\n    Then focus should move between tasks\n    And pressing Enter should open task details\n    And pressing Delete should delete the task with confirmation\n\n  Scenario: Application shortcuts\n    Given the application is focused\n    When pressing Ctrl+N\n    Then a new task dialog should open\n    When pressing Ctrl+F\n    Then the search bar should be focused\n    When pressing Ctrl+1/2/3/4\n    Then the view should switch to Today/Upcoming/Calendar/All Tasks",
+      "passes": false
+    },
+    {
+      "id": 36,
+      "title": "Task Due Date Notifications",
+      "description": "Implement system notifications for task due dates and reminders",
+      "acceptanceCriteria": "Feature: Due Date Notifications\n  Scenario: Notification before due date\n    Given a task with a reminder set for 30 minutes before\n    When 30 minutes before the due time\n    Then a system notification should appear\n    And the notification should show task title and due time\n    And clicking the notification should open the task\n\n  Scenario: Overdue notification\n    Given a task that has become overdue\n    When the task due time passes\n    Then a notification should inform the user of the overdue task\n\n  Scenario: Notification snooze\n    Given a reminder notification is shown\n    When clicking snooze\n    Then the notification should be dismissed\n    And a new reminder should be scheduled for the snooze duration",
+      "passes": false
+    },
+    {
+      "id": 37,
+      "title": "Recurring Tasks",
+      "description": "Implement recurring task functionality with various recurrence patterns (daily, weekly, monthly, custom)",
+      "acceptanceCriteria": "Feature: Recurring Tasks\n  Scenario: Create daily recurring task\n    Given task creation form\n    When setting recurrence to 'Daily'\n    Then the task should appear each day until end date or indefinitely\n\n  Scenario: Create weekly recurring task\n    Given task creation form\n    When setting recurrence to 'Weekly' on specific days\n    Then the task should appear on selected days of each week\n\n  Scenario: Complete recurring task instance\n    Given a recurring task instance\n    When marking it complete\n    Then only that instance should be marked complete\n    And the next instance should be generated\n\n  Scenario: Edit recurring task series\n    Given a recurring task\n    When editing and choosing 'Edit all instances'\n    Then all future instances should be updated",
+      "passes": false
+    },
+    {
+      "id": 38,
+      "title": "Task Time Tracking",
+      "description": "Implement time tracking for tasks with start/stop timer and manual time entry",
+      "acceptanceCriteria": "Feature: Time Tracking\n  Scenario: Start task timer\n    Given a task without active timer\n    When clicking the play button\n    Then a timer should start for that task\n    And the elapsed time should be displayed and updating\n\n  Scenario: Stop task timer\n    Given a task with active timer\n    When clicking the stop button\n    Then the timer should stop\n    And the elapsed time should be added to actual duration\n    And a TimeTrackedEvent should be published\n\n  Scenario: View time report\n    Given tasks with tracked time\n    When viewing time report for a date range\n    Then total time per category and per task should be displayed",
+      "passes": false
+    },
+    {
+      "id": 39,
+      "title": "Undo/Redo Functionality",
+      "description": "Implement undo/redo functionality for task and category operations",
+      "acceptanceCriteria": "Feature: Undo Redo\n  Scenario: Undo task deletion\n    Given a task was just deleted\n    When pressing Ctrl+Z or clicking Undo\n    Then the task should be restored\n    And a toast notification should confirm the undo\n\n  Scenario: Redo undone action\n    Given an action was undone\n    When pressing Ctrl+Y or clicking Redo\n    Then the action should be reapplied\n\n  Scenario: Undo toast notification\n    Given an action was performed (like delete)\n    When the action completes\n    Then a toast should appear with Undo option\n    And the toast should auto-dismiss after 5 seconds",
+      "passes": false
+    },
+    {
+      "id": 40,
+      "title": "Today View with Smart Grouping",
+      "description": "Implement a Today view that shows overdue tasks, today's scheduled tasks, and suggested tasks with smart grouping",
+      "acceptanceCriteria": "Feature: Today View\n  Scenario: Today view sections\n    Given tasks with various due dates\n    When viewing the Today view\n    Then 'Overdue' section should show past due tasks\n    And 'Today' section should show tasks due today\n    And sections should be collapsible\n\n  Scenario: Morning and afternoon grouping\n    Given tasks scheduled for different times today\n    When viewing Today view\n    Then tasks should be grouped into time blocks (Morning, Afternoon, Evening)\n\n  Scenario: Today view empty state\n    Given no tasks for today\n    When viewing Today view\n    Then a friendly empty state message should be displayed\n    And a quick add button should be prominently displayed",
+      "passes": false
+    },
+    {
+      "id": 41,
+      "title": "Upcoming View with Timeline",
+      "description": "Implement an Upcoming view that shows tasks for the next 7 days and beyond grouped by date",
+      "acceptanceCriteria": "Feature: Upcoming View\n  Scenario: Upcoming view date grouping\n    Given tasks scheduled for future dates\n    When viewing Upcoming view\n    Then tasks should be grouped by date\n    And dates should show relative labels (Tomorrow, This Week, Next Week)\n\n  Scenario: Upcoming view navigation\n    Given the Upcoming view is displayed\n    When scrolling or using navigation controls\n    Then additional future dates should load\n    And performance should remain smooth with many tasks",
+      "passes": false
+    },
+    {
+      "id": 42,
+      "title": "Task Tags/Labels System",
+      "description": "Implement a tagging system for tasks allowing multiple tags per task with autocomplete and filtering",
+      "acceptanceCriteria": "Feature: Task Tags\n  Scenario: Add tags to task\n    Given a task being created or edited\n    When adding tags\n    Then multiple tags should be supported\n    And tags should autocomplete from existing tags\n    And new tags should be created if not existing\n\n  Scenario: Filter by tags\n    Given tasks with various tags\n    When selecting a tag filter\n    Then only tasks with that tag should be displayed\n    And multiple tag filters should work with AND logic\n\n  Scenario: Tag management\n    Given existing tags\n    When managing tags\n    Then tags can be renamed or deleted\n    And deleting a tag should remove it from all tasks",
+      "passes": false
+    },
+    {
+      "id": 43,
+      "title": "Subtasks/Checklist Support",
+      "description": "Implement subtasks or checklist items within tasks",
+      "acceptanceCriteria": "Feature: Subtasks\n  Scenario: Add subtasks to a task\n    Given a task being edited\n    When adding subtasks\n    Then multiple subtasks should be supported\n    And subtasks should have checkboxes for completion\n\n  Scenario: Subtask completion affects progress\n    Given a task with subtasks\n    When completing subtasks\n    Then a progress indicator should show completion percentage\n    And completing all subtasks should prompt to complete parent task\n\n  Scenario: Reorder subtasks\n    Given a task with multiple subtasks\n    When dragging subtasks\n    Then the order should update",
+      "passes": false
+    },
+    {
+      "id": 44,
+      "title": "Smooth Animations and Transitions",
+      "description": "Implement smooth animations and transitions for UI interactions to enhance user experience",
+      "acceptanceCriteria": "Feature: UI Animations\n  Scenario: List item animations\n    Given tasks in a list\n    When a task is added\n    Then it should animate into position\n    When a task is removed\n    Then it should animate out smoothly\n\n  Scenario: Panel transitions\n    Given the detail panel is closed\n    When opening the detail panel\n    Then it should slide in from the right with smooth animation\n    And content should fade in\n\n  Scenario: Checkbox animations\n    Given a task with unchecked checkbox\n    When checking the checkbox\n    Then a satisfying checkmark animation should play\n    And the task should have a completion animation",
+      "passes": false
+    },
+    {
+      "id": 45,
+      "title": "Responsive Layout Design",
+      "description": "Implement responsive layout that adapts to different window sizes and supports minimized/compact views",
+      "acceptanceCriteria": "Feature: Responsive Layout\n  Scenario: Narrow window layout\n    Given the window width is reduced below threshold\n    When the window is narrow\n    Then the sidebar should collapse to icons only\n    And the detail panel should become a modal overlay\n\n  Scenario: Wide window layout\n    Given a wide window\n    When viewing tasks\n    Then sidebar, list, and detail panel should be visible simultaneously\n\n  Scenario: Compact mode\n    Given compact mode is enabled in settings\n    When viewing the application\n    Then UI density should increase with smaller spacing and fonts",
+      "passes": false
+    },
+    {
+      "id": 46,
+      "title": "Empty States and Onboarding",
+      "description": "Implement friendly empty states for lists and first-time user onboarding",
+      "acceptanceCriteria": "Feature: Empty States and Onboarding\n  Scenario: First time user onboarding\n    Given a new user opens the application for the first time\n    When the main window appears\n    Then an onboarding overlay or wizard should guide them through key features\n    And sample tasks and categories should optionally be created\n\n  Scenario: Empty category state\n    Given a category with no tasks\n    When viewing that category\n    Then a helpful empty state with illustration should be shown\n    And a clear call-to-action to add a task should be visible\n\n  Scenario: Skip onboarding\n    Given the onboarding is shown\n    When clicking 'Skip'\n    Then onboarding should close and not show again",
+      "passes": false
+    },
+    {
+      "id": 47,
+      "title": "Natural Language Date Parsing",
+      "description": "Implement natural language parsing for dates and times in task input (e.g., 'tomorrow', 'next Monday', '3pm')",
+      "acceptanceCriteria": "Feature: Natural Language Date Parsing\n  Scenario: Parse relative dates\n    Given quick add input 'Buy milk tomorrow'\n    When parsing the input\n    Then 'tomorrow' should be parsed as the next day's date\n    And the task should be created with that due date\n\n  Scenario: Parse specific times\n    Given quick add input 'Meeting at 3pm'\n    When parsing the input\n    Then '3pm' should be parsed as 15:00\n    And the task should have that due time\n\n  Scenario: Parse complex date expressions\n    Given quick add input 'Report due next Friday'\n    When parsing the input\n    Then 'next Friday' should be parsed correctly\n    And edge cases like weekends should be handled properly",
+      "passes": false
+    },
+    {
+      "id": 48,
+      "title": "Data Export and Import",
+      "description": "Implement data export and import functionality for backup and migration purposes",
+      "acceptanceCriteria": "Feature: Data Export Import\n  Scenario: Export all data\n    Given the application has tasks and categories\n    When exporting data\n    Then a JSON file should be generated with all tasks, categories, and settings\n    And the file should be downloadable to a chosen location\n\n  Scenario: Import data\n    Given a previously exported data file\n    When importing data\n    Then the user should choose merge or replace strategy\n    And data should be imported according to the chosen strategy\n\n  Scenario: Export to CSV\n    Given tasks in the system\n    When exporting to CSV\n    Then a CSV file with task data should be generated\n    And it should be compatible with spreadsheet applications",
+      "passes": false
+    },
+    {
+      "id": 49,
+      "title": "Application Logging and Error Handling",
+      "description": "Implement comprehensive logging and error handling throughout the application",
+      "acceptanceCriteria": "Feature: Logging and Error Handling\n  Scenario: Log application events\n    Given the application is running\n    When any significant action occurs\n    Then it should be logged with timestamp and context\n    And log levels should be configurable\n\n  Scenario: Handle errors gracefully\n    Given an error occurs (e.g., database failure)\n    When the error is caught\n    Then a user-friendly error message should be shown\n    And the error should be logged with stack trace\n    And the application should remain stable\n\n  Scenario: View logs\n    Given logged events exist\n    When accessing the log viewer (or log file)\n    Then recent logs should be viewable for troubleshooting",
+      "passes": false
+    },
+    {
+      "id": 50,
+      "title": "Unit Tests - Repository Layer",
+      "description": "Write comprehensive unit tests for all repository classes using JUnit and Mockito",
+      "acceptanceCriteria": "Feature: Repository Unit Tests\n  Scenario: Test TaskRepository CRUD operations\n    Given a TaskRepository with mocked MapDB\n    When testing save, findById, findAll, update, and delete\n    Then all operations should behave correctly\n    And edge cases should be handled\n\n  Scenario: Test CategoryRepository operations\n    Given a CategoryRepository with mocked MapDB\n    When testing all category operations\n    Then correct data should be returned\n    And errors should be handled appropriately\n\n  Scenario: Test query methods\n    Given repositories with test data\n    When testing complex queries (findByDueDateBetween, findByCategoryId)\n    Then correct filtered results should be returned",
+      "passes": false
+    },
+    {
+      "id": 51,
+      "title": "Unit Tests - Service Layer",
+      "description": "Write comprehensive unit tests for all service classes",
+      "acceptanceCriteria": "Feature: Service Unit Tests\n  Scenario: Test TaskService with mocked dependencies\n    Given a TaskService with mocked repository and event to state flow\n    When testing createTask, updateTask, completeTask, deleteTask\n    Then repository should be called correctly\n    And appropriate events should be published\n\n  Scenario: Test business logic\n    Given a TaskService\n    When testing recurring task completion\n    Then next occurrence should be created correctly\n\n  Scenario: Test CategoryService\n    Given a CategoryService with mocked dependencies\n    When testing all category operations\n    Then business rules should be enforced\n    And events should be published correctly",
+      "passes": false
+    },
+    {
+      "id": 52,
+      "title": "Unit Tests - Facade Layer",
+      "description": "Write comprehensive unit tests for all facade classes",
+      "acceptanceCriteria": "Feature: Facade Unit Tests\n  Scenario: Test TaskFacade operations\n    Given a TaskFacade with mocked services\n    When testing getTasksForToday, quickAddTask, getTaskStatistics\n    Then services should be coordinated correctly\n    And correct DTOs should be returned\n\n  Scenario: Test quick add parsing\n    Given a TaskFacade\n    When testing quickAddTask with various natural language inputs\n    Then dates, times, priorities, and tags should be parsed correctly\n\n  Scenario: Test CalendarFacade\n    Given a CalendarFacade with mocked services\n    When testing getTasksForMonth, getTasksForWeek\n    Then data should be formatted correctly for calendar display",
+      "passes": false
+    },
+    {
+      "id": 53,
+      "title": "Unit Tests - Mapper Layer",
+      "description": "Write unit tests for MapStruct mappers to ensure correct field mapping",
+      "acceptanceCriteria": "Feature: Mapper Unit Tests\n  Scenario: Test TaskMapper conversions\n    Given a Task entity with all fields populated\n    When mapping to TaskDTO and back\n    Then all fields should be correctly mapped\n    And null handling should be correct\n\n  Scenario: Test CategoryMapper conversions\n    Given a Category entity\n    When mapping to CategoryDTO and back\n    Then all fields should be correctly mapped\n\n  Scenario: Test collection mapping\n    Given a list of entities\n    When mapping to list of DTOs\n    Then all items should be correctly mapped",
+      "passes": false
+    },
+    {
+      "id": 54,
+      "title": "Unit Tests - UI Controllers",
+      "description": "Write unit tests for UI controllers using TestFX or similar JavaFX testing framework",
+      "acceptanceCriteria": "Feature: Controller Unit Tests\n  Scenario: Test TaskListViewController\n    Given a TaskListViewController with mocked facade\n    When testing task list loading and filtering\n    Then correct data should be displayed\n\n  Scenario: Test QuickAddController parsing\n    Given a QuickAddController\n    When testing input parsing and task creation\n    Then facade should be called with correct parameters\n\n  Scenario: Test UI event handling\n    Given a controller\n    When simulating user interactions\n    Then correct actions should be triggered",
+      "passes": false
+    },
+    {
+      "id": 55,
+      "title": "Unit Tests - Event System",
+      "description": "Write unit tests for the event setup and all event classes",
+      "acceptanceCriteria": "Feature: Event System Unit Tests\n  Scenario: Test Event setup subscription and publishing\n    Given an Event setup instance\n    When subscribing and publishing events\n    Then subscribers should receive events correctly\n    And unsubscribed handlers should not receive events\n\n  Scenario: Test event serialization\n    Given event classes\n    When serializing and deserializing events\n    Then all event data should be preserved\n\n  Scenario: Test event ordering\n    Given multiple events published\n    When processing events\n    Then they should be processed in order",
+      "passes": false
+    },
+    {
+      "id": 56,
+      "title": "Integration Tests - Database",
+      "description": "Write integration tests for MapDB database operations with actual database files",
+      "acceptanceCriteria": "Feature: Database Integration Tests\n  Scenario: Test database persistence\n    Given tasks saved to MapDB\n    When closing and reopening the database\n    Then all tasks should be retrievable\n\n  Scenario: Test transaction behavior\n    Given a transaction with multiple operations\n    When an error occurs mid-transaction\n    Then the transaction should be rolled back\n\n  Scenario: Test concurrent access\n    Given multiple threads accessing the database\n    When performing concurrent operations\n    Then data integrity should be maintained",
+      "passes": false
+    },
+    {
+      "id": 57,
+      "title": "Focus Mode / Do Not Disturb",
+      "description": "Implement a focus mode that hides notifications and non-essential UI elements",
+      "acceptanceCriteria": "Feature: Focus Mode\n  Scenario: Enable focus mode\n    Given the application is running normally\n    When enabling focus mode\n    Then notifications should be suppressed\n    And UI should simplify to show only current tasks\n    And a focus timer should optionally start\n\n  Scenario: Focus mode timer\n    Given focus mode is enabled with a timer\n    When the timer expires\n    Then focus mode should automatically disable\n    And suppressed notifications should be shown\n\n  Scenario: Focus mode break reminders\n    Given extended focus mode session\n    When a break interval is reached\n    Then a gentle break reminder should appear",
+      "passes": false
+    },
+    {
+      "id": 58,
+      "title": "Task Duration Estimation",
+      "description": "Allow users to set estimated duration for tasks and display them appropriately in calendar views",
+      "acceptanceCriteria": "Feature: Task Duration Estimation\n  Scenario: Set task duration\n    Given a task being created or edited\n    When setting estimated duration\n    Then duration should be stored with the task\n    And duration picker should allow common increments (15m, 30m, 1h, etc.)\n\n  Scenario: Display duration in calendar\n    Given a task with duration in calendar view\n    When viewing the calendar\n    Then the task block should span the estimated duration\n    And overlapping tasks should be handled appropriately\n\n  Scenario: Compare estimated vs actual\n    Given a task with estimated and actual duration\n    When viewing task details\n    Then both durations should be displayed for comparison",
+      "passes": false
+    },
+    {
+      "id": 59,
+      "title": "Inbox for Quick Capture",
+      "description": "Implement an Inbox section for quickly capturing tasks that haven't been scheduled or categorized yet",
+      "acceptanceCriteria": "Feature: Inbox\n  Scenario: Quick capture to inbox\n    Given the quick add bar\n    When adding a task without date or category\n    Then the task should appear in the Inbox\n\n  Scenario: Process inbox\n    Given tasks in the Inbox\n    When viewing the Inbox\n    Then each task should have quick actions to schedule, categorize, or delete\n    And empty inbox should show congratulatory message\n\n  Scenario: Inbox count badge\n    Given unprocessed tasks in Inbox\n    When viewing the sidebar\n    Then the Inbox should show a count badge",
+      "passes": false
+    },
+    {
+      "id": 60,
+      "title": "Application Update Check",
+      "description": "Implement automatic update checking with user notification when new versions are available",
+      "acceptanceCriteria": "Feature: Update Check\n  Scenario: Check for updates on startup\n    Given the application starts\n    When checking for updates (if enabled)\n    Then a version check should be performed against update server\n    And if new version available, user should be notified\n\n  Scenario: Manual update check\n    Given the settings or help menu\n    When clicking 'Check for Updates'\n    Then current and latest version should be compared\n    And download link should be provided if update available\n\n  Scenario: Update notification\n    Given an update is available\n    When notification is shown\n    Then user can choose to download, skip, or remind later",
+      "passes": false
+    },
+    {
+      "id": 61,
+      "title": "Accessibility Support",
+      "description": "Implement accessibility features including screen reader support, keyboard navigation, and high contrast mode",
+      "acceptanceCriteria": "Feature: Accessibility\n  Scenario: Screen reader support\n    Given a user using a screen reader\n    When navigating the application\n    Then all interactive elements should have proper labels\n    And focus changes should be announced\n\n  Scenario: High contrast mode\n    Given a user enables high contrast mode\n    When viewing the application\n    Then colors should meet WCAG contrast requirements\n    And important elements should be clearly distinguishable\n\n  Scenario: Full keyboard navigation\n    Given a user navigating with keyboard only\n    When using the application\n    Then all features should be accessible via keyboard\n    And focus indicators should be clearly visible",
+      "passes": false
+    },
+    {
+      "id": 62,
+      "title": "Localization Infrastructure",
+      "description": "Set up localization infrastructure for internationalization with support for multiple languages",
+      "acceptanceCriteria": "Feature: Localization\n  Scenario: Load language resources\n    Given resource bundles for different languages\n    When the application starts\n    Then the appropriate language bundle should be loaded based on user preference or system locale\n\n  Scenario: Change language at runtime\n    Given the settings dialog\n    When changing the language\n    Then all UI text should update to the selected language\n    And the preference should be saved\n\n  Scenario: Handle missing translations\n    Given a translation key without translation in current language\n    When rendering text\n    Then fallback to default language should occur gracefully",
+      "passes": false
+    },
+    {
+      "id": 63,
+      "title": "Performance Optimization",
+      "description": "Optimize application performance for smooth operation with large numbers of tasks",
+      "acceptanceCriteria": "Feature: Performance Optimization\n  Scenario: Handle large task collections\n    Given 10,000+ tasks in the database\n    When loading and displaying tasks\n    Then UI should remain responsive\n    And list virtualization should be used\n\n  Scenario: Fast search performance\n    Given a large task database\n    When searching for tasks\n    Then results should appear within 200ms\n    And search should use efficient indexing\n\n  Scenario: Memory management\n    Given extended application usage\n    When monitoring memory\n    Then memory usage should remain stable\n    And no memory leaks should occur",
+      "passes": false
+    },
+    {
+      "id": 64,
+      "title": "Database Migration System",
+      "description": "Implement a database migration system to handle schema changes between application versions",
+      "acceptanceCriteria": "Feature: Database Migration\n  Scenario: Detect schema version mismatch\n    Given an older database version\n    When the application starts\n    Then the schema version should be detected\n    And migration should be triggered automatically\n\n  Scenario: Execute migration scripts\n    Given pending migrations\n    When migrations run\n    Then data should be transformed to new schema\n    And migration should be atomic (all or nothing)\n\n  Scenario: Backup before migration\n    Given a migration is about to run\n    When migration starts\n    Then a backup of the database should be created\n    And user should be notified of the backup location",
+      "passes": false
+    },
+    {
+      "id": 65,
+      "title": "Context Menu Actions",
+      "description": "Implement context menus (right-click menus) for tasks and categories with relevant actions",
+      "acceptanceCriteria": "Feature: Context Menus\n  Scenario: Task context menu\n    Given a task in the list\n    When right-clicking the task\n    Then a context menu should appear with options: Edit, Complete, Schedule, Move to Category, Duplicate, Delete\n\n  Scenario: Category context menu\n    Given a category in the sidebar\n    When right-clicking the category\n    Then a context menu should appear with options: Edit, Add Task, Delete\n\n  Scenario: Multiple selection context menu\n    Given multiple selected tasks\n    When right-clicking\n    Then bulk actions should be available (Complete All, Move All, Delete All)",
+      "passes": false
+    },
+    {
+      "id": 66,
+      "title": "Task Snooze Functionality",
+      "description": "Implement the ability to snooze tasks to a later time or date",
+      "acceptanceCriteria": "Feature: Task Snooze\n  Scenario: Snooze task from list\n    Given a task in the Today view\n    When clicking snooze button\n    Then quick snooze options should appear (Later Today, Tomorrow, Next Week)\n    And custom date/time option should be available\n\n  Scenario: Snoozed task behavior\n    Given a task is snoozed to tomorrow\n    When viewing Today\n    Then the task should not appear in Today\n    And the task should appear tomorrow\n\n  Scenario: Snooze from notification\n    Given a task reminder notification\n    When clicking snooze on notification\n    Then snooze options should be available",
+      "passes": false
+    },
+    {
+      "id": 67,
+      "title": "Weekly Review Feature",
+      "description": "Implement a weekly review feature that helps users review completed tasks and plan for the upcoming week",
+      "acceptanceCriteria": "Feature: Weekly Review\n  Scenario: Start weekly review\n    Given it's time for weekly review (or manual trigger)\n    When starting the review\n    Then a guided review wizard should open\n\n  Scenario: Review completed tasks\n    Given the weekly review wizard\n    When on the review step\n    Then completed tasks from past week should be shown\n    And statistics about completion rate should be displayed\n\n  Scenario: Plan next week\n    Given the weekly review wizard\n    When on the planning step\n    Then upcoming tasks should be reviewable\n    And tasks can be rescheduled or prioritized",
+      "passes": false
+    },
+    {
+      "id": 68,
+      "title": "Task Notes and Attachments",
+      "description": "Allow adding rich notes and file attachments to tasks",
+      "acceptanceCriteria": "Feature: Notes and Attachments\n  Scenario: Add notes to task\n    Given a task being edited\n    When adding notes\n    Then rich text formatting should be supported (bold, italic, lists)\n    And notes should be saved with the task\n\n  Scenario: Add file attachment\n    Given a task being edited\n    When attaching a file\n    Then the file should be stored with the task\n    And the attachment should be openable from the task detail\n\n  Scenario: Attachment size limits\n    Given file attachment\n    When attaching a very large file\n    Then a warning should be shown about file size\n    And reasonable size limits should be enforced",
+      "passes": false
+    },
+    {
+      "id": 69,
+      "title": "Quick Actions Menu",
+      "description": "Implement a command palette style quick actions menu accessible via keyboard shortcut",
+      "acceptanceCriteria": "Feature: Quick Actions Menu\n  Scenario: Open quick actions\n    Given the application is focused\n    When pressing Ctrl+Shift+P\n    Then a quick actions menu should appear\n    And recently used actions should be shown first\n\n  Scenario: Search actions\n    Given the quick actions menu is open\n    When typing a search query\n    Then matching actions should be filtered and shown\n    And actions can be selected with keyboard\n\n  Scenario: Execute action\n    Given an action is selected in quick actions menu\n    When pressing Enter\n    Then the action should be executed\n    And the menu should close",
+      "passes": false
+    },
+    {
+      "id": 70,
+      "title": "Statistics and Productivity Dashboard",
+      "description": "Implement a dashboard showing productivity statistics and task completion trends",
+      "acceptanceCriteria": "Feature: Statistics Dashboard\n  Scenario: View productivity dashboard\n    Given the statistics view\n    When viewing the dashboard\n    Then task completion trends should be shown (daily, weekly, monthly)\n    And charts should visualize the data\n\n  Scenario: Category breakdown\n    Given tasks across categories\n    When viewing statistics\n    Then time spent per category should be shown\n    And task distribution should be visualized\n\n  Scenario: Streak tracking\n    Given daily task completions\n    When viewing statistics\n    Then current streak of productive days should be shown\n    And longest streak should be displayed",
+      "passes": false
+    }
+  ]
+}
