@@ -30,6 +30,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.util.Duration;
+import javafx.util.StringConverter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.talaatharb.workday.event.EventDispatcher;
@@ -82,6 +83,12 @@ public class TaskDetailPanelController implements Initializable {
     private TextField reminderField;
     
     @FXML
+    private ChoiceBox<java.time.Duration> estimatedDurationChoice;
+    
+    @FXML
+    private Label actualDurationLabel;
+    
+    @FXML
     private Button deleteButton;
     
     @FXML
@@ -119,6 +126,9 @@ public class TaskDetailPanelController implements Initializable {
         priorityChoice.setItems(FXCollections.observableArrayList(Priority.values()));
         statusChoice.setItems(FXCollections.observableArrayList(TaskStatus.values()));
         
+        // Setup duration choice box with common durations
+        setupDurationChoiceBox();
+        
         // Setup subtask list view with custom cell factory
         setupSubtaskListView();
         
@@ -126,6 +136,54 @@ public class TaskDetailPanelController implements Initializable {
         setupAutoSaveListeners();
         
         log.info("TaskDetailPanelController initialized successfully");
+    }
+    
+    /**
+     * Setup duration choice box with common time increments
+     */
+    private void setupDurationChoiceBox() {
+        ObservableList<java.time.Duration> durations = FXCollections.observableArrayList(
+                null, // No duration
+                java.time.Duration.ofMinutes(15),
+                java.time.Duration.ofMinutes(30),
+                java.time.Duration.ofMinutes(45),
+                java.time.Duration.ofHours(1),
+                java.time.Duration.ofMinutes(90),
+                java.time.Duration.ofHours(2),
+                java.time.Duration.ofMinutes(150),
+                java.time.Duration.ofHours(3),
+                java.time.Duration.ofHours(4),
+                java.time.Duration.ofHours(6),
+                java.time.Duration.ofHours(8)
+        );
+        
+        estimatedDurationChoice.setItems(durations);
+        
+        // Custom string converter for duration display
+        estimatedDurationChoice.setConverter(new StringConverter<java.time.Duration>() {
+            @Override
+            public String toString(java.time.Duration duration) {
+                if (duration == null) {
+                    return "No estimate";
+                }
+                
+                long hours = duration.toHours();
+                long minutes = duration.toMinutes() % 60;
+                
+                if (hours > 0 && minutes > 0) {
+                    return String.format("%dh %dm", hours, minutes);
+                } else if (hours > 0) {
+                    return String.format("%dh", hours);
+                } else {
+                    return String.format("%dm", minutes);
+                }
+            }
+            
+            @Override
+            public java.time.Duration fromString(String string) {
+                return null; // Not needed for ChoiceBox
+            }
+        });
     }
     
     /**
@@ -287,6 +345,8 @@ public class TaskDetailPanelController implements Initializable {
             .dueTime(task.getDueTime())
             .tags(task.getTags() != null ? List.copyOf(task.getTags()) : null)
             .reminderMinutesBefore(task.getReminderMinutesBefore())
+            .estimatedDuration(task.getEstimatedDuration())
+            .actualDuration(task.getActualDuration())
             .scheduledDate(task.getScheduledDate())
             .categoryId(task.getCategoryId())
             .createdAt(task.getCreatedAt())
@@ -302,6 +362,10 @@ public class TaskDetailPanelController implements Initializable {
         descriptionArea.setText(task.getDescription() != null ? task.getDescription() : "");
         tagsField.setText(task.getTags() != null ? String.join(", ", task.getTags()) : "");
         reminderField.setText(task.getReminderMinutesBefore() != null ? task.getReminderMinutesBefore().toString() : "");
+        
+        // Load duration fields
+        estimatedDurationChoice.setValue(task.getEstimatedDuration());
+        updateActualDurationDisplay(task.getActualDuration(), task.getEstimatedDuration());
         
         // Load subtasks
         refreshSubtaskList();
@@ -325,9 +389,57 @@ public class TaskDetailPanelController implements Initializable {
         // Choice box listeners
         priorityChoice.valueProperty().addListener((obs, old, newVal) -> scheduleAutoSave());
         statusChoice.valueProperty().addListener((obs, old, newVal) -> scheduleAutoSave());
+        estimatedDurationChoice.valueProperty().addListener((obs, old, newVal) -> scheduleAutoSave());
         
         // Date picker listener
         dueDatePicker.valueProperty().addListener((obs, old, newVal) -> scheduleAutoSave());
+    }
+    
+    /**
+     * Update actual duration display with comparison to estimated
+     */
+    private void updateActualDurationDisplay(java.time.Duration actual, java.time.Duration estimated) {
+        if (actual == null) {
+            actualDurationLabel.setText("Not tracked yet");
+            actualDurationLabel.setStyle("");
+            return;
+        }
+        
+        long hours = actual.toHours();
+        long minutes = actual.toMinutes() % 60;
+        String durationText;
+        
+        if (hours > 0 && minutes > 0) {
+            durationText = String.format("%dh %dm", hours, minutes);
+        } else if (hours > 0) {
+            durationText = String.format("%dh", hours);
+        } else {
+            durationText = String.format("%dm", minutes);
+        }
+        
+        // Add comparison if estimated duration exists
+        if (estimated != null) {
+            long diff = actual.toMinutes() - estimated.toMinutes();
+            String comparison;
+            String style;
+            
+            if (diff > 0) {
+                comparison = String.format(" (+%d min over)", diff);
+                style = "-fx-text-fill: #e74c3c;"; // Red for over
+            } else if (diff < 0) {
+                comparison = String.format(" (%d min under)", Math.abs(diff));
+                style = "-fx-text-fill: #27ae60;"; // Green for under
+            } else {
+                comparison = " (on time)";
+                style = "-fx-text-fill: #2ecc71;"; // Bright green for exact
+            }
+            
+            actualDurationLabel.setText(durationText + comparison);
+            actualDurationLabel.setStyle(style);
+        } else {
+            actualDurationLabel.setText(durationText);
+            actualDurationLabel.setStyle("");
+        }
     }
     
     /**
@@ -417,6 +529,8 @@ public class TaskDetailPanelController implements Initializable {
             .dueTime(parseDueTime(dueTimeField.getText()))
             .tags(parseTags(tagsField.getText()))
             .reminderMinutesBefore(parseReminder(reminderField.getText()))
+            .estimatedDuration(estimatedDurationChoice.getValue())
+            .actualDuration(currentTask.getActualDuration())
             .subtasks(currentTask.getSubtasks())
             .scheduledDate(currentTask.getScheduledDate())
             .categoryId(currentTask.getCategoryId())

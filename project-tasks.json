@@ -406,7 +406,7 @@
       "title": "Task Duration Estimation",
       "description": "Allow users to set estimated duration for tasks and display them appropriately in calendar views",
       "acceptanceCriteria": "Feature: Task Duration Estimation\n  Scenario: Set task duration\n    Given a task being created or edited\n    When setting estimated duration\n    Then duration should be stored with the task\n    And duration picker should allow common increments (15m, 30m, 1h, etc.)\n\n  Scenario: Display duration in calendar\n    Given a task with duration in calendar view\n    When viewing the calendar\n    Then the task block should span the estimated duration\n    And overlapping tasks should be handled appropriately\n\n  Scenario: Compare estimated vs actual\n    Given a task with estimated and actual duration\n    When viewing task details\n    Then both durations should be displayed for comparison",
-      "passes": false
+      "passes": true
     },
     {
       "id": 59,

@@ -107,6 +107,32 @@
                </children>
             </HBox>
             
+            <!-- Duration Estimation -->
+            <HBox spacing="15">
+               <children>
+                  <VBox spacing="5" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Estimated Duration" styleClass="field-label">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <ChoiceBox fx:id="estimatedDurationChoice" maxWidth="Infinity" styleClass="detail-field" />
+                     </children>
+                  </VBox>
+                  <VBox spacing="5" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Actual Duration" styleClass="field-label">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="actualDurationLabel" text="Not tracked yet" styleClass="duration-display" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            
             <!-- Description -->
             <VBox spacing="5" VBox.vgrow="ALWAYS">
                <children>
