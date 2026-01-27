@@ -392,7 +392,7 @@
       "title": "Integration Tests - Database",
       "description": "Write integration tests for MapDB database operations with actual database files",
       "acceptanceCriteria": "Feature: Database Integration Tests\n  Scenario: Test database persistence\n    Given tasks saved to MapDB\n    When closing and reopening the database\n    Then all tasks should be retrievable\n\n  Scenario: Test transaction behavior\n    Given a transaction with multiple operations\n    When an error occurs mid-transaction\n    Then the transaction should be rolled back\n\n  Scenario: Test concurrent access\n    Given multiple threads accessing the database\n    When performing concurrent operations\n    Then data integrity should be maintained",
-      "passes": false
+      "passes": true
     },
     {
       "id": 57,
