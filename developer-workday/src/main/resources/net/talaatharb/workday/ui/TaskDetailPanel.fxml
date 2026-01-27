@@ -5,6 +5,7 @@
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
@@ -139,6 +140,30 @@
                      </font>
                   </Label>
                   <TextField fx:id="reminderField" promptText="e.g., 15" styleClass="detail-field" />
+               </children>
+            </VBox>
+            
+            <!-- Subtasks Section -->
+            <VBox spacing="5">
+               <children>
+                  <HBox alignment="CENTER_LEFT" spacing="10">
+                     <children>
+                        <Label text="Subtasks" styleClass="field-label">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="subtaskProgressLabel" text="0/0 (0%)" styleClass="subtask-progress" />
+                     </children>
+                  </HBox>
+                  <HBox spacing="5">
+                     <children>
+                        <TextField fx:id="subtaskInputField" promptText="Add a subtask..." HBox.hgrow="ALWAYS" styleClass="detail-field" />
+                        <Button fx:id="addSubtaskButton" text="+" onAction="#handleAddSubtask" styleClass="add-subtask-button" />
+                     </children>
+                  </HBox>
+                  <ListView fx:id="subtaskListView" prefHeight="150" styleClass="subtask-list" />
                </children>
             </VBox>
             

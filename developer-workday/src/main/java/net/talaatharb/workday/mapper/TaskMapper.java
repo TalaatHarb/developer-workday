@@ -8,7 +8,7 @@ import org.mapstruct.factory.Mappers;
 import net.talaatharb.workday.dtos.TaskDTO;
 import net.talaatharb.workday.model.Task;
 
-@Mapper
+@Mapper(uses = SubtaskMapper.class)
 public interface TaskMapper {
     TaskMapper INSTANCE = Mappers.getMapper(TaskMapper.class);
     

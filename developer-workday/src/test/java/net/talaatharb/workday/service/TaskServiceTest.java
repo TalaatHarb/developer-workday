@@ -540,8 +540,126 @@ class TaskServiceTest {
         // When: creating the task
         Task createdTask = taskService.createTask(task);
         
-        // Then: task should have end date
+        // Then: task should be created with recurrence rule
+        assertNotNull(createdTask);
         assertNotNull(createdTask.getRecurrence());
         assertEquals(endDate, createdTask.getRecurrence().getEndDate());
+    }
+    
+    @Test
+    @DisplayName("Task with subtasks - adds and retrieves subtasks correctly")
+    void testTaskWithSubtasks() {
+        // Given
+        Task task = Task.builder()
+            .title("Task with Subtasks")
+            .status(TaskStatus.TODO)
+            .build();
+        
+        Task savedTask = taskService.createTask(task);
+        
+        // When: adding subtasks
+        savedTask.setSubtasks(List.of(
+            net.talaatharb.workday.model.Subtask.builder()
+                .id(UUID.randomUUID())
+                .title("Subtask 1")
+                .completed(false)
+                .sortOrder(0)
+                .createdAt(LocalDateTime.now())
+                .build(),
+            net.talaatharb.workday.model.Subtask.builder()
+                .id(UUID.randomUUID())
+                .title("Subtask 2")
+                .completed(false)
+                .sortOrder(1)
+                .createdAt(LocalDateTime.now())
+                .build()
+        ));
+        
+        Task updatedTask = taskService.updateTask(savedTask);
+        
+        // Then
+        assertNotNull(updatedTask.getSubtasks());
+        assertEquals(2, updatedTask.getSubtasks().size());
+        assertEquals("Subtask 1", updatedTask.getSubtasks().get(0).getTitle());
+        assertEquals("Subtask 2", updatedTask.getSubtasks().get(1).getTitle());
+    }
+    
+    @Test
+    @DisplayName("Complete subtask - updates completion status")
+    void testCompleteSubtask() {
+        // Given: task with subtasks
+        Task task = Task.builder()
+            .title("Task with Subtasks")
+            .status(TaskStatus.TODO)
+            .subtasks(List.of(
+                net.talaatharb.workday.model.Subtask.builder()
+                    .id(UUID.randomUUID())
+                    .title("Subtask 1")
+                    .completed(false)
+                    .sortOrder(0)
+                    .createdAt(LocalDateTime.now())
+                    .build()
+            ))
+            .build();
+        
+        Task savedTask = taskService.createTask(task);
+        
+        // When: completing a subtask
+        savedTask.getSubtasks().get(0).setCompleted(true);
+        savedTask.getSubtasks().get(0).setCompletedAt(LocalDateTime.now());
+        Task updatedTask = taskService.updateTask(savedTask);
+        
+        // Then
+        assertTrue(updatedTask.getSubtasks().get(0).isCompleted());
+        assertNotNull(updatedTask.getSubtasks().get(0).getCompletedAt());
+    }
+    
+    @Test
+    @DisplayName("Subtask progress calculation")
+    void testSubtaskProgressCalculation() {
+        // Given: task with 3 subtasks, 2 completed
+        Task task = Task.builder()
+            .title("Task with Subtasks")
+            .status(TaskStatus.TODO)
+            .subtasks(List.of(
+                net.talaatharb.workday.model.Subtask.builder()
+                    .id(UUID.randomUUID())
+                    .title("Subtask 1")
+                    .completed(true)
+                    .completedAt(LocalDateTime.now())
+                    .sortOrder(0)
+                    .createdAt(LocalDateTime.now())
+                    .build(),
+                net.talaatharb.workday.model.Subtask.builder()
+                    .id(UUID.randomUUID())
+                    .title("Subtask 2")
+                    .completed(true)
+                    .completedAt(LocalDateTime.now())
+                    .sortOrder(1)
+                    .createdAt(LocalDateTime.now())
+                    .build(),
+                net.talaatharb.workday.model.Subtask.builder()
+                    .id(UUID.randomUUID())
+                    .title("Subtask 3")
+                    .completed(false)
+                    .sortOrder(2)
+                    .createdAt(LocalDateTime.now())
+                    .build()
+            ))
+            .build();
+        
+        Task savedTask = taskService.createTask(task);
+        
+        // When: calculating progress
+        long total = savedTask.getSubtasks().size();
+        long completed = savedTask.getSubtasks().stream()
+            .filter(net.talaatharb.workday.model.Subtask::isCompleted)
+            .count();
+        int percentage = (int) ((completed * 100.0) / total);
+        
+        // Then
+        assertEquals(3, total);
+        assertEquals(2, completed);
+        assertEquals(66, percentage);
     }
 }

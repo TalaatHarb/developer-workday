@@ -301,7 +301,7 @@
       "title": "Subtasks/Checklist Support",
       "description": "Implement subtasks or checklist items within tasks",
       "acceptanceCriteria": "Feature: Subtasks\n  Scenario: Add subtasks to a task\n    Given a task being edited\n    When adding subtasks\n    Then multiple subtasks should be supported\n    And subtasks should have checkboxes for completion\n\n  Scenario: Subtask completion affects progress\n    Given a task with subtasks\n    When completing subtasks\n    Then a progress indicator should show completion percentage\n    And completing all subtasks should prompt to complete parent task\n\n  Scenario: Reorder subtasks\n    Given a task with multiple subtasks\n    When dragging subtasks\n    Then the order should update",
-      "passes": false
+      "passes": true
     },
     {
       "id": 44,

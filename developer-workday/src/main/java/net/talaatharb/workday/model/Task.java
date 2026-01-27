@@ -42,6 +42,10 @@ public class Task implements Serializable {
     @Builder.Default
     private List<String> tags = new ArrayList<>();
     
+    // Subtasks/Checklist
+    @Builder.Default
+    private List<Subtask> subtasks = new ArrayList<>();
+    
     // Timestamps
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

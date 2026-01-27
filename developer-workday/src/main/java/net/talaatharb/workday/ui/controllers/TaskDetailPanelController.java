@@ -5,24 +5,30 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +36,7 @@ import net.talaatharb.workday.event.EventDispatcher;
 import net.talaatharb.workday.event.task.TaskUpdatedEvent;
 import net.talaatharb.workday.facade.TaskFacade;
 import net.talaatharb.workday.model.Priority;
+import net.talaatharb.workday.model.Subtask;
 import net.talaatharb.workday.model.Task;
 import net.talaatharb.workday.model.TaskStatus;
 
@@ -79,6 +86,18 @@ public class TaskDetailPanelController implements Initializable {
     @FXML
     private Button saveButton;
     
+    @FXML
+    private ListView<Subtask> subtaskListView;
+    
+    @FXML
+    private TextField subtaskInputField;
+    
+    @FXML
+    private Button addSubtaskButton;
+    
+    @FXML
+    private Label subtaskProgressLabel;
+    
     @Setter
     private TaskFacade taskFacade;
     
@@ -99,10 +118,137 @@ public class TaskDetailPanelController implements Initializable {
         priorityChoice.setItems(FXCollections.observableArrayList(Priority.values()));
         statusChoice.setItems(FXCollections.observableArrayList(TaskStatus.values()));
         
+        // Setup subtask list view with custom cell factory
+        setupSubtaskListView();
+        
         // Setup change listeners for auto-save
         setupAutoSaveListeners();
         
         log.info("TaskDetailPanelController initialized successfully");
+    }
+    
+    /**
+     * Setup subtask list view with custom cell factory
+     */
+    private void setupSubtaskListView() {
+        subtaskListView.setCellFactory(listView -> new javafx.scene.control.ListCell<Subtask>() {
+            @Override
+            protected void updateItem(Subtask subtask, boolean empty) {
+                super.updateItem(subtask, empty);
+                
+                if (empty || subtask == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    CheckBox checkBox = new CheckBox(subtask.getTitle());
+                    checkBox.setSelected(subtask.isCompleted());
+                    
+                    // Handle checkbox changes
+                    checkBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+                        subtask.setCompleted(isSelected);
+                        if (isSelected) {
+                            subtask.setCompletedAt(java.time.LocalDateTime.now());
+                        } else {
+                            subtask.setCompletedAt(null);
+                        }
+                        updateSubtaskProgress();
+                        scheduleAutoSave();
+                    });
+                    
+                    Button deleteBtn = new Button("×");
+                    deleteBtn.setOnAction(e -> {
+                        if (currentTask != null && currentTask.getSubtasks() != null) {
+                            currentTask.getSubtasks().remove(subtask);
+                            refreshSubtaskList();
+                            updateSubtaskProgress();
+                            scheduleAutoSave();
+                        }
+                    });
+                    
+                    HBox hbox = new HBox(10, checkBox, deleteBtn);
+                    hbox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                    setGraphic(hbox);
+                }
+            }
+        });
+    }
+    
+    /**
+     * Refresh subtask list view
+     */
+    private void refreshSubtaskList() {
+        if (currentTask != null && currentTask.getSubtasks() != null) {
+            ObservableList<Subtask> observableSubtasks = FXCollections.observableArrayList(currentTask.getSubtasks());
+            subtaskListView.setItems(observableSubtasks);
+        } else {
+            subtaskListView.setItems(FXCollections.observableArrayList());
+        }
+    }
+    
+    /**
+     * Update subtask progress indicator
+     */
+    private void updateSubtaskProgress() {
+        if (currentTask == null || currentTask.getSubtasks() == null || currentTask.getSubtasks().isEmpty()) {
+            subtaskProgressLabel.setText("No subtasks");
+            return;
+        }
+        
+        long total = currentTask.getSubtasks().size();
+        long completed = currentTask.getSubtasks().stream().filter(Subtask::isCompleted).count();
+        int percentage = (int) ((completed * 100.0) / total);
+        
+        subtaskProgressLabel.setText(String.format("%d/%d (%d%%)", completed, total, percentage));
+        
+        // Check if all subtasks are completed
+        if (completed == total && total > 0) {
+            log.debug("All subtasks completed - prompting to complete parent task");
+            // Could show a dialog or notification here
+        }
+    }
+    
+    /**
+     * Handle add subtask button click
+     */
+    @FXML
+    private void handleAddSubtask() {
+        String title = subtaskInputField.getText();
+        if (title == null || title.trim().isEmpty()) {
+            return;
+        }
+        
+        if (currentTask == null) {
+            log.warn("Cannot add subtask: no current task");
+            return;
+        }
+        
+        // Initialize subtasks list if needed
+        if (currentTask.getSubtasks() == null) {
+            currentTask.setSubtasks(new ArrayList<>());
+        }
+        
+        // Create new subtask
+        Subtask subtask = Subtask.builder()
+            .id(UUID.randomUUID())
+            .title(title.trim())
+            .completed(false)
+            .sortOrder(currentTask.getSubtasks().size())
+            .createdAt(java.time.LocalDateTime.now())
+            .build();
+        
+        currentTask.getSubtasks().add(subtask);
+        
+        // Clear input field
+        subtaskInputField.clear();
+        
+        // Refresh list
+        refreshSubtaskList();
+        updateSubtaskProgress();
+        
+        // Mark as changed
+        scheduleAutoSave();
+        
+        log.debug("Added subtask: {}", title);
     }
     
     /**
@@ -142,6 +288,10 @@ public class TaskDetailPanelController implements Initializable {
         descriptionArea.setText(task.getDescription() != null ? task.getDescription() : "");
         tagsField.setText(task.getTags() != null ? String.join(", ", task.getTags()) : "");
         reminderField.setText(task.getReminderMinutesBefore() != null ? task.getReminderMinutesBefore().toString() : "");
+        
+        // Load subtasks
+        refreshSubtaskList();
+        updateSubtaskProgress();
         
         hasUnsavedChanges = false;
         updateUnsavedIndicator();
@@ -253,6 +403,7 @@ public class TaskDetailPanelController implements Initializable {
             .dueTime(parseDueTime(dueTimeField.getText()))
             .tags(parseTags(tagsField.getText()))
             .reminderMinutesBefore(parseReminder(reminderField.getText()))
+            .subtasks(currentTask.getSubtasks())
             .scheduledDate(currentTask.getScheduledDate())
             .categoryId(currentTask.getCategoryId())
             .createdAt(currentTask.getCreatedAt())

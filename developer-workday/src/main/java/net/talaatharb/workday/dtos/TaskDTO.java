@@ -30,6 +30,7 @@ public class TaskDTO {
     private TaskStatus status;
     private UUID categoryId;
     private List<String> tags;
+    private List<SubtaskDTO> subtasks;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime completedAt;
