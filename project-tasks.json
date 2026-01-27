@@ -182,28 +182,28 @@
       "title": "Global Keyboard Shortcut - Windows",
       "description": "Implement global keyboard shortcut (e.g., Ctrl+Shift+A) that works system-wide on Windows to show the quick add dialog",
       "acceptanceCriteria": "Feature: Global Shortcut Windows\n  Scenario: Register global shortcut on Windows\n    Given the application is running on Windows\n    When the application starts\n    Then a global keyboard shortcut should be registered using JNativeHook or JNA\n    And the shortcut should work even when the application is not focused\n\n  Scenario: Trigger quick add from global shortcut\n    Given the application is running in background on Windows\n    When pressing the global shortcut (Ctrl+Shift+A)\n    Then a floating quick add dialog should appear\n    And the dialog should be focused and ready for input\n\n  Scenario: Dismiss quick add dialog\n    Given the quick add dialog is open via global shortcut\n    When pressing Escape or clicking outside\n    Then the dialog should close\n    And focus should return to the previous application",
-      "passes": false
+      "passes": true
     },
     {
       "id": 27,
       "title": "Global Keyboard Shortcut - Linux",
       "description": "Implement global keyboard shortcut that works system-wide on Linux to show the quick add dialog",
       "acceptanceCriteria": "Feature: Global Shortcut Linux\n  Scenario: Register global shortcut on Linux\n    Given the application is running on Linux\n    When the application starts\n    Then a global keyboard shortcut should be registered using JNativeHook or X11 bindings\n    And the shortcut should work across different desktop environments (GNOME, KDE, XFCE)\n\n  Scenario: Trigger quick add from global shortcut on Linux\n    Given the application is running in background on Linux\n    When pressing the global shortcut (Ctrl+Shift+A)\n    Then a floating quick add dialog should appear centered on screen",
-      "passes": false
+      "passes": true
     },
     {
       "id": 28,
       "title": "Startup on System Boot - Windows",
       "description": "Implement functionality to optionally start the application when Windows boots up",
       "acceptanceCriteria": "Feature: Startup on Boot Windows\n  Scenario: Enable startup on Windows\n    Given the application settings\n    When 'Start on system boot' is enabled\n    Then a registry entry or startup folder shortcut should be created\n    And the application should start minimized on next boot\n\n  Scenario: Disable startup on Windows\n    Given startup is enabled\n    When 'Start on system boot' is disabled\n    Then the registry entry or shortcut should be removed",
-      "passes": false
+      "passes": true
     },
     {
       "id": 29,
       "title": "Startup on System Boot - Linux",
       "description": "Implement functionality to optionally start the application when Linux boots up",
       "acceptanceCriteria": "Feature: Startup on Boot Linux\n  Scenario: Enable startup on Linux\n    Given the application settings\n    When 'Start on system boot' is enabled\n    Then a .desktop file should be created in ~/.config/autostart/\n    And the application should start minimized on next boot\n\n  Scenario: Disable startup on Linux\n    Given startup is enabled\n    When 'Start on system boot' is disabled\n    Then the autostart .desktop file should be removed",
-      "passes": false
+      "passes": true
     },
     {
       "id": 30,
