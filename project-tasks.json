@@ -322,7 +322,7 @@
       "title": "Empty States and Onboarding",
       "description": "Implement friendly empty states for lists and first-time user onboarding",
       "acceptanceCriteria": "Feature: Empty States and Onboarding\n  Scenario: First time user onboarding\n    Given a new user opens the application for the first time\n    When the main window appears\n    Then an onboarding overlay or wizard should guide them through key features\n    And sample tasks and categories should optionally be created\n\n  Scenario: Empty category state\n    Given a category with no tasks\n    When viewing that category\n    Then a helpful empty state with illustration should be shown\n    And a clear call-to-action to add a task should be visible\n\n  Scenario: Skip onboarding\n    Given the onboarding is shown\n    When clicking 'Skip'\n    Then onboarding should close and not show again",
-      "passes": false
+      "passes": true
     },
     {
       "id": 47,
