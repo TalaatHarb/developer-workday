@@ -28,7 +28,7 @@
       "title": "Category Entity Model",
       "description": "Create the Category entity model with fields for organizing tasks into groups with customizable colors and icons",
       "acceptanceCriteria": "Feature: Category Entity Model\n  Scenario: Category entity has all required fields\n    Given a Category entity class\n    Then it should have fields for 'id' (UUID), 'name' (String), 'description' (String)\n    And it should have 'color' (String - hex code), 'icon' (String - icon identifier)\n    And it should have 'parentCategoryId' (UUID) for nested categories\n    And it should have 'sortOrder' (Integer), 'isDefault' (Boolean)\n    And it should have 'createdAt', 'updatedAt' (LocalDateTime)\n    And it should implement Serializable for MapDB storage",
-      "passes": false
+      "passes": true
     },
     {
       "id": 5,
