@@ -252,7 +252,7 @@
       "title": "Task Due Date Notifications",
       "description": "Implement system notifications for task due dates and reminders",
       "acceptanceCriteria": "Feature: Due Date Notifications\n  Scenario: Notification before due date\n    Given a task with a reminder set for 30 minutes before\n    When 30 minutes before the due time\n    Then a system notification should appear\n    And the notification should show task title and due time\n    And clicking the notification should open the task\n\n  Scenario: Overdue notification\n    Given a task that has become overdue\n    When the task due time passes\n    Then a notification should inform the user of the overdue task\n\n  Scenario: Notification snooze\n    Given a reminder notification is shown\n    When clicking snooze\n    Then the notification should be dismissed\n    And a new reminder should be scheduled for the snooze duration",
-      "passes": false
+      "passes": true
     },
     {
       "id": 37,
