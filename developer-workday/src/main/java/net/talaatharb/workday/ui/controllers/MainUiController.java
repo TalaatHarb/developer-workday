@@ -95,7 +95,7 @@ public class MainUiController implements Initializable {
     @FXML
     private void handleShowUpcoming() {
         log.info("Show upcoming view");
-        // TODO: Load upcoming view into contentArea
+        loadViewIntoContentArea("/net/talaatharb/workday/ui/UpcomingView.fxml");
         setActiveNavButton(upcomingButton);
     }
     
@@ -211,6 +211,9 @@ public class MainUiController implements Initializable {
             if (controller instanceof TodayViewController todayController) {
                 // TODO: Inject TaskFacade when available
                 todayController.loadTasks();
+            } else if (controller instanceof UpcomingViewController upcomingController) {
+                // TODO: Inject TaskFacade when available
+                upcomingController.loadTasks();
             }
             
             contentArea.getChildren().clear();

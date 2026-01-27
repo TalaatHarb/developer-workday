@@ -287,7 +287,7 @@
       "title": "Upcoming View with Timeline",
       "description": "Implement an Upcoming view that shows tasks for the next 7 days and beyond grouped by date",
       "acceptanceCriteria": "Feature: Upcoming View\n  Scenario: Upcoming view date grouping\n    Given tasks scheduled for future dates\n    When viewing Upcoming view\n    Then tasks should be grouped by date\n    And dates should show relative labels (Tomorrow, This Week, Next Week)\n\n  Scenario: Upcoming view navigation\n    Given the Upcoming view is displayed\n    When scrolling or using navigation controls\n    Then additional future dates should load\n    And performance should remain smooth with many tasks",
-      "passes": false
+      "passes": true
     },
     {
       "id": 42,
