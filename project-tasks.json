@@ -140,7 +140,7 @@
       "title": "Task List View Controller",
       "description": "Implement the controller for displaying and managing the task list view with sorting, filtering, and grouping options",
       "acceptanceCriteria": "Feature: Task List View\n  Scenario: Display task list\n    Given tasks exist in the system\n    When viewing the task list\n    Then tasks should be displayed with title, due date, priority indicator, and category\n    And completed tasks should be visually distinguished\n    And overdue tasks should be highlighted\n\n  Scenario: Filter tasks\n    Given the task list is displayed\n    When a filter is applied (by category, priority, or status)\n    Then only matching tasks should be displayed\n    And the filter state should be visually indicated\n\n  Scenario: Sort tasks\n    Given the task list is displayed\n    When a sort option is selected (by date, priority, or name)\n    Then tasks should be reordered according to the selected criteria",
-      "passes": false
+      "passes": true
     },
     {
       "id": 21,
