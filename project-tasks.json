@@ -14,7 +14,7 @@
       "title": "MapDB Integration and Configuration",
       "description": "Integrate MapDB library for file-based persistence. Configure database connection, file location, and serialization settings",
       "acceptanceCriteria": "Feature: MapDB Integration\n  Scenario: MapDB database is initialized on application start\n    Given the application is starting\n    When the database configuration is loaded\n    Then a MapDB file-backed database should be created in the user's application data directory\n    And the database should support transactions\n    And the database should be closed gracefully on application shutdown\n\n  Scenario: Database file persistence\n    Given tasks have been saved to the database\n    When the application is restarted\n    Then all previously saved tasks should be loaded from the database file",
-      "passes": false
+      "passes": true
     },
     {
       "id": 3,

@@ -41,6 +41,8 @@
 		<jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
 		<dependency-check-maven.version>12.2.0</dependency-check-maven.version>
 		<maven-pmd-plugin.version>3.28.0</maven-pmd-plugin.version>
+		<!-- Database -->
+		<mapdb.version>3.1.0</mapdb.version>
 		<!-- Java fx -->
 		<javafx.version>26-ea+22</javafx.version>
 		<testfx.version>4.0.18</testfx.version>
@@ -73,6 +75,11 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
 			<version>${slf4j-simple.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mapdb</groupId>
+			<artifactId>mapdb</artifactId>
+			<version>${mapdb.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openjfx</groupId>
