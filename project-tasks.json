@@ -112,7 +112,7 @@
       "title": "Task Facade Implementation",
       "description": "Implement TaskFacade as the main entry point for UI controllers to interact with task-related functionality, coordinating between multiple services",
       "acceptanceCriteria": "Feature: Task Facade\n  Scenario: Get tasks for today view\n    Given tasks scheduled for today and overdue tasks\n    When getTasksForToday is called\n    Then overdue tasks should be returned first\n    And tasks scheduled for today should follow\n    And tasks should be sorted by time and priority\n\n  Scenario: Quick add task\n    Given a quick add task string like 'Buy groceries tomorrow at 5pm #personal'\n    When quickAddTask is called\n    Then the string should be parsed for task details\n    And a task should be created with extracted title, date, time, and tags\n\n  Scenario: Get task statistics\n    Given a date range\n    When getTaskStatistics is called\n    Then statistics should include total tasks, completed, overdue, and completion rate",
-      "passes": false
+      "passes": true
     },
     {
       "id": 17,
