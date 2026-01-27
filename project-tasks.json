@@ -154,7 +154,7 @@
       "title": "Quick Add Task Controller",
       "description": "Implement the quick add task bar that allows rapid task creation with natural language parsing",
       "acceptanceCriteria": "Feature: Quick Add Task\n  Scenario: Quick add with natural language\n    Given the quick add bar is focused\n    When typing 'Call John tomorrow at 3pm #work !high'\n    Then the input should be parsed in real-time\n    And parsed elements should be highlighted (date, time, category, priority)\n\n  Scenario: Submit quick add task\n    Given a task has been typed in the quick add bar\n    When pressing Enter\n    Then the task should be created with parsed attributes\n    And the input should be cleared\n    And the new task should appear in the list\n\n  Scenario: Quick add suggestions\n    Given the user is typing in the quick add bar\n    When typing '#' or '@'\n    Then autocomplete suggestions should appear for categories or contacts",
-      "passes": false
+      "passes": true
     },
     {
       "id": 23,

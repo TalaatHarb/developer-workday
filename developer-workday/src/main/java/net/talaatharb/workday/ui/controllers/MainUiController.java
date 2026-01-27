@@ -76,6 +76,7 @@ public class MainUiController implements Initializable {
         if (taskInput != null && !taskInput.trim().isEmpty()) {
             log.info("Quick add task: {}", taskInput);
             // TODO: Integrate with TaskFacade.quickAddTask()
+            // For now, the QuickAddController handles this logic when integrated
             quickAddField.clear();
         }
     }
