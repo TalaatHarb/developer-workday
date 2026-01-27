@@ -42,7 +42,7 @@
       "title": "Task-Related Events",
       "description": "Create event classes for all task-related user actions: TaskCreatedEvent, TaskUpdatedEvent, TaskDeletedEvent, TaskCompletedEvent, TaskScheduledEvent, TaskPriorityChangedEvent, TaskMovedToCategoryEvent",
       "acceptanceCriteria": "Feature: Task Events\n  Scenario: TaskCreatedEvent is published when a task is created\n    Given a user creates a new task\n    When the task is saved successfully\n    Then a TaskCreatedEvent should be published\n    And the event should contain the complete task data\n\n  Scenario: TaskCompletedEvent is published when a task is marked complete\n    Given a user marks a task as complete\n    When the task status is updated\n    Then a TaskCompletedEvent should be published\n    And the event should contain the task id and completion timestamp\n\n  Scenario: TaskUpdatedEvent contains before and after states\n    Given a user edits a task\n    When the task is updated\n    Then a TaskUpdatedEvent should be published\n    And the event should contain both old and new task states",
-      "passes": false
+      "passes": true
     },
     {
       "id": 7,
