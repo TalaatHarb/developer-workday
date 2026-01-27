@@ -315,7 +315,7 @@
       "title": "Responsive Layout Design",
       "description": "Implement responsive layout that adapts to different window sizes and supports minimized/compact views",
       "acceptanceCriteria": "Feature: Responsive Layout\n  Scenario: Narrow window layout\n    Given the window width is reduced below threshold\n    When the window is narrow\n    Then the sidebar should collapse to icons only\n    And the detail panel should become a modal overlay\n\n  Scenario: Wide window layout\n    Given a wide window\n    When viewing tasks\n    Then sidebar, list, and detail panel should be visible simultaneously\n\n  Scenario: Compact mode\n    Given compact mode is enabled in settings\n    When viewing the application\n    Then UI density should increase with smaller spacing and fonts",
-      "passes": false
+      "passes": true
     },
     {
       "id": 46,
