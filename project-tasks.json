@@ -98,7 +98,7 @@
       "title": "Category Service Implementation",
       "description": "Implement CategoryService class with business logic for category operations: create, update, delete, reorder, and manage category hierarchy",
       "acceptanceCriteria": "Feature: Category Service\n  Scenario: Create a new category\n    Given valid category creation data\n    When createCategory is called\n    Then the category should be saved via repository\n    And a CategoryCreatedEvent should be published\n\n  Scenario: Delete a category with tasks\n    Given a category containing tasks\n    When deleteCategory is called\n    Then the user should be prompted for task handling (move to default or delete)\n    And tasks should be handled according to user choice\n    And the category should be deleted\n    And a CategoryDeletedEvent should be published",
-      "passes": false
+      "passes": true
     },
     {
       "id": 15,
