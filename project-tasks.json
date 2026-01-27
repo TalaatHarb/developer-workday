@@ -224,7 +224,7 @@
       "title": "Task Priority Visual Indicators",
       "description": "Implement visual indicators for task priority levels using colors, icons, or badges that are consistent throughout the application",
       "acceptanceCriteria": "Feature: Priority Visual Indicators\n  Scenario: Priority colors in task list\n    Given tasks with different priorities\n    When viewing the task list\n    Then URGENT tasks should have red indicator\n    And HIGH priority tasks should have orange indicator\n    And MEDIUM priority tasks should have yellow indicator\n    And LOW priority tasks should have gray or no indicator\n\n  Scenario: Priority in calendar view\n    Given tasks in calendar view\n    When viewing scheduled tasks\n    Then task blocks should be color-coded by priority",
-      "passes": false
+      "passes": true
     },
     {
       "id": 33,

@@ -357,3 +357,64 @@
     -fx-background-color: #007acc;
     -fx-text-fill: white;
 }
+
+/* Priority Indicators */
+.priority-urgent {
+    -fx-background-color: rgba(197, 0, 11, 0.25);
+    -fx-border-color: #c5000b;
+}
+
+.priority-high {
+    -fx-background-color: rgba(255, 140, 0, 0.25);
+    -fx-border-color: #ff8c00;
+}
+
+.priority-medium {
+    -fx-background-color: rgba(255, 215, 0, 0.25);
+    -fx-border-color: #ffd700;
+}
+
+.priority-low {
+    -fx-background-color: rgba(149, 165, 166, 0.15);
+    -fx-border-color: #95a5a6;
+}
+
+.priority-badge-urgent {
+    -fx-background-color: #c5000b;
+    -fx-text-fill: white;
+}
+
+.priority-badge-high {
+    -fx-background-color: #ff8c00;
+    -fx-text-fill: white;
+}
+
+.priority-badge-medium {
+    -fx-background-color: #ffd700;
+    -fx-text-fill: #1e1e1e;
+}
+
+.priority-badge-low {
+    -fx-background-color: #95a5a6;
+    -fx-text-fill: white;
+}
+
+.task-item-urgent {
+    -fx-border-color: #c5000b;
+    -fx-border-width: 0 0 0 4;
+}
+
+.task-item-high {
+    -fx-border-color: #ff8c00;
+    -fx-border-width: 0 0 0 4;
+}
+
+.task-item-medium {
+    -fx-border-color: #ffd700;
+    -fx-border-width: 0 0 0 4;
+}
+
+.task-item-low {
+    -fx-border-color: #95a5a6;
+    -fx-border-width: 0 0 0 4;
+}
