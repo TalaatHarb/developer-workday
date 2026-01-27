@@ -105,7 +105,7 @@
       "title": "Reminder Service Implementation",
       "description": "Implement ReminderService to schedule and trigger task reminders based on configured reminder times",
       "acceptanceCriteria": "Feature: Reminder Service\n  Scenario: Schedule a reminder for a task\n    Given a task with a due date and reminder minutes before set\n    When the task is created or updated\n    Then a reminder should be scheduled for the specified time before due\n\n  Scenario: Trigger reminder notification\n    Given a scheduled reminder\n    When the reminder time is reached\n    Then a system notification should be displayed\n    And a ReminderTriggeredEvent should be published\n\n  Scenario: Cancel reminder when task is completed\n    Given a task with a scheduled reminder\n    When the task is completed before the reminder time\n    Then the scheduled reminder should be cancelled",
-      "passes": false
+      "passes": true
     },
     {
       "id": 16,
