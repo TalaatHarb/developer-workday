@@ -16,6 +16,7 @@ public class NotificationService {
     
     private final TrayIcon trayIcon;
     private final boolean notificationsSupported;
+    private boolean suppressNotifications = false;
     
     /**
      * Create a notification service
@@ -87,6 +88,11 @@ public class NotificationService {
      * Show a generic notification
      */
     private void showNotification(String title, String message, TrayIcon.MessageType messageType) {
+        if (suppressNotifications) {
+            log.debug("Notification suppressed (focus mode): {} - {}", title, message);
+            return;
+        }
+        
         if (!notificationsSupported) {
             log.warn("Cannot show notification - not supported. Title: {}, Message: {}", title, message);
             return;
@@ -105,6 +111,21 @@ public class NotificationService {
      */
     public boolean isNotificationSupported() {
         return notificationsSupported;
+    }
+    
+    /**
+     * Enable or disable notification suppression (for focus mode).
+     */
+    public void setSuppressNotifications(boolean suppress) {
+        this.suppressNotifications = suppress;
+        log.info("Notification suppression {}", suppress ? "enabled" : "disabled");
+    }
+    
+    /**
+     * Check if notifications are currently suppressed.
+     */
+    public boolean isNotificationsSuppressed() {
+        return suppressNotifications;
     }
     
     /**

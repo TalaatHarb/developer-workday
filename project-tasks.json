@@ -399,7 +399,7 @@
       "title": "Focus Mode / Do Not Disturb",
       "description": "Implement a focus mode that hides notifications and non-essential UI elements",
       "acceptanceCriteria": "Feature: Focus Mode\n  Scenario: Enable focus mode\n    Given the application is running normally\n    When enabling focus mode\n    Then notifications should be suppressed\n    And UI should simplify to show only current tasks\n    And a focus timer should optionally start\n\n  Scenario: Focus mode timer\n    Given focus mode is enabled with a timer\n    When the timer expires\n    Then focus mode should automatically disable\n    And suppressed notifications should be shown\n\n  Scenario: Focus mode break reminders\n    Given extended focus mode session\n    When a break interval is reached\n    Then a gentle break reminder should appear",
-      "passes": false
+      "passes": true
     },
     {
       "id": 58,

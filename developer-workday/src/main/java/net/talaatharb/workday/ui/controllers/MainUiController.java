@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.ResourceBundle;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -15,6 +17,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -22,6 +25,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
+import net.talaatharb.workday.facade.FocusModeFacade;
+import net.talaatharb.workday.dtos.FocusModeDTO;
 
 @Slf4j
 public class MainUiController implements Initializable {
@@ -59,7 +64,19 @@ public class MainUiController implements Initializable {
     @FXML
     private StackPane contentArea;
     
+    @FXML
+    private MenuItem focusModeMenuItem;
+    
+    @FXML
+    private Label focusModeStatusLabel;
+    
     private boolean sidebarCollapsed = false;
+    private FocusModeFacade focusModeFacade;
+    private Timer focusModeUpdateTimer;
+    
+    public void setFocusModeFacade(FocusModeFacade focusModeFacade) {
+        this.focusModeFacade = focusModeFacade;
+    }
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -166,6 +183,92 @@ public class MainUiController implements Initializable {
         about.setHeaderText("Developer Workday");
         about.setContentText("A task management application for developers.\nVersion 1.0.0");
         about.showAndWait();
+    }
+    
+    @FXML
+    private void handleToggleFocusMode() {
+        if (focusModeFacade == null) {
+            log.warn("FocusModeFacade not initialized");
+            return;
+        }
+        
+        if (focusModeFacade.isFocusModeEnabled()) {
+            focusModeFacade.disableFocusMode();
+            updateFocusModeUI(false);
+        } else {
+            // Show dialog to configure focus mode
+            showFocusModeConfigDialog();
+        }
+    }
+    
+    private void showFocusModeConfigDialog() {
+        Alert configDialog = new Alert(Alert.AlertType.CONFIRMATION);
+        configDialog.setTitle("Enable Focus Mode");
+        configDialog.setHeaderText("Configure Focus Mode");
+        configDialog.setContentText("Focus mode will suppress notifications and simplify the UI.\n\nStart focus mode now?");
+        
+        configDialog.showAndWait().ifPresent(response -> {
+            if (response == javafx.scene.control.ButtonType.OK) {
+                // Enable focus mode with default 25-minute Pomodoro timer
+                focusModeFacade.enableFocusMode(25, 25);
+                updateFocusModeUI(true);
+                startFocusModeUpdateTimer();
+            }
+        });
+    }
+    
+    private void updateFocusModeUI(boolean enabled) {
+        Platform.runLater(() -> {
+            if (enabled) {
+                focusModeMenuItem.setText("⬤ Disable Focus Mode");
+                focusModeStatusLabel.setText("🎯 Focus Mode Active");
+                focusModeStatusLabel.setVisible(true);
+                focusModeStatusLabel.setManaged(true);
+                
+                // Simplify UI - collapse sidebar
+                if (!sidebarCollapsed) {
+                    handleToggleSidebar();
+                }
+            } else {
+                focusModeMenuItem.setText("Toggle Focus Mode");
+                focusModeStatusLabel.setVisible(false);
+                focusModeStatusLabel.setManaged(false);
+                stopFocusModeUpdateTimer();
+            }
+        });
+    }
+    
+    private void startFocusModeUpdateTimer() {
+        stopFocusModeUpdateTimer();
+        focusModeUpdateTimer = new Timer("FocusModeUIUpdate", true);
+        focusModeUpdateTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (focusModeFacade != null && focusModeFacade.isFocusModeEnabled()) {
+                    FocusModeDTO state = focusModeFacade.getCurrentState();
+                    Integer remaining = state.getRemainingMinutes();
+                    
+                    Platform.runLater(() -> {
+                        if (remaining != null) {
+                            focusModeStatusLabel.setText(
+                                    String.format("🎯 Focus Mode (%d min remaining)", remaining));
+                        } else {
+                            focusModeStatusLabel.setText("🎯 Focus Mode Active");
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> updateFocusModeUI(false));
+                    stopFocusModeUpdateTimer();
+                }
+            }
+        }, 1000, 60000); // Update every minute
+    }
+    
+    private void stopFocusModeUpdateTimer() {
+        if (focusModeUpdateTimer != null) {
+            focusModeUpdateTimer.cancel();
+            focusModeUpdateTimer = null;
+        }
     }
     
     @FXML
