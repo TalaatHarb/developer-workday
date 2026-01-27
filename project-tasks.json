@@ -350,7 +350,7 @@
       "title": "Unit Tests - Repository Layer",
       "description": "Write comprehensive unit tests for all repository classes using JUnit and Mockito",
       "acceptanceCriteria": "Feature: Repository Unit Tests\n  Scenario: Test TaskRepository CRUD operations\n    Given a TaskRepository with mocked MapDB\n    When testing save, findById, findAll, update, and delete\n    Then all operations should behave correctly\n    And edge cases should be handled\n\n  Scenario: Test CategoryRepository operations\n    Given a CategoryRepository with mocked MapDB\n    When testing all category operations\n    Then correct data should be returned\n    And errors should be handled appropriately\n\n  Scenario: Test query methods\n    Given repositories with test data\n    When testing complex queries (findByDueDateBetween, findByCategoryId)\n    Then correct filtered results should be returned",
-      "passes": false
+      "passes": true
     },
     {
       "id": 51,
