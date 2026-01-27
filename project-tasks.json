@@ -133,7 +133,7 @@
       "title": "Main Application Window UI",
       "description": "Design and implement the main application window with a modern, clean interface including sidebar navigation, main content area, and quick action bar",
       "acceptanceCriteria": "Feature: Main Application Window\n  Scenario: Main window layout\n    Given the application is launched\n    When the main window is displayed\n    Then it should have a collapsible sidebar on the left\n    And a main content area in the center\n    And a quick add bar at the top\n    And the window should be resizable with minimum dimensions\n\n  Scenario: Sidebar navigation\n    Given the main window is displayed\n    When viewing the sidebar\n    Then it should show 'Today', 'Upcoming', 'Calendar', and 'All Tasks' sections\n    And it should show the list of categories below\n    And each category should display task count badge",
-      "passes": false
+      "passes": true
     },
     {
       "id": 20,

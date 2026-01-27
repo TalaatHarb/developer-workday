@@ -9,27 +9,216 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.Pane;
-import javafx.util.StringConverter;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@RequiredArgsConstructor
 public class MainUiController implements Initializable {
 
+    @FXML
+    private TextField quickAddField;
+    
+    @FXML
+    private Button quickAddButton;
+    
+    @FXML
+    private VBox sidebar;
+    
+    @FXML
+    private Button todayButton;
+    
+    @FXML
+    private Button upcomingButton;
+    
+    @FXML
+    private Button calendarButton;
+    
+    @FXML
+    private Button allTasksButton;
+    
+    @FXML
+    private Button addCategoryButton;
+    
+    @FXML
+    private ListView<CategoryItem> categoryListView;
+    
+    @FXML
+    private Button sidebarToggleButton;
+    
+    @FXML
+    private StackPane contentArea;
+    
+    private boolean sidebarCollapsed = false;
+    
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         log.info("Initializing UI application Main window controller...");
-
         
+        // Set up category list view with custom cell factory
+        categoryListView.setCellFactory(listView -> new CategoryCell());
+        
+        // Load sample categories for demonstration
+        loadSampleCategories();
+        
+        log.info("Main window controller initialized successfully");
+    }
+    
+    @FXML
+    private void handleQuickAdd() {
+        String taskInput = quickAddField.getText();
+        if (taskInput != null && !taskInput.trim().isEmpty()) {
+            log.info("Quick add task: {}", taskInput);
+            // TODO: Integrate with TaskFacade.quickAddTask()
+            quickAddField.clear();
+        }
+    }
+    
+    @FXML
+    private void handleShowToday() {
+        log.info("Show today view");
+        // TODO: Load today view into contentArea
+        setActiveNavButton(todayButton);
+    }
+    
+    @FXML
+    private void handleShowUpcoming() {
+        log.info("Show upcoming view");
+        // TODO: Load upcoming view into contentArea
+        setActiveNavButton(upcomingButton);
+    }
+    
+    @FXML
+    private void handleShowCalendar() {
+        log.info("Show calendar view");
+        // TODO: Load calendar view into contentArea
+        setActiveNavButton(calendarButton);
+    }
+    
+    @FXML
+    private void handleShowAllTasks() {
+        log.info("Show all tasks view");
+        // TODO: Load all tasks view into contentArea
+        setActiveNavButton(allTasksButton);
+    }
+    
+    @FXML
+    private void handleAddCategory() {
+        log.info("Add new category");
+        // TODO: Open add category dialog
+    }
+    
+    @FXML
+    private void handleToggleSidebar() {
+        sidebarCollapsed = !sidebarCollapsed;
+        
+        if (sidebarCollapsed) {
+            sidebar.setPrefWidth(50);
+            sidebar.setMinWidth(50);
+            sidebarToggleButton.setText("▶");
+        } else {
+            sidebar.setPrefWidth(250);
+            sidebar.setMinWidth(220);
+            sidebarToggleButton.setText("◀ Collapse");
+        }
+        
+        log.info("Sidebar collapsed: {}", sidebarCollapsed);
+    }
+    
+    private void setActiveNavButton(Button activeButton) {
+        // Remove active style from all buttons
+        todayButton.getStyleClass().remove("active");
+        upcomingButton.getStyleClass().remove("active");
+        calendarButton.getStyleClass().remove("active");
+        allTasksButton.getStyleClass().remove("active");
+        
+        // Add active style to clicked button
+        if (!activeButton.getStyleClass().contains("active")) {
+            activeButton.getStyleClass().add("active");
+        }
+    }
+    
+    private void loadSampleCategories() {
+        // Sample data for demonstration
+        categoryListView.getItems().addAll(
+            new CategoryItem("Work", 5, "#3498db"),
+            new CategoryItem("Personal", 3, "#2ecc71"),
+            new CategoryItem("Shopping", 2, "#e74c3c"),
+            new CategoryItem("Health", 1, "#9b59b6")
+        );
+    }
+    
+    /**
+     * Category item for display in the list
+     */
+    public static class CategoryItem {
+        private final String name;
+        private final int taskCount;
+        private final String color;
+        
+        public CategoryItem(String name, int taskCount, String color) {
+            this.name = name;
+            this.taskCount = taskCount;
+            this.color = color;
+        }
+        
+        public String getName() {
+            return name;
+        }
+        
+        public int getTaskCount() {
+            return taskCount;
+        }
+        
+        public String getColor() {
+            return color;
+        }
+    }
+    
+    /**
+     * Custom cell for category list items
+     */
+    private static class CategoryCell extends ListCell<CategoryItem> {
+        @Override
+        protected void updateItem(CategoryItem item, boolean empty) {
+            super.updateItem(item, empty);
+            
+            if (empty || item == null) {
+                setText(null);
+                setGraphic(null);
+            } else {
+                HBox container = new HBox(10);
+                container.setStyle("-fx-alignment: center-left;");
+                
+                // Color indicator
+                Label colorLabel = new Label("●");
+                colorLabel.setStyle("-fx-text-fill: " + item.getColor() + "; -fx-font-size: 16px;");
+                
+                // Category name
+                Label nameLabel = new Label(item.getName());
+                nameLabel.setStyle("-fx-font-size: 13px;");
+                
+                // Task count badge
+                Label countLabel = new Label(String.valueOf(item.getTaskCount()));
+                countLabel.setStyle("-fx-background-color: #95a5a6; -fx-text-fill: white; " +
+                                  "-fx-background-radius: 10; -fx-padding: 2 8 2 8; " +
+                                  "-fx-font-size: 11px; -fx-font-weight: bold;");
+                
+                container.getChildren().addAll(colorLabel, nameLabel);
+                
+                // Add spacer and count badge
+                javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+                HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+                container.getChildren().addAll(spacer, countLabel);
+                
+                setGraphic(container);
+            }
+        }
     }
 }
