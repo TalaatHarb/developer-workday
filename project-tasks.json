@@ -49,7 +49,7 @@
       "title": "Category-Related Events",
       "description": "Create event classes for category actions: CategoryCreatedEvent, CategoryUpdatedEvent, CategoryDeletedEvent, CategoryReorderedEvent",
       "acceptanceCriteria": "Feature: Category Events\n  Scenario: CategoryCreatedEvent is published when a category is created\n    Given a user creates a new category\n    When the category is saved successfully\n    Then a CategoryCreatedEvent should be published\n    And the event should contain the complete category data\n\n  Scenario: CategoryDeletedEvent handles task reassignment\n    Given a category with tasks is deleted\n    When the CategoryDeletedEvent is published\n    Then it should contain information about affected tasks\n    And listeners should handle task reassignment to default category",
-      "passes": false
+      "passes": true
     },
     {
       "id": 8,
