@@ -336,7 +336,7 @@
       "title": "Data Export and Import",
       "description": "Implement data export and import functionality for backup and migration purposes",
       "acceptanceCriteria": "Feature: Data Export Import\n  Scenario: Export all data\n    Given the application has tasks and categories\n    When exporting data\n    Then a JSON file should be generated with all tasks, categories, and settings\n    And the file should be downloadable to a chosen location\n\n  Scenario: Import data\n    Given a previously exported data file\n    When importing data\n    Then the user should choose merge or replace strategy\n    And data should be imported according to the chosen strategy\n\n  Scenario: Export to CSV\n    Given tasks in the system\n    When exporting to CSV\n    Then a CSV file with task data should be generated\n    And it should be compatible with spreadsheet applications",
-      "passes": false
+      "passes": true
     },
     {
       "id": 49,
