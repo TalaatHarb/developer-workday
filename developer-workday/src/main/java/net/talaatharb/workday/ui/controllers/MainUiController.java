@@ -26,7 +26,9 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import net.talaatharb.workday.facade.FocusModeFacade;
+import net.talaatharb.workday.facade.UpdateCheckFacade;
 import net.talaatharb.workday.dtos.FocusModeDTO;
+import net.talaatharb.workday.model.UpdateInfo;
 
 @Slf4j
 public class MainUiController implements Initializable {
@@ -78,10 +80,15 @@ public class MainUiController implements Initializable {
     
     private boolean sidebarCollapsed = false;
     private FocusModeFacade focusModeFacade;
+    private UpdateCheckFacade updateCheckFacade;
     private Timer focusModeUpdateTimer;
     
     public void setFocusModeFacade(FocusModeFacade focusModeFacade) {
         this.focusModeFacade = focusModeFacade;
+    }
+    
+    public void setUpdateCheckFacade(UpdateCheckFacade updateCheckFacade) {
+        this.updateCheckFacade = updateCheckFacade;
     }
     
     @Override
@@ -191,11 +198,113 @@ public class MainUiController implements Initializable {
     @FXML
     private void handleAbout() {
         log.info("Showing about dialog");
+        
+        String version = updateCheckFacade != null ? updateCheckFacade.getCurrentVersion() : "1.0.0";
+        
         Alert about = new Alert(Alert.AlertType.INFORMATION);
         about.setTitle("About Developer Workday");
         about.setHeaderText("Developer Workday");
-        about.setContentText("A task management application for developers.\nVersion 1.0.0");
+        about.setContentText("A task management application for developers.\nVersion " + version);
         about.showAndWait();
+    }
+    
+    @FXML
+    private void handleCheckForUpdates() {
+        log.info("Manual update check requested");
+        
+        if (updateCheckFacade == null) {
+            log.warn("UpdateCheckFacade not initialized");
+            showError("Update check is not available");
+            return;
+        }
+        
+        // Show progress
+        Alert progressAlert = new Alert(Alert.AlertType.INFORMATION);
+        progressAlert.setTitle("Checking for Updates");
+        progressAlert.setHeaderText("Checking for updates...");
+        progressAlert.setContentText("Please wait while we check for the latest version.");
+        
+        // Check in background thread
+        new Thread(() -> {
+            UpdateInfo updateInfo = updateCheckFacade.checkForUpdatesManually();
+            
+            // Show result on JavaFX thread
+            Platform.runLater(() -> {
+                progressAlert.close();
+                showUpdateDialog(updateInfo);
+            });
+        }).start();
+        
+        progressAlert.show();
+    }
+    
+    /**
+     * Show update notification dialog
+     */
+    private void showUpdateDialog(UpdateInfo updateInfo) {
+        if (updateInfo == null) {
+            showError("Failed to check for updates. Please try again later.");
+            return;
+        }
+        
+        if (updateInfo.isUpdateAvailable()) {
+            Alert updateAlert = new Alert(Alert.AlertType.INFORMATION);
+            updateAlert.setTitle("Update Available");
+            updateAlert.setHeaderText(String.format("Version %s is available!", updateInfo.getLatestVersion()));
+            
+            String content = String.format(
+                "Current version: %s\nLatest version: %s\n\n%s\n\nWould you like to download the update?",
+                updateInfo.getCurrentVersion(),
+                updateInfo.getLatestVersion(),
+                updateInfo.getReleaseNotes() != null ? updateInfo.getReleaseNotes() : ""
+            );
+            updateAlert.setContentText(content);
+            
+            // Add buttons
+            updateAlert.getButtonTypes().clear();
+            updateAlert.getButtonTypes().addAll(
+                javafx.scene.control.ButtonType.YES,
+                javafx.scene.control.ButtonType.NO
+            );
+            
+            updateAlert.showAndWait().ifPresent(response -> {
+                if (response == javafx.scene.control.ButtonType.YES) {
+                    openDownloadLink(updateInfo.getDownloadUrl());
+                }
+            });
+        } else {
+            Alert noUpdateAlert = new Alert(Alert.AlertType.INFORMATION);
+            noUpdateAlert.setTitle("No Updates Available");
+            noUpdateAlert.setHeaderText("You're up to date!");
+            noUpdateAlert.setContentText(String.format(
+                "You have the latest version (%s) of Developer Workday.",
+                updateInfo.getCurrentVersion()
+            ));
+            noUpdateAlert.showAndWait();
+        }
+    }
+    
+    /**
+     * Open download link in default browser
+     */
+    private void openDownloadLink(String url) {
+        try {
+            java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
+        } catch (Exception e) {
+            log.error("Failed to open download link", e);
+            showError("Failed to open download link: " + url);
+        }
+    }
+    
+    /**
+     * Show error dialog
+     */
+    private void showError(String message) {
+        Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+        errorAlert.setTitle("Error");
+        errorAlert.setHeaderText("An error occurred");
+        errorAlert.setContentText(message);
+        errorAlert.showAndWait();
     }
     
     @FXML

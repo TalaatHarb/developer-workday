@@ -420,7 +420,7 @@
       "title": "Application Update Check",
       "description": "Implement automatic update checking with user notification when new versions are available",
       "acceptanceCriteria": "Feature: Update Check\n  Scenario: Check for updates on startup\n    Given the application starts\n    When checking for updates (if enabled)\n    Then a version check should be performed against update server\n    And if new version available, user should be notified\n\n  Scenario: Manual update check\n    Given the settings or help menu\n    When clicking 'Check for Updates'\n    Then current and latest version should be compared\n    And download link should be provided if update available\n\n  Scenario: Update notification\n    Given an update is available\n    When notification is shown\n    Then user can choose to download, skip, or remind later",
-      "passes": false
+      "passes": true
     },
     {
       "id": 61,

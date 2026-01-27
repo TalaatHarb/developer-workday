@@ -53,6 +53,8 @@
                   </Menu>
                   <Menu text="Help">
                      <items>
+                        <MenuItem text="Check for Updates..." onAction="#handleCheckForUpdates" />
+                        <SeparatorMenuItem />
                         <MenuItem text="About" onAction="#handleAbout" />
                      </items>
                   </Menu>

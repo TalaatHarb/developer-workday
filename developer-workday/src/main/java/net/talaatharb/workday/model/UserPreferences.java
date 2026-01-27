@@ -54,6 +54,12 @@ public class UserPreferences implements Serializable {
     @Builder.Default
     private int reminderLeadTimeMinutes = 15; // minutes before due time
     
+    // Update settings
+    @Builder.Default
+    private boolean autoCheckForUpdates = true;
+    
+    private LocalDateTime lastUpdateCheck;
+    
     // Keyboard shortcuts (not editable yet, just stored)
     @Builder.Default
     private String quickAddShortcut = "Ctrl+N";
