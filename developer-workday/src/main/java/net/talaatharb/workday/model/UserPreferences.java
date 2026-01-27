@@ -60,6 +60,16 @@ public class UserPreferences implements Serializable {
     
     private LocalDateTime lastUpdateCheck;
     
+    // Accessibility settings
+    @Builder.Default
+    private boolean highContrastMode = false;
+    
+    @Builder.Default
+    private boolean enhancedFocusIndicators = true;
+    
+    @Builder.Default
+    private boolean screenReaderOptimizations = false;
+    
     // Keyboard shortcuts (not editable yet, just stored)
     @Builder.Default
     private String quickAddShortcut = "Ctrl+N";

@@ -427,7 +427,7 @@
       "title": "Accessibility Support",
       "description": "Implement accessibility features including screen reader support, keyboard navigation, and high contrast mode",
       "acceptanceCriteria": "Feature: Accessibility\n  Scenario: Screen reader support\n    Given a user using a screen reader\n    When navigating the application\n    Then all interactive elements should have proper labels\n    And focus changes should be announced\n\n  Scenario: High contrast mode\n    Given a user enables high contrast mode\n    When viewing the application\n    Then colors should meet WCAG contrast requirements\n    And important elements should be clearly distinguishable\n\n  Scenario: Full keyboard navigation\n    Given a user navigating with keyboard only\n    When using the application\n    Then all features should be accessible via keyboard\n    And focus indicators should be clearly visible",
-      "passes": false
+      "passes": true
     },
     {
       "id": 62,
