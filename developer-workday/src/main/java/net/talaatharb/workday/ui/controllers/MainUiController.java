@@ -9,6 +9,8 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -17,6 +19,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -113,6 +117,46 @@ public class MainUiController implements Initializable {
     private void handleAddCategory() {
         log.info("Add new category");
         // TODO: Open add category dialog
+    }
+    
+    @FXML
+    private void handleOpenSettings() {
+        log.info("Opening settings dialog");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/net/talaatharb/workday/ui/SettingsDialog.fxml"));
+            VBox dialogRoot = loader.load();
+            
+            SettingsDialogController controller = loader.getController();
+            // TODO: Wire PreferencesFacade when available
+            
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Settings");
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.setScene(new Scene(dialogRoot));
+            
+            controller.setOnCloseCallback(() -> dialogStage.close());
+            controller.loadPreferences();
+            
+            dialogStage.showAndWait();
+        } catch (IOException e) {
+            log.error("Failed to open settings dialog", e);
+        }
+    }
+    
+    @FXML
+    private void handleExit() {
+        log.info("Exiting application");
+        Platform.exit();
+    }
+    
+    @FXML
+    private void handleAbout() {
+        log.info("Showing about dialog");
+        Alert about = new Alert(Alert.AlertType.INFORMATION);
+        about.setTitle("About Developer Workday");
+        about.setHeaderText("Developer Workday");
+        about.setContentText("A task management application for developers.\nVersion 1.0.0");
+        about.showAndWait();
     }
     
     @FXML

@@ -210,7 +210,7 @@
       "title": "Settings/Preferences Dialog",
       "description": "Implement a settings dialog for user preferences including appearance, shortcuts, notifications, and startup behavior",
       "acceptanceCriteria": "Feature: Settings Dialog\n  Scenario: Open settings dialog\n    Given the application is running\n    When opening settings (via menu or shortcut)\n    Then a settings dialog should appear with categorized options\n\n  Scenario: General settings\n    Given the settings dialog is open\n    When viewing general settings\n    Then options for startup behavior, default view, and language should be available\n\n  Scenario: Appearance settings\n    Given the settings dialog is open\n    When viewing appearance settings\n    Then options for theme (light/dark), accent color, and font size should be available\n\n  Scenario: Save settings\n    Given settings have been modified\n    When clicking Save or closing the dialog\n    Then settings should be persisted\n    And applicable changes should take effect immediately",
-      "passes": false
+      "passes": true
     },
     {
       "id": 31,
