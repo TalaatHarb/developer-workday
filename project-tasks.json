@@ -91,7 +91,7 @@
       "title": "Task Service Implementation",
       "description": "Implement TaskService class with business logic for task operations: create, update, delete, complete, schedule, and search tasks",
       "acceptanceCriteria": "Feature: Task Service\n  Scenario: Create a new task\n    Given valid task creation data\n    When createTask is called\n    Then the task should be saved via repository\n    And a TaskCreatedEvent should be published\n    And the created task should be returned\n\n  Scenario: Complete a task\n    Given an existing incomplete task\n    When completeTask is called\n    Then the task status should be set to COMPLETED\n    And completedAt should be set to current timestamp\n    And a TaskCompletedEvent should be published\n\n  Scenario: Handle recurring task completion\n    Given a recurring task\n    When the task is completed\n    Then a new task instance should be created for the next occurrence\n    And the original task should be marked complete",
-      "passes": false
+      "passes": true
     },
     {
       "id": 14,
