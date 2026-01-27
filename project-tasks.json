@@ -175,7 +175,7 @@
       "title": "System Tray Integration",
       "description": "Implement system tray icon with context menu for quick actions and application visibility control",
       "acceptanceCriteria": "Feature: System Tray Integration\n  Scenario: Application minimizes to tray\n    Given the application is running\n    When minimizing the window\n    Then the application should minimize to system tray\n    And a tray icon should be visible\n\n  Scenario: Tray context menu\n    Given the application is in system tray\n    When right-clicking the tray icon\n    Then a context menu should appear with 'Show', 'Quick Add', 'Today's Tasks', and 'Exit' options\n\n  Scenario: Restore from tray\n    Given the application is minimized to tray\n    When clicking the tray icon\n    Then the main window should be restored and focused",
-      "passes": false
+      "passes": true
     },
     {
       "id": 26,
