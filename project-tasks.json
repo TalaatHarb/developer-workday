@@ -126,7 +126,7 @@
       "title": "Calendar Facade Implementation",
       "description": "Implement CalendarFacade to provide calendar-view specific operations and data formatting",
       "acceptanceCriteria": "Feature: Calendar Facade\n  Scenario: Get tasks for calendar month view\n    Given a specific month and year\n    When getTasksForMonth is called\n    Then tasks should be grouped by date\n    And the result should be optimized for calendar grid display\n\n  Scenario: Get tasks for calendar week view\n    Given a specific week\n    When getTasksForWeek is called\n    Then tasks should be grouped by date and time slots\n    And all-day tasks should be separated from timed tasks",
-      "passes": false
+      "passes": true
     },
     {
       "id": 19,
