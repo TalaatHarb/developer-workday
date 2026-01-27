@@ -168,7 +168,7 @@
       "title": "Category Management Dialog Controller",
       "description": "Implement the dialog for managing categories: create, edit, delete, and reorder",
       "acceptanceCriteria": "Feature: Category Management Dialog\n  Scenario: Create new category\n    Given the category management dialog is open\n    When filling in category name, color, and icon\n    And clicking Save\n    Then the category should be created\n    And the dialog should close\n    And the sidebar should update with the new category\n\n  Scenario: Edit category\n    Given an existing category\n    When editing its properties\n    Then changes should be saved\n    And all tasks in that category should reflect visual changes\n\n  Scenario: Reorder categories\n    Given multiple categories\n    When dragging a category to a new position\n    Then the sort order should be updated\n    And the sidebar should reflect the new order",
-      "passes": false
+      "passes": true
     },
     {
       "id": 25,
