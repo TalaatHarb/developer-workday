@@ -395,4 +395,153 @@ class TaskServiceTest {
         List<Task> noResults = taskService.searchTasks("nonexistent");
         assertTrue(noResults.isEmpty());
     }
+    
+    @Test
+    @DisplayName("Create daily recurring task - appears each day")
+    void testCreateDailyRecurringTask() {
+        // Given: a daily recurring task
+        RecurrenceRule rule = RecurrenceRule.builder()
+            .type(RecurrenceRule.RecurrenceType.DAILY)
+            .interval(1)
+            .build();
+        
+        Task task = Task.builder()
+            .title("Daily Task")
+            .scheduledDate(LocalDate.now())
+            .recurrence(rule)
+            .status(TaskStatus.TODO)
+            .build();
+        
+        // When: creating the task
+        Task createdTask = taskService.createTask(task);
+        
+        // Then: task should have recurrence rule
+        assertNotNull(createdTask.getRecurrence());
+        assertEquals(RecurrenceRule.RecurrenceType.DAILY, createdTask.getRecurrence().getType());
+    }
+    
+    @Test
+    @DisplayName("Complete recurring task instance - next instance generated")
+    void testCompleteRecurringTaskInstance() throws InterruptedException {
+        // Given: a daily recurring task
+        RecurrenceRule rule = RecurrenceRule.builder()
+            .type(RecurrenceRule.RecurrenceType.DAILY)
+            .interval(1)
+            .build();
+        
+        Task task = taskRepository.save(Task.builder()
+            .title("Daily Recurring Task")
+            .scheduledDate(LocalDate.now())
+            .recurrence(rule)
+            .status(TaskStatus.TODO)
+            .build());
+        
+        CountDownLatch createdLatch = new CountDownLatch(1);
+        final TaskCreatedEvent[] createdEvent = new TaskCreatedEvent[1];
+        
+        eventDispatcher.subscribe(TaskCreatedEvent.class, event -> {
+            if (!event.getTask().getId().equals(task.getId())) {
+                createdEvent[0] = event;
+                createdLatch.countDown();
+            }
+        });
+        
+        long initialCount = taskRepository.count();
+        
+        // When: marking it complete
+        Task completedTask = taskService.completeTask(task.getId());
+        
+        // Then: only that instance should be marked complete
+        assertEquals(TaskStatus.COMPLETED, completedTask.getStatus());
+        assertNotNull(completedTask.getCompletedAt());
+        
+        // And: the next instance should be generated
+        assertTrue(createdLatch.await(1, TimeUnit.SECONDS));
+        assertNotNull(createdEvent[0]);
+        
+        Task nextTask = createdEvent[0].getTask();
+        assertEquals(task.getTitle(), nextTask.getTitle());
+        assertEquals(TaskStatus.TODO, nextTask.getStatus());
+        assertEquals(LocalDate.now().plusDays(1), nextTask.getScheduledDate());
+        assertEquals(initialCount + 1, taskRepository.count());
+    }
+    
+    @Test
+    @DisplayName("Weekly recurring task - appears on specific days")
+    void testWeeklyRecurringTask() {
+        // Given: a weekly recurring task for Monday and Wednesday
+        RecurrenceRule rule = RecurrenceRule.builder()
+            .type(RecurrenceRule.RecurrenceType.WEEKLY)
+            .interval(1)
+            .daysOfWeek(java.util.Set.of(java.time.DayOfWeek.MONDAY, java.time.DayOfWeek.WEDNESDAY))
+            .build();
+        
+        Task task = Task.builder()
+            .title("Weekly Task")
+            .scheduledDate(LocalDate.now())
+            .recurrence(rule)
+            .status(TaskStatus.TODO)
+            .build();
+        
+        // When: creating the task
+        Task createdTask = taskService.createTask(task);
+        
+        // Then: task should have weekly recurrence with specific days
+        assertNotNull(createdTask.getRecurrence());
+        assertEquals(RecurrenceRule.RecurrenceType.WEEKLY, createdTask.getRecurrence().getType());
+        assertTrue(createdTask.getRecurrence().getDaysOfWeek().contains(java.time.DayOfWeek.MONDAY));
+        assertTrue(createdTask.getRecurrence().getDaysOfWeek().contains(java.time.DayOfWeek.WEDNESDAY));
+    }
+    
+    @Test
+    @DisplayName("Monthly recurring task - appears on specific day of month")
+    void testMonthlyRecurringTask() {
+        // Given: a monthly recurring task on the 15th
+        RecurrenceRule rule = RecurrenceRule.builder()
+            .type(RecurrenceRule.RecurrenceType.MONTHLY)
+            .interval(1)
+            .dayOfMonth(15)
+            .build();
+        
+        Task task = Task.builder()
+            .title("Monthly Task")
+            .scheduledDate(LocalDate.now())
+            .recurrence(rule)
+            .status(TaskStatus.TODO)
+            .build();
+        
+        // When: creating the task
+        Task createdTask = taskService.createTask(task);
+        
+        // Then: task should have monthly recurrence
+        assertNotNull(createdTask.getRecurrence());
+        assertEquals(RecurrenceRule.RecurrenceType.MONTHLY, createdTask.getRecurrence().getType());
+        assertEquals(15, createdTask.getRecurrence().getDayOfMonth());
+    }
+    
+    @Test
+    @DisplayName("Recurring task with end date - stops after end date")
+    void testRecurringTaskWithEndDate() {
+        // Given: a daily recurring task with end date
+        LocalDate endDate = LocalDate.now().plusDays(7);
+        RecurrenceRule rule = RecurrenceRule.builder()
+            .type(RecurrenceRule.RecurrenceType.DAILY)
+            .interval(1)
+            .endDate(endDate)
+            .build();
+        
+        Task task = Task.builder()
+            .title("Limited Daily Task")
+            .scheduledDate(LocalDate.now())
+            .recurrence(rule)
+            .status(TaskStatus.TODO)
+            .build();
+        
+        // When: creating the task
+        Task createdTask = taskService.createTask(task);
+        
+        // Then: task should have end date
+        assertNotNull(createdTask.getRecurrence());
+        assertEquals(endDate, createdTask.getRecurrence().getEndDate());
+    }
 }

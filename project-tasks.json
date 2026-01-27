@@ -259,7 +259,7 @@
       "title": "Recurring Tasks",
       "description": "Implement recurring task functionality with various recurrence patterns (daily, weekly, monthly, custom)",
       "acceptanceCriteria": "Feature: Recurring Tasks\n  Scenario: Create daily recurring task\n    Given task creation form\n    When setting recurrence to 'Daily'\n    Then the task should appear each day until end date or indefinitely\n\n  Scenario: Create weekly recurring task\n    Given task creation form\n    When setting recurrence to 'Weekly' on specific days\n    Then the task should appear on selected days of each week\n\n  Scenario: Complete recurring task instance\n    Given a recurring task instance\n    When marking it complete\n    Then only that instance should be marked complete\n    And the next instance should be generated\n\n  Scenario: Edit recurring task series\n    Given a recurring task\n    When editing and choosing 'Edit all instances'\n    Then all future instances should be updated",
-      "passes": false
+      "passes": true
     },
     {
       "id": 38,
