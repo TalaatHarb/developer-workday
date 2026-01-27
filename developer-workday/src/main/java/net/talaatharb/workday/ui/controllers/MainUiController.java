@@ -41,6 +41,12 @@ public class MainUiController implements Initializable {
     private VBox sidebar;
     
     @FXML
+    private Button inboxButton;
+    
+    @FXML
+    private Label inboxBadge;
+    
+    @FXML
     private Button todayButton;
     
     @FXML
@@ -107,6 +113,13 @@ public class MainUiController implements Initializable {
         log.info("Show today view");
         loadViewIntoContentArea("/net/talaatharb/workday/ui/TodayView.fxml");
         setActiveNavButton(todayButton);
+    }
+    
+    @FXML
+    private void handleShowInbox() {
+        log.info("Show inbox view");
+        loadViewIntoContentArea("/net/talaatharb/workday/ui/InboxView.fxml");
+        setActiveNavButton(inboxButton);
     }
     
     @FXML

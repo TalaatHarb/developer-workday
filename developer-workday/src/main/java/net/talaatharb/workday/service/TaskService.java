@@ -310,6 +310,14 @@ public class TaskService {
     }
     
     /**
+     * Find inbox tasks (tasks without scheduled date or category)
+     */
+    public List<Task> findInboxTasks() {
+        log.debug("Finding inbox tasks");
+        return taskRepository.findInboxTasks();
+    }
+    
+    /**
      * Helper method to compare objects safely
      */
     private boolean equals(Object a, Object b) {

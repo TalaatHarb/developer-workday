@@ -528,4 +528,104 @@ class TaskFacadeTest {
         assertEquals("Meal prep", task.getTitle());
         assertEquals(java.time.DayOfWeek.SUNDAY, task.getScheduledDate().getDayOfWeek());
     }
+    
+    @Test
+    @DisplayName("Quick add without date or category goes to inbox")
+    void testQuickAddTask_NoDateOrCategory_GoesToInbox() {
+        // Given: quick add input without date or category
+        Task task = taskFacade.quickAddTask("Review pull request");
+        
+        // Then: the task should be created
+        assertNotNull(task);
+        assertEquals("Review pull request", task.getTitle());
+        
+        // And: should have no scheduled date or category (inbox task)
+        assertNull(task.getScheduledDate());
+        assertNull(task.getCategoryId());
+    }
+    
+    @Test
+    @DisplayName("Get inbox tasks returns tasks without date or category")
+    void testGetInboxTasks() {
+        // Given: tasks with various states
+        Task inboxTask1 = taskRepository.save(Task.builder()
+            .title("Inbox Task 1")
+            .status(TaskStatus.TODO)
+            .build());
+        
+        Task inboxTask2 = taskRepository.save(Task.builder()
+            .title("Inbox Task 2")
+            .status(TaskStatus.TODO)
+            .build());
+        
+        Task scheduledTask = taskRepository.save(Task.builder()
+            .title("Scheduled Task")
+            .status(TaskStatus.TODO)
+            .scheduledDate(LocalDate.now())
+            .build());
+        
+        UUID categoryId = UUID.randomUUID();
+        Task categorizedTask = taskRepository.save(Task.builder()
+            .title("Categorized Task")
+            .status(TaskStatus.TODO)
+            .categoryId(categoryId)
+            .build());
+        
+        Task completedInboxTask = taskRepository.save(Task.builder()
+            .title("Completed Inbox Task")
+            .status(TaskStatus.COMPLETED)
+            .build());
+        
+        // When: getting inbox tasks
+        List<Task> inboxTasks = taskFacade.getInboxTasks();
+        
+        // Then: should only include tasks without date or category, and not completed
+        assertEquals(2, inboxTasks.size());
+        assertTrue(inboxTasks.stream().anyMatch(t -> t.getId().equals(inboxTask1.getId())));
+        assertTrue(inboxTasks.stream().anyMatch(t -> t.getId().equals(inboxTask2.getId())));
+        assertFalse(inboxTasks.stream().anyMatch(t -> t.getId().equals(scheduledTask.getId())));
+        assertFalse(inboxTasks.stream().anyMatch(t -> t.getId().equals(categorizedTask.getId())));
+        assertFalse(inboxTasks.stream().anyMatch(t -> t.getId().equals(completedInboxTask.getId())));
+    }
+    
+    @Test
+    @DisplayName("Schedule inbox task removes it from inbox")
+    void testScheduleInboxTask_RemovesFromInbox() {
+        // Given: an inbox task
+        Task inboxTask = taskRepository.save(Task.builder()
+            .title("Inbox Task")
+            .status(TaskStatus.TODO)
+            .build());
+        
+        assertEquals(1, taskFacade.getInboxTasks().size());
+        
+        // When: scheduling the task
+        inboxTask.setScheduledDate(LocalDate.now());
+        taskFacade.updateTask(inboxTask);
+        
+        // Then: it should be removed from inbox
+        List<Task> inboxTasks = taskFacade.getInboxTasks();
+        assertEquals(0, inboxTasks.size());
+    }
+    
+    @Test
+    @DisplayName("Categorize inbox task removes it from inbox")
+    void testCategorizeInboxTask_RemovesFromInbox() {
+        // Given: an inbox task
+        Task inboxTask = taskRepository.save(Task.builder()
+            .title("Inbox Task")
+            .status(TaskStatus.TODO)
+            .build());
+        
+        assertEquals(1, taskFacade.getInboxTasks().size());
+        
+        // When: categorizing the task
+        UUID categoryId = UUID.randomUUID();
+        inboxTask.setCategoryId(categoryId);
+        taskFacade.updateTask(inboxTask);
+        
+        // Then: it should be removed from inbox
+        List<Task> inboxTasks = taskFacade.getInboxTasks();
+        assertEquals(0, inboxTasks.size());
+    }
 }

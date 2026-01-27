@@ -126,9 +126,8 @@ public class TaskFacade {
         if (dateMatcher.find()) {
             result.date = parseDate(dateMatcher.group());
             remaining = remaining.replace(dateMatcher.group(), "").trim();
-        } else {
-            result.date = LocalDate.now(); // Default to today
         }
+        // No default date - tasks without a date go to inbox
         
         // Rest is the title
         result.title = remaining.trim();
@@ -286,6 +285,14 @@ public class TaskFacade {
         }
         
         return stream.collect(Collectors.toList());
+    }
+    
+    /**
+     * Get inbox tasks (tasks without scheduled date or category)
+     */
+    public List<Task> getInboxTasks() {
+        log.debug("Getting inbox tasks");
+        return taskService.findInboxTasks();
     }
     
     /**

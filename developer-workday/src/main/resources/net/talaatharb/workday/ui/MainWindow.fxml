@@ -105,6 +105,18 @@
                </padding>
             </Label>
             
+            <!-- Inbox Section -->
+            <Button fx:id="inboxButton" text="Inbox" onAction="#handleShowInbox" alignment="CENTER_LEFT" maxWidth="Infinity" styleClass="sidebar-nav-button">
+               <graphic>
+                  <HBox alignment="CENTER_LEFT" spacing="5">
+                     <children>
+                        <Label text="📥" styleClass="nav-icon" />
+                        <Label fx:id="inboxBadge" text="" styleClass="inbox-badge" managed="false" visible="false" />
+                     </children>
+                  </HBox>
+               </graphic>
+            </Button>
+            
             <!-- Today Section -->
             <Button fx:id="todayButton" text="Today" onAction="#handleShowToday" alignment="CENTER_LEFT" maxWidth="Infinity" styleClass="sidebar-nav-button">
                <graphic>

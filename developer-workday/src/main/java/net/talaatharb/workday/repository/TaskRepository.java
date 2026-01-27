@@ -165,6 +165,16 @@ public class TaskRepository {
     }
     
     /**
+     * Find inbox tasks (tasks without scheduled date or category)
+     */
+    public List<Task> findInboxTasks() {
+        return tasksMap.values().stream()
+            .filter(task -> task.getScheduledDate() == null && task.getCategoryId() == null)
+            .filter(task -> task.getStatus() != TaskStatus.COMPLETED && task.getStatus() != TaskStatus.CANCELLED)
+            .collect(Collectors.toList());
+    }
+    
+    /**
      * Helper method to check if a task matches a keyword
      */
     private boolean matchesKeyword(Task task, String lowerKeyword) {

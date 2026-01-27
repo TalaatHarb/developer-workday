@@ -413,7 +413,7 @@
       "title": "Inbox for Quick Capture",
       "description": "Implement an Inbox section for quickly capturing tasks that haven't been scheduled or categorized yet",
       "acceptanceCriteria": "Feature: Inbox\n  Scenario: Quick capture to inbox\n    Given the quick add bar\n    When adding a task without date or category\n    Then the task should appear in the Inbox\n\n  Scenario: Process inbox\n    Given tasks in the Inbox\n    When viewing the Inbox\n    Then each task should have quick actions to schedule, categorize, or delete\n    And empty inbox should show congratulatory message\n\n  Scenario: Inbox count badge\n    Given unprocessed tasks in Inbox\n    When viewing the sidebar\n    Then the Inbox should show a count badge",
-      "passes": false
+      "passes": true
     },
     {
       "id": 60,
