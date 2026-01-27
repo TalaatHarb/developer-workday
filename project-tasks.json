@@ -63,7 +63,7 @@
       "title": "Category Repository with MapDB",
       "description": "Implement CategoryRepository class that handles all database operations for categories using MapDB",
       "acceptanceCriteria": "Feature: Category Repository\n  Scenario: Save a new category\n    Given a Category entity\n    When the repository save method is called\n    Then the category should be persisted in MapDB\n    And the category should be retrievable by its ID\n\n  Scenario: Find all categories ordered by sort order\n    Given multiple categories with different sort orders\n    When findAllOrdered is called\n    Then categories should be returned in ascending sort order\n\n  Scenario: Find child categories\n    Given categories with parent-child relationships\n    When findByParentId is called\n    Then only direct child categories should be returned",
-      "passes": false
+      "passes": true
     },
     {
       "id": 10,
