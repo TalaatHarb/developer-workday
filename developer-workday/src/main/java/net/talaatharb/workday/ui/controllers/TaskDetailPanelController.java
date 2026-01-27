@@ -39,6 +39,7 @@ import net.talaatharb.workday.model.Priority;
 import net.talaatharb.workday.model.Subtask;
 import net.talaatharb.workday.model.Task;
 import net.talaatharb.workday.model.TaskStatus;
+import net.talaatharb.workday.utils.AnimationHelper;
 
 /**
  * Controller for the task detail/edit panel.
@@ -143,11 +144,13 @@ public class TaskDetailPanelController implements Initializable {
                     CheckBox checkBox = new CheckBox(subtask.getTitle());
                     checkBox.setSelected(subtask.isCompleted());
                     
-                    // Handle checkbox changes
+                    // Handle checkbox changes with animation
                     checkBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
                         subtask.setCompleted(isSelected);
                         if (isSelected) {
                             subtask.setCompletedAt(java.time.LocalDateTime.now());
+                            // Play check animation
+                            AnimationHelper.checkboxCheckAnimation(checkBox).play();
                         } else {
                             subtask.setCompletedAt(null);
                         }
@@ -244,6 +247,17 @@ public class TaskDetailPanelController implements Initializable {
         // Refresh list
         refreshSubtaskList();
         updateSubtaskProgress();
+        
+        // Animate the newly added subtask
+        if (subtaskListView.getItems().size() > 0) {
+            javafx.application.Platform.runLater(() -> {
+                int lastIndex = subtaskListView.getItems().size() - 1;
+                javafx.scene.Node cell = subtaskListView.lookup(".list-cell:nth-child(" + (lastIndex + 1) + ")");
+                if (cell != null) {
+                    AnimationHelper.addItemAnimation(cell).play();
+                }
+            });
+        }
         
         // Mark as changed
         scheduleAutoSave();

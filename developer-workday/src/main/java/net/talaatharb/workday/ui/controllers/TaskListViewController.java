@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.talaatharb.workday.model.Priority;
 import net.talaatharb.workday.model.Task;
 import net.talaatharb.workday.model.TaskStatus;
+import net.talaatharb.workday.utils.AnimationHelper;
 
 /**
  * Controller for the task list view.
@@ -486,6 +487,7 @@ public class TaskListViewController implements Initializable {
      */
     private class TaskCell extends ListCell<Task> {
         private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM d, yyyy");
+        private boolean firstRender = true;
         
         @Override
         protected void updateItem(Task task, boolean empty) {
@@ -572,14 +574,23 @@ public class TaskListViewController implements Initializable {
                 container.getChildren().addAll(topRow, bottomRow);
                 setGraphic(container);
                 
+                // Apply animations for new items
+                if (firstRender) {
+                    firstRender = false;
+                    AnimationHelper.addItemAnimation(container).play();
+                }
+                
                 // Highlight overdue tasks
                 if (task.getDueDate() != null && task.getDueDate().isBefore(java.time.LocalDate.now()) 
                     && task.getStatus() != TaskStatus.COMPLETED) {
                     setStyle("-fx-background-color: #ffe6e6;");
                 } else if (task.getStatus() == TaskStatus.COMPLETED) {
                     setStyle("-fx-background-color: #f0f0f0;");
+                    // Apply completion animation style
+                    container.setOpacity(0.6);
                 } else {
                     setStyle("");
+                    container.setOpacity(1.0);
                 }
             }
         }
