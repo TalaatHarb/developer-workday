@@ -42,21 +42,21 @@
       "title": "Task-Related Events",
       "description": "Create event classes for all task-related user actions: TaskCreatedEvent, TaskUpdatedEvent, TaskDeletedEvent, TaskCompletedEvent, TaskScheduledEvent, TaskPriorityChangedEvent, TaskMovedToCategoryEvent",
       "acceptanceCriteria": "Feature: Task Events\n  Scenario: TaskCreatedEvent is published when a task is created\n    Given a user creates a new task\n    When the task is saved successfully\n    Then a TaskCreatedEvent should be published\n    And the event should contain the complete task data\n\n  Scenario: TaskCompletedEvent is published when a task is marked complete\n    Given a user marks a task as complete\n    When the task status is updated\n    Then a TaskCompletedEvent should be published\n    And the event should contain the task id and completion timestamp\n\n  Scenario: TaskUpdatedEvent contains before and after states\n    Given a user edits a task\n    When the task is updated\n    Then a TaskUpdatedEvent should be published\n    And the event should contain both old and new task states",
-      "passes": false
+      "passes": true
     },
     {
       "id": 7,
       "title": "Category-Related Events",
       "description": "Create event classes for category actions: CategoryCreatedEvent, CategoryUpdatedEvent, CategoryDeletedEvent, CategoryReorderedEvent",
       "acceptanceCriteria": "Feature: Category Events\n  Scenario: CategoryCreatedEvent is published when a category is created\n    Given a user creates a new category\n    When the category is saved successfully\n    Then a CategoryCreatedEvent should be published\n    And the event should contain the complete category data\n\n  Scenario: CategoryDeletedEvent handles task reassignment\n    Given a category with tasks is deleted\n    When the CategoryDeletedEvent is published\n    Then it should contain information about affected tasks\n    And listeners should handle task reassignment to default category",
-      "passes": false
+      "passes": true
     },
     {
       "id": 8,
       "title": "Task Repository with MapDB",
       "description": "Implement TaskRepository class that handles all database operations for tasks using MapDB, hiding the implementation details from the service layer",
       "acceptanceCriteria": "Feature: Task Repository\n  Scenario: Save a new task\n    Given a Task entity\n    When the repository save method is called\n    Then the task should be persisted in MapDB\n    And the task should be retrievable by its ID\n\n  Scenario: Find tasks by category\n    Given multiple tasks in different categories\n    When findByCategoryId is called with a specific category ID\n    Then only tasks belonging to that category should be returned\n\n  Scenario: Find tasks by date range\n    Given tasks with various due dates\n    When findByDueDateBetween is called with a date range\n    Then only tasks within that date range should be returned\n\n  Scenario: Find overdue tasks\n    Given tasks with past due dates that are not completed\n    When findOverdueTasks is called\n    Then all uncompleted tasks with past due dates should be returned",
-      "passes": false
+      "passes": true
     },
     {
       "id": 9,
