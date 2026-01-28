@@ -112,21 +112,21 @@
       "title": "Task Facade Implementation",
       "description": "Implement TaskFacade as the main entry point for UI controllers to interact with task-related functionality, coordinating between multiple services",
       "acceptanceCriteria": "Feature: Task Facade\n  Scenario: Get tasks for today view\n    Given tasks scheduled for today and overdue tasks\n    When getTasksForToday is called\n    Then overdue tasks should be returned first\n    And tasks scheduled for today should follow\n    And tasks should be sorted by time and priority\n\n  Scenario: Quick add task\n    Given a quick add task string like 'Buy groceries tomorrow at 5pm #personal'\n    When quickAddTask is called\n    Then the string should be parsed for task details\n    And a task should be created with extracted title, date, time, and tags\n\n  Scenario: Get task statistics\n    Given a date range\n    When getTaskStatistics is called\n    Then statistics should include total tasks, completed, overdue, and completion rate",
-      "passes": false
+      "passes": true
     },
     {
       "id": 17,
       "title": "Category Facade Implementation",
       "description": "Implement CategoryFacade as the main entry point for UI controllers to interact with category-related functionality",
       "acceptanceCriteria": "Feature: Category Facade\n  Scenario: Get category tree\n    Given categories with parent-child relationships\n    When getCategoryTree is called\n    Then a hierarchical tree structure of categories should be returned\n\n  Scenario: Get category with task count\n    Given categories with associated tasks\n    When getCategoriesWithTaskCount is called\n    Then each category should include the count of active tasks",
-      "passes": false
+      "passes": true
     },
     {
       "id": 18,
       "title": "Calendar Facade Implementation",
       "description": "Implement CalendarFacade to provide calendar-view specific operations and data formatting",
       "acceptanceCriteria": "Feature: Calendar Facade\n  Scenario: Get tasks for calendar month view\n    Given a specific month and year\n    When getTasksForMonth is called\n    Then tasks should be grouped by date\n    And the result should be optimized for calendar grid display\n\n  Scenario: Get tasks for calendar week view\n    Given a specific week\n    When getTasksForWeek is called\n    Then tasks should be grouped by date and time slots\n    And all-day tasks should be separated from timed tasks",
-      "passes": false
+      "passes": true
     },
     {
       "id": 19,
