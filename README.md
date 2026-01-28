@@ -1,4 +1,4 @@
-# Developer Workday
+# Developer Workday (Still WIP)
 
 A modern, event-driven task management application inspired by Akiflow, designed specifically for developers to efficiently manage their workday and tasks.
 
@@ -257,7 +257,7 @@ Contributions are welcome! Please read our contributing guidelines and code of c
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the Apache-2.0 license - see the LICENSE file for details.
 
 ## 👏 Acknowledgments
 
