@@ -21,7 +21,7 @@
       "title": "Task Entity Model",
       "description": "Create the Task entity model with all necessary fields: id, title, description, dueDate, dueTime, priority, status, categoryId, createdAt, updatedAt, completedAt, recurrence, reminder settings, and tags",
       "acceptanceCriteria": "Feature: Task Entity Model\n  Scenario: Task entity has all required fields\n    Given a Task entity class\n    Then it should have fields for 'id' (UUID), 'title' (String), 'description' (String)\n    And it should have 'dueDate' (LocalDate), 'dueTime' (LocalTime), 'scheduledDate' (LocalDate)\n    And it should have 'priority' (enum: LOW, MEDIUM, HIGH, URGENT)\n    And it should have 'status' (enum: TODO, IN_PROGRESS, COMPLETED, CANCELLED)\n    And it should have 'categoryId' (UUID), 'tags' (List<String>)\n    And it should have 'createdAt', 'updatedAt', 'completedAt' (LocalDateTime)\n    And it should have 'recurrence' (RecurrenceRule), 'reminderMinutesBefore' (Integer)\n    And it should have 'estimatedDuration' (Duration), 'actualDuration' (Duration)\n    And it should implement Serializable for MapDB storage",
-      "passes": false
+      "passes": true
     },
     {
       "id": 4,
