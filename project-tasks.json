@@ -490,7 +490,7 @@
       "title": "Statistics and Productivity Dashboard",
       "description": "Implement a dashboard showing productivity statistics and task completion trends",
       "acceptanceCriteria": "Feature: Statistics Dashboard\n  Scenario: View productivity dashboard\n    Given the statistics view\n    When viewing the dashboard\n    Then task completion trends should be shown (daily, weekly, monthly)\n    And charts should visualize the data\n\n  Scenario: Category breakdown\n    Given tasks across categories\n    When viewing statistics\n    Then time spent per category should be shown\n    And task distribution should be visualized\n\n  Scenario: Streak tracking\n    Given daily task completions\n    When viewing statistics\n    Then current streak of productive days should be shown\n    And longest streak should be displayed",
-      "passes": false
+      "passes": true
     }
   ]
 }
