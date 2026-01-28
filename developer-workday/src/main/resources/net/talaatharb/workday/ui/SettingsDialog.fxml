@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="15" styleClass="settings-dialog" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.talaatharb.workday.ui.controllers.SettingsDialogController">
+   <padding>
+      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+   </padding>
+   <children>
+      <!-- Header -->
+      <Label text="Settings" styleClass="dialog-title">
+         <font>
+            <Font name="System Bold" size="18.0" />
+         </font>
+      </Label>
+      
+      <Separator />
+      
+      <!-- Tabbed Content -->
+      <TabPane fx:id="tabPane" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
+         
+         <!-- General Settings Tab -->
+         <Tab text="General">
+            <content>
+               <VBox spacing="15">
+                  <padding>
+                     <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                  </padding>
+                  <children>
+                     <!-- Startup Behavior -->
+                     <VBox spacing="5">
+                        <children>
+                           <Label text="Startup" styleClass="section-label">
+                              <font>
+                                 <Font name="System Bold" size="12.0" />
+                              </font>
+                           </Label>
+                           <CheckBox fx:id="startOnBootCheckbox" text="Start on system boot" />
+                           <CheckBox fx:id="minimizeToTrayCheckbox" text="Minimize to system tray" />
+                        </children>
+                     </VBox>
+                     
+                     <Separator />
+                     
+                     <!-- Default View -->
+                     <VBox spacing="5">
+                        <children>
+                           <Label text="Default View" styleClass="section-label">
+                              <font>
+                                 <Font name="System Bold" size="12.0" />
+                              </font>
+                           </Label>
+                           <HBox spacing="10" alignment="CENTER_LEFT">
+                              <children>
+                                 <Label text="Open to:" />
+                                 <ChoiceBox fx:id="defaultViewChoice" prefWidth="150.0" />
+                              </children>
+                           </HBox>
+                        </children>
+                     </VBox>
+                     
+                     <Separator />
+                     
+                     <!-- Language -->
+                     <VBox spacing="5">
+                        <children>
+                           <Label text="Language" styleClass="section-label">
+                              <font>
+                                 <Font name="System Bold" size="12.0" />
+                              </font>
+                           </Label>
+                           <HBox spacing="10" alignment="CENTER_LEFT">
+                              <children>
+                                 <Label text="Language:" />
+                                 <ChoiceBox fx:id="languageChoice" prefWidth="150.0" />
+                              </children>
+                           </HBox>
+                           <Label text="Requires restart to take effect" styleClass="hint-text" wrapText="true">
+                              <font>
+                                 <Font size="10.0" />
+                              </font>
+                           </Label>
+                        </children>
+                     </VBox>
+                  </children>
+               </VBox>
+            </content>
+         </Tab>
+         
+         <!-- Appearance Settings Tab -->
+         <Tab text="Appearance">
+            <content>
+               <VBox spacing="15">
+                  <padding>
+                     <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                  </padding>
+                  <children>
+                     <!-- Theme -->
+                     <VBox spacing="5">
+                        <children>
+                           <Label text="Theme" styleClass="section-label">
+                              <font>
+                                 <Font name="System Bold" size="12.0" />
+                              </font>
+                           </Label>
+                           <HBox spacing="10" alignment="CENTER_LEFT">
+                              <children>
+                                 <Label text="Theme:" />
+                                 <ChoiceBox fx:id="themeChoice" prefWidth="150.0" />
+                              </children>
+                           </HBox>
+                        </children>
+                     </VBox>
+                     
+                     <Separator />
+                     
+                     <!-- Accent Color -->
+                     <VBox spacing="5">
+                        <children>
+                           <Label text="Accent Color" styleClass="section-label">
+                              <font>
+                                 <Font name="System Bold" size="12.0" />
+                              </font>
+                           </Label>
+                           <HBox spacing="10" alignment="CENTER_LEFT">
+                              <children>
+                                 <Label text="Accent Color:" />
+                                 <ColorPicker fx:id="accentColorPicker" prefWidth="150.0" />
+                              </children>
+                           </HBox>
+                        </children>
+                     </VBox>
+                     
+                     <Separator />
+                     
+                     <!-- Font Size -->
+                     <VBox spacing="5">
+                        <children>
+                           <Label text="Font Size" styleClass="section-label">
+                              <font>
+                                 <Font name="System Bold" size="12.0" />
+                              </font>
+                           </Label>
+                           <HBox spacing="10" alignment="CENTER_LEFT">
+                              <children>
+                                 <Label text="Base Font Size:" />
+                                 <Spinner fx:id="fontSizeSpinner" prefWidth="100.0" editable="true" />
+                                 <Label text="pt" />
+                              </children>
+                           </HBox>
+                        </children>
+                     </VBox>
+                  </children>
+               </VBox>
+            </content>
+         </Tab>
+         
+         <!-- Notifications Tab -->
+         <Tab text="Notifications">
+            <content>
+               <VBox spacing="15">
+                  <padding>
+                     <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                  </padding>
+                  <children>
+                     <!-- Notification Settings -->
+                     <VBox spacing="5">
+                        <children>
+                           <Label text="Desktop Notifications" styleClass="section-label">
+                              <font>
+                                 <Font name="System Bold" size="12.0" />
+                              </font>
+                           </Label>
+                           <CheckBox fx:id="notificationsEnabledCheckbox" text="Enable desktop notifications" />
+                           <CheckBox fx:id="soundEnabledCheckbox" text="Play notification sound" />
+                        </children>
+                     </VBox>
+                     
+                     <Separator />
+                     
+                     <!-- Reminder Settings -->
+                     <VBox spacing="5">
+                        <children>
+                           <Label text="Reminders" styleClass="section-label">
+                              <font>
+                                 <Font name="System Bold" size="12.0" />
+                              </font>
+                           </Label>
+                           <HBox spacing="10" alignment="CENTER_LEFT">
+                              <children>
+                                 <Label text="Default reminder:" />
+                                 <Spinner fx:id="reminderLeadTimeSpinner" prefWidth="100.0" editable="true" />
+                                 <Label text="minutes before" />
+                              </children>
+                           </HBox>
+                        </children>
+                     </VBox>
+                  </children>
+               </VBox>
+            </content>
+         </Tab>
+         
+         <!-- Shortcuts Tab (read-only for now) -->
+         <Tab text="Shortcuts">
+            <content>
+               <VBox spacing="15">
+                  <padding>
+                     <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                  </padding>
+                  <children>
+                     <Label text="Keyboard Shortcuts" styleClass="section-label">
+                        <font>
+                           <Font name="System Bold" size="12.0" />
+                        </font>
+                     </Label>
+                     
+                     <VBox spacing="10">
+                        <children>
+                           <HBox spacing="10" alignment="CENTER_LEFT">
+                              <children>
+                                 <Label text="Quick Add Task:" minWidth="150.0" />
+                                 <Label fx:id="quickAddShortcutLabel" text="Ctrl+N" styleClass="shortcut-label" />
+                              </children>
+                           </HBox>
+                           
+                           <HBox spacing="10" alignment="CENTER_LEFT">
+                              <children>
+                                 <Label text="Settings:" minWidth="150.0" />
+                                 <Label fx:id="settingsShortcutLabel" text="Ctrl+," styleClass="shortcut-label" />
+                              </children>
+                           </HBox>
+                        </children>
+                     </VBox>
+                     
+                     <Label text="Shortcut customization coming soon" styleClass="hint-text" wrapText="true">
+                        <font>
+                           <Font size="10.0" />
+                        </font>
+                     </Label>
+                  </children>
+               </VBox>
+            </content>
+         </Tab>
+         
+      </TabPane>
+      
+      <!-- Dialog footer -->
+      <HBox alignment="CENTER_RIGHT" spacing="10">
+         <VBox.margin>
+            <Insets top="10.0" />
+         </VBox.margin>
+         <children>
+            <Button fx:id="resetButton" text="Reset to Defaults" onAction="#handleReset" styleClass="secondary-button" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="cancelButton" text="Cancel" onAction="#handleCancel" styleClass="secondary-button" />
+            <Button fx:id="saveButton" text="Save" onAction="#handleSave" styleClass="primary-button" />
+         </children>
+      </HBox>
+   </children>
+</VBox>

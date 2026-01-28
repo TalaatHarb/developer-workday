@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="10" styleClass="upcoming-view" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.talaatharb.workday.ui.controllers.UpcomingViewController">
+   <padding>
+      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+   </padding>
+   
+   <!-- Header with Title and Actions -->
+   <HBox alignment="CENTER_LEFT" spacing="10">
+      <children>
+         <Label text="📆 Upcoming" styleClass="view-title">
+            <font>
+               <Font name="System Bold" size="18.0" />
+            </font>
+         </Label>
+         <Region HBox.hgrow="ALWAYS" />
+         <Button fx:id="quickAddButton" text="+ Quick Add" onAction="#handleQuickAdd" styleClass="new-task-button" />
+      </children>
+   </HBox>
+   
+   <Separator />
+   
+   <!-- Scrollable content area -->
+   <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="upcoming-scroll-pane">
+      <content>
+         <VBox fx:id="contentContainer" spacing="20" styleClass="upcoming-content">
+            <padding>
+               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            </padding>
+            
+            <!-- Empty state (initially visible, hidden when tasks loaded) -->
+            <VBox fx:id="emptyStateContainer" alignment="CENTER" spacing="15" visible="true" managed="true" styleClass="empty-state-container">
+               <padding>
+                  <Insets bottom="50.0" left="20.0" right="20.0" top="50.0" />
+               </padding>
+               <children>
+                  <Label text="📅" styleClass="empty-state-icon">
+                     <font>
+                        <Font size="48.0" />
+                     </font>
+                  </Label>
+                  <Label text="No upcoming tasks" styleClass="empty-state-title">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label text="You're all caught up! Add new tasks to plan ahead" styleClass="empty-state-subtitle">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="emptyStateQuickAddButton" text="+ Add Task" onAction="#handleQuickAdd" styleClass="empty-state-add-button">
+                     <font>
+                        <Font name="System Bold" size="14.0" />
+                     </font>
+                  </Button>
+               </children>
+            </VBox>
+            
+            <!-- Date sections container (dates will be added dynamically) -->
+            <VBox fx:id="dateSectionsContainer" spacing="20" visible="false" managed="false" styleClass="date-sections-container">
+               <!-- Date sections will be added here dynamically -->
+            </VBox>
+         </VBox>
+      </content>
+   </ScrollPane>
+</VBox>

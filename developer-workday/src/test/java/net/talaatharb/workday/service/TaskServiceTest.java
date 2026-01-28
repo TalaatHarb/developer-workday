@@ -1,0 +1,665 @@
+package net.talaatharb.workday.service;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import java.io.File;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
+
+import net.talaatharb.workday.event.EventDispatcher;
+import net.talaatharb.workday.event.EventLogger;
+import net.talaatharb.workday.event.task.*;
+import net.talaatharb.workday.model.Priority;
+import net.talaatharb.workday.model.RecurrenceRule;
+import net.talaatharb.workday.model.Task;
+import net.talaatharb.workday.model.TaskStatus;
+import net.talaatharb.workday.repository.TaskRepository;
+
+/**
+ * Tests for TaskService following the acceptance criteria.
+ */
+class TaskServiceTest {
+    
+    private DB database;
+    private TaskRepository taskRepository;
+    private EventDispatcher eventDispatcher;
+    private EventLogger eventLogger;
+    private TaskService taskService;
+    private File dbFile;
+    
+    @BeforeEach
+    void setUp() {
+        dbFile = new File("test-taskservice-" + UUID.randomUUID() + ".db");
+        database = DBMaker.fileDB(dbFile)
+            .transactionEnable()
+            .make();
+        taskRepository = new TaskRepository(database);
+        eventLogger = new EventLogger();
+        eventDispatcher = new EventDispatcher(eventLogger);
+        taskService = new TaskService(taskRepository, eventDispatcher);
+    }
+    
+    @AfterEach
+    void tearDown() {
+        if (database != null && !database.isClosed()) {
+            database.close();
+        }
+        if (dbFile != null && dbFile.exists()) {
+            dbFile.delete();
+        }
+    }
+    
+    @Test
+    @DisplayName("Create a new task - saves via repository, publishes event, returns task")
+    void testCreateTask() throws InterruptedException {
+        // Given: valid task creation data
+        CountDownLatch latch = new CountDownLatch(1);
+        final TaskCreatedEvent[] capturedEvent = new TaskCreatedEvent[1];
+        
+        eventDispatcher.subscribe(TaskCreatedEvent.class, event -> {
+            capturedEvent[0] = event;
+            latch.countDown();
+        });
+        
+        Task task = Task.builder()
+            .title("New Task")
+            .description("Task description")
+            .priority(Priority.MEDIUM)
+            .status(TaskStatus.TODO)
+            .build();
+        
+        // When: createTask is called
+        Task createdTask = taskService.createTask(task);
+        
+        // Then: the task should be saved via repository
+        assertNotNull(createdTask.getId(), "Task should have an ID");
+        assertNotNull(createdTask.getCreatedAt(), "Task should have createdAt timestamp");
+        
+        Optional<Task> savedTask = taskRepository.findById(createdTask.getId());
+        assertTrue(savedTask.isPresent(), "Task should be in repository");
+        assertEquals(createdTask.getTitle(), savedTask.get().getTitle());
+        
+        // And: a TaskCreatedEvent should be published
+        assertTrue(latch.await(1, TimeUnit.SECONDS), "TaskCreatedEvent should be published");
+        assertNotNull(capturedEvent[0], "Event should be captured");
+        assertEquals(createdTask.getId(), capturedEvent[0].getTask().getId());
+        
+        // And: the created task should be returned
+        assertNotNull(createdTask);
+        assertEquals("New Task", createdTask.getTitle());
+        assertEquals(Priority.MEDIUM, createdTask.getPriority());
+    }
+    
+    @Test
+    @DisplayName("Complete a task - sets status, timestamp, publishes event")
+    void testCompleteTask() throws InterruptedException {
+        // Given: an existing incomplete task
+        Task task = Task.builder()
+            .title("Task to Complete")
+            .status(TaskStatus.TODO)
+            .priority(Priority.MEDIUM)
+            .build();
+        
+        Task savedTask = taskRepository.save(task);
+        
+        CountDownLatch latch = new CountDownLatch(1);
+        final TaskCompletedEvent[] capturedEvent = new TaskCompletedEvent[1];
+        
+        eventDispatcher.subscribe(TaskCompletedEvent.class, event -> {
+            capturedEvent[0] = event;
+            latch.countDown();
+        });
+        
+        // When: completeTask is called
+        Task completedTask = taskService.completeTask(savedTask.getId());
+        
+        // Then: the task status should be set to COMPLETED
+        assertEquals(TaskStatus.COMPLETED, completedTask.getStatus());
+        
+        // And: completedAt should be set to current timestamp
+        assertNotNull(completedTask.getCompletedAt());
+        assertTrue(completedTask.getCompletedAt().isBefore(LocalDateTime.now().plusSeconds(1)));
+        
+        // And: a TaskCompletedEvent should be published
+        assertTrue(latch.await(1, TimeUnit.SECONDS), "TaskCompletedEvent should be published");
+        assertNotNull(capturedEvent[0]);
+        assertEquals(savedTask.getId(), capturedEvent[0].getTaskId());
+        assertEquals(completedTask.getCompletedAt(), capturedEvent[0].getCompletionTimestamp());
+    }
+    
+    @Test
+    @DisplayName("Handle recurring task completion - creates next occurrence")
+    void testCompleteRecurringTask() throws InterruptedException {
+        // Given: a recurring task
+        RecurrenceRule recurrence = RecurrenceRule.builder()
+            .type(RecurrenceRule.RecurrenceType.DAILY)
+            .interval(1)
+            .build();
+        
+        Task recurringTask = Task.builder()
+            .title("Daily Recurring Task")
+            .status(TaskStatus.TODO)
+            .scheduledDate(LocalDate.now())
+            .recurrence(recurrence)
+            .priority(Priority.MEDIUM)
+            .build();
+        
+        Task savedTask = taskRepository.save(recurringTask);
+        
+        CountDownLatch createdLatch = new CountDownLatch(1);
+        final TaskCreatedEvent[] createdEvent = new TaskCreatedEvent[1];
+        
+        eventDispatcher.subscribe(TaskCreatedEvent.class, event -> {
+            createdEvent[0] = event;
+            createdLatch.countDown();
+        });
+        
+        long initialCount = taskRepository.count();
+        
+        // When: the task is completed
+        Task completedTask = taskService.completeTask(savedTask.getId());
+        
+        // Then: the original task should be marked complete
+        assertEquals(TaskStatus.COMPLETED, completedTask.getStatus());
+        assertNotNull(completedTask.getCompletedAt());
+        
+        // And: a new task instance should be created for the next occurrence
+        assertTrue(createdLatch.await(1, TimeUnit.SECONDS), 
+            "New task should be created");
+        assertNotNull(createdEvent[0], "TaskCreatedEvent should be published for next occurrence");
+        
+        Task nextTask = createdEvent[0].getTask();
+        assertNotNull(nextTask);
+        assertEquals(recurringTask.getTitle(), nextTask.getTitle());
+        assertEquals(TaskStatus.TODO, nextTask.getStatus());
+        assertEquals(LocalDate.now().plusDays(1), nextTask.getScheduledDate());
+        
+        // Verify new task was saved
+        assertEquals(initialCount + 1, taskRepository.count());
+    }
+    
+    @Test
+    @DisplayName("Update task publishes TaskUpdatedEvent")
+    void testUpdateTask() throws InterruptedException {
+        // Create initial task
+        Task task = Task.builder()
+            .title("Original Title")
+            .description("Original description")
+            .priority(Priority.LOW)
+            .status(TaskStatus.TODO)
+            .build();
+        
+        Task savedTask = taskRepository.save(task);
+        
+        CountDownLatch latch = new CountDownLatch(1);
+        final TaskUpdatedEvent[] capturedEvent = new TaskUpdatedEvent[1];
+        
+        eventDispatcher.subscribe(TaskUpdatedEvent.class, event -> {
+            capturedEvent[0] = event;
+            latch.countDown();
+        });
+        
+        // Update the task
+        savedTask.setTitle("Updated Title");
+        savedTask.setDescription("Updated description");
+        savedTask.setPriority(Priority.HIGH);
+        
+        Task updatedTask = taskService.updateTask(savedTask);
+        
+        // Verify update
+        assertEquals("Updated Title", updatedTask.getTitle());
+        assertEquals(Priority.HIGH, updatedTask.getPriority());
+        
+        // Verify event
+        assertTrue(latch.await(1, TimeUnit.SECONDS));
+        assertNotNull(capturedEvent[0]);
+        assertEquals("Original Title", capturedEvent[0].getOldTask().getTitle());
+        assertEquals("Updated Title", capturedEvent[0].getNewTask().getTitle());
+    }
+    
+    @Test
+    @DisplayName("Priority change publishes TaskPriorityChangedEvent")
+    void testUpdateTaskPriority() throws InterruptedException {
+        Task task = Task.builder()
+            .title("Task")
+            .priority(Priority.LOW)
+            .status(TaskStatus.TODO)
+            .build();
+        
+        Task savedTask = taskRepository.save(task);
+        
+        CountDownLatch latch = new CountDownLatch(1);
+        final TaskPriorityChangedEvent[] capturedEvent = new TaskPriorityChangedEvent[1];
+        
+        eventDispatcher.subscribe(TaskPriorityChangedEvent.class, event -> {
+            capturedEvent[0] = event;
+            latch.countDown();
+        });
+        
+        savedTask.setPriority(Priority.HIGH);
+        taskService.updateTask(savedTask);
+        
+        assertTrue(latch.await(1, TimeUnit.SECONDS));
+        assertNotNull(capturedEvent[0]);
+        assertEquals(Priority.LOW, capturedEvent[0].getOldPriority());
+        assertEquals(Priority.HIGH, capturedEvent[0].getNewPriority());
+    }
+    
+    @Test
+    @DisplayName("Schedule task publishes TaskScheduledEvent")
+    void testScheduleTask() throws InterruptedException {
+        Task task = Task.builder()
+            .title("Task to Schedule")
+            .status(TaskStatus.TODO)
+            .build();
+        
+        Task savedTask = taskRepository.save(task);
+        
+        CountDownLatch latch = new CountDownLatch(1);
+        final TaskScheduledEvent[] capturedEvent = new TaskScheduledEvent[1];
+        
+        eventDispatcher.subscribe(TaskScheduledEvent.class, event -> {
+            capturedEvent[0] = event;
+            latch.countDown();
+        });
+        
+        LocalDate scheduledDate = LocalDate.now().plusDays(1);
+        Task scheduledTask = taskService.scheduleTask(savedTask.getId(), scheduledDate);
+        
+        assertEquals(scheduledDate, scheduledTask.getScheduledDate());
+        
+        assertTrue(latch.await(1, TimeUnit.SECONDS));
+        assertNotNull(capturedEvent[0]);
+        assertEquals(scheduledDate, capturedEvent[0].getScheduledDate());
+    }
+    
+    @Test
+    @DisplayName("Delete task publishes TaskDeletedEvent")
+    void testDeleteTask() throws InterruptedException {
+        Task task = Task.builder()
+            .title("Task to Delete")
+            .status(TaskStatus.TODO)
+            .build();
+        
+        Task savedTask = taskRepository.save(task);
+        
+        CountDownLatch latch = new CountDownLatch(1);
+        final TaskDeletedEvent[] capturedEvent = new TaskDeletedEvent[1];
+        
+        eventDispatcher.subscribe(TaskDeletedEvent.class, event -> {
+            capturedEvent[0] = event;
+            latch.countDown();
+        });
+        
+        taskService.deleteTask(savedTask.getId());
+        
+        assertFalse(taskRepository.existsById(savedTask.getId()));
+        
+        assertTrue(latch.await(1, TimeUnit.SECONDS));
+        assertNotNull(capturedEvent[0]);
+        assertEquals(savedTask.getId(), capturedEvent[0].getTask().getId());
+    }
+    
+    @Test
+    @DisplayName("Find tasks by various criteria")
+    void testFindTasks() {
+        UUID categoryId = UUID.randomUUID();
+        LocalDate today = LocalDate.now();
+        
+        Task task1 = taskRepository.save(Task.builder()
+            .title("Task 1")
+            .status(TaskStatus.TODO)
+            .categoryId(categoryId)
+            .scheduledDate(today)
+            .build());
+        
+        Task task2 = taskRepository.save(Task.builder()
+            .title("Task 2")
+            .status(TaskStatus.COMPLETED)
+            .categoryId(categoryId)
+            .build());
+        
+        // Test findAll
+        assertEquals(2, taskService.findAll().size());
+        
+        // Test findByStatus
+        assertEquals(1, taskService.findByStatus(TaskStatus.TODO).size());
+        assertEquals(1, taskService.findByStatus(TaskStatus.COMPLETED).size());
+        
+        // Test findByCategoryId
+        assertEquals(2, taskService.findByCategoryId(categoryId).size());
+        
+        // Test findByScheduledDate
+        assertEquals(1, taskService.findByScheduledDate(today).size());
+        
+        // Test findById
+        assertTrue(taskService.findById(task1.getId()).isPresent());
+    }
+    
+    @Test
+    @DisplayName("Search tasks by keyword in title, description, and tags")
+    void testSearchTasks() {
+        // Create tasks with various content
+        taskRepository.save(Task.builder()
+            .title("Fix critical bug")
+            .description("Memory leak in production")
+            .tags(List.of("urgent", "production"))
+            .build());
+        
+        taskRepository.save(Task.builder()
+            .title("Update documentation")
+            .description("Add API documentation")
+            .tags(List.of("docs", "api"))
+            .build());
+        
+        taskRepository.save(Task.builder()
+            .title("Review pull request")
+            .description("Check code quality")
+            .tags(List.of("review", "code"))
+            .build());
+        
+        // Search by title keyword
+        List<Task> bugResults = taskService.searchTasks("bug");
+        assertEquals(1, bugResults.size());
+        assertTrue(bugResults.get(0).getTitle().toLowerCase().contains("bug"));
+        
+        // Search by description keyword
+        List<Task> apiResults = taskService.searchTasks("api");
+        assertEquals(1, apiResults.size());
+        assertTrue(apiResults.get(0).getDescription().toLowerCase().contains("api"));
+        
+        // Search by tag keyword
+        List<Task> reviewResults = taskService.searchTasks("review");
+        assertEquals(1, reviewResults.size());
+        assertTrue(reviewResults.get(0).getTags().stream()
+            .anyMatch(tag -> tag.toLowerCase().contains("review")));
+        
+        // Search with no keyword returns all
+        List<Task> allResults = taskService.searchTasks("");
+        assertEquals(3, allResults.size());
+        
+        // Search with non-matching keyword returns empty
+        List<Task> noResults = taskService.searchTasks("nonexistent");
+        assertTrue(noResults.isEmpty());
+    }
+    
+    @Test
+    @DisplayName("Create daily recurring task - appears each day")
+    void testCreateDailyRecurringTask() {
+        // Given: a daily recurring task
+        RecurrenceRule rule = RecurrenceRule.builder()
+            .type(RecurrenceRule.RecurrenceType.DAILY)
+            .interval(1)
+            .build();
+        
+        Task task = Task.builder()
+            .title("Daily Task")
+            .scheduledDate(LocalDate.now())
+            .recurrence(rule)
+            .status(TaskStatus.TODO)
+            .build();
+        
+        // When: creating the task
+        Task createdTask = taskService.createTask(task);
+        
+        // Then: task should have recurrence rule
+        assertNotNull(createdTask.getRecurrence());
+        assertEquals(RecurrenceRule.RecurrenceType.DAILY, createdTask.getRecurrence().getType());
+    }
+    
+    @Test
+    @DisplayName("Complete recurring task instance - next instance generated")
+    void testCompleteRecurringTaskInstance() throws InterruptedException {
+        // Given: a daily recurring task
+        RecurrenceRule rule = RecurrenceRule.builder()
+            .type(RecurrenceRule.RecurrenceType.DAILY)
+            .interval(1)
+            .build();
+        
+        Task task = taskRepository.save(Task.builder()
+            .title("Daily Recurring Task")
+            .scheduledDate(LocalDate.now())
+            .recurrence(rule)
+            .status(TaskStatus.TODO)
+            .build());
+        
+        CountDownLatch createdLatch = new CountDownLatch(1);
+        final TaskCreatedEvent[] createdEvent = new TaskCreatedEvent[1];
+        
+        eventDispatcher.subscribe(TaskCreatedEvent.class, event -> {
+            if (!event.getTask().getId().equals(task.getId())) {
+                createdEvent[0] = event;
+                createdLatch.countDown();
+            }
+        });
+        
+        long initialCount = taskRepository.count();
+        
+        // When: marking it complete
+        Task completedTask = taskService.completeTask(task.getId());
+        
+        // Then: only that instance should be marked complete
+        assertEquals(TaskStatus.COMPLETED, completedTask.getStatus());
+        assertNotNull(completedTask.getCompletedAt());
+        
+        // And: the next instance should be generated
+        assertTrue(createdLatch.await(1, TimeUnit.SECONDS));
+        assertNotNull(createdEvent[0]);
+        
+        Task nextTask = createdEvent[0].getTask();
+        assertEquals(task.getTitle(), nextTask.getTitle());
+        assertEquals(TaskStatus.TODO, nextTask.getStatus());
+        assertEquals(LocalDate.now().plusDays(1), nextTask.getScheduledDate());
+        assertEquals(initialCount + 1, taskRepository.count());
+    }
+    
+    @Test
+    @DisplayName("Weekly recurring task - appears on specific days")
+    void testWeeklyRecurringTask() {
+        // Given: a weekly recurring task for Monday and Wednesday
+        RecurrenceRule rule = RecurrenceRule.builder()
+            .type(RecurrenceRule.RecurrenceType.WEEKLY)
+            .interval(1)
+            .daysOfWeek(java.util.Set.of(java.time.DayOfWeek.MONDAY, java.time.DayOfWeek.WEDNESDAY))
+            .build();
+        
+        Task task = Task.builder()
+            .title("Weekly Task")
+            .scheduledDate(LocalDate.now())
+            .recurrence(rule)
+            .status(TaskStatus.TODO)
+            .build();
+        
+        // When: creating the task
+        Task createdTask = taskService.createTask(task);
+        
+        // Then: task should have weekly recurrence with specific days
+        assertNotNull(createdTask.getRecurrence());
+        assertEquals(RecurrenceRule.RecurrenceType.WEEKLY, createdTask.getRecurrence().getType());
+        assertTrue(createdTask.getRecurrence().getDaysOfWeek().contains(java.time.DayOfWeek.MONDAY));
+        assertTrue(createdTask.getRecurrence().getDaysOfWeek().contains(java.time.DayOfWeek.WEDNESDAY));
+    }
+    
+    @Test
+    @DisplayName("Monthly recurring task - appears on specific day of month")
+    void testMonthlyRecurringTask() {
+        // Given: a monthly recurring task on the 15th
+        RecurrenceRule rule = RecurrenceRule.builder()
+            .type(RecurrenceRule.RecurrenceType.MONTHLY)
+            .interval(1)
+            .dayOfMonth(15)
+            .build();
+        
+        Task task = Task.builder()
+            .title("Monthly Task")
+            .scheduledDate(LocalDate.now())
+            .recurrence(rule)
+            .status(TaskStatus.TODO)
+            .build();
+        
+        // When: creating the task
+        Task createdTask = taskService.createTask(task);
+        
+        // Then: task should have monthly recurrence
+        assertNotNull(createdTask.getRecurrence());
+        assertEquals(RecurrenceRule.RecurrenceType.MONTHLY, createdTask.getRecurrence().getType());
+        assertEquals(15, createdTask.getRecurrence().getDayOfMonth());
+    }
+    
+    @Test
+    @DisplayName("Recurring task with end date - stops after end date")
+    void testRecurringTaskWithEndDate() {
+        // Given: a daily recurring task with end date
+        LocalDate endDate = LocalDate.now().plusDays(7);
+        RecurrenceRule rule = RecurrenceRule.builder()
+            .type(RecurrenceRule.RecurrenceType.DAILY)
+            .interval(1)
+            .endDate(endDate)
+            .build();
+        
+        Task task = Task.builder()
+            .title("Limited Daily Task")
+            .scheduledDate(LocalDate.now())
+            .recurrence(rule)
+            .status(TaskStatus.TODO)
+            .build();
+        
+        // When: creating the task
+        Task createdTask = taskService.createTask(task);
+        
+        // Then: task should be created with recurrence rule
+        assertNotNull(createdTask);
+        assertNotNull(createdTask.getRecurrence());
+        assertEquals(endDate, createdTask.getRecurrence().getEndDate());
+    }
+    
+    @Test
+    @DisplayName("Task with subtasks - adds and retrieves subtasks correctly")
+    void testTaskWithSubtasks() {
+        // Given
+        Task task = Task.builder()
+            .title("Task with Subtasks")
+            .status(TaskStatus.TODO)
+            .build();
+        
+        Task savedTask = taskService.createTask(task);
+        
+        // When: adding subtasks
+        savedTask.setSubtasks(List.of(
+            net.talaatharb.workday.model.Subtask.builder()
+                .id(UUID.randomUUID())
+                .title("Subtask 1")
+                .completed(false)
+                .sortOrder(0)
+                .createdAt(LocalDateTime.now())
+                .build(),
+            net.talaatharb.workday.model.Subtask.builder()
+                .id(UUID.randomUUID())
+                .title("Subtask 2")
+                .completed(false)
+                .sortOrder(1)
+                .createdAt(LocalDateTime.now())
+                .build()
+        ));
+        
+        Task updatedTask = taskService.updateTask(savedTask);
+        
+        // Then
+        assertNotNull(updatedTask.getSubtasks());
+        assertEquals(2, updatedTask.getSubtasks().size());
+        assertEquals("Subtask 1", updatedTask.getSubtasks().get(0).getTitle());
+        assertEquals("Subtask 2", updatedTask.getSubtasks().get(1).getTitle());
+    }
+    
+    @Test
+    @DisplayName("Complete subtask - updates completion status")
+    void testCompleteSubtask() {
+        // Given: task with subtasks
+        Task task = Task.builder()
+            .title("Task with Subtasks")
+            .status(TaskStatus.TODO)
+            .subtasks(List.of(
+                net.talaatharb.workday.model.Subtask.builder()
+                    .id(UUID.randomUUID())
+                    .title("Subtask 1")
+                    .completed(false)
+                    .sortOrder(0)
+                    .createdAt(LocalDateTime.now())
+                    .build()
+            ))
+            .build();
+        
+        Task savedTask = taskService.createTask(task);
+        
+        // When: completing a subtask
+        savedTask.getSubtasks().get(0).setCompleted(true);
+        savedTask.getSubtasks().get(0).setCompletedAt(LocalDateTime.now());
+        Task updatedTask = taskService.updateTask(savedTask);
+        
+        // Then
+        assertTrue(updatedTask.getSubtasks().get(0).isCompleted());
+        assertNotNull(updatedTask.getSubtasks().get(0).getCompletedAt());
+    }
+    
+    @Test
+    @DisplayName("Subtask progress calculation")
+    void testSubtaskProgressCalculation() {
+        // Given: task with 3 subtasks, 2 completed
+        Task task = Task.builder()
+            .title("Task with Subtasks")
+            .status(TaskStatus.TODO)
+            .subtasks(List.of(
+                net.talaatharb.workday.model.Subtask.builder()
+                    .id(UUID.randomUUID())
+                    .title("Subtask 1")
+                    .completed(true)
+                    .completedAt(LocalDateTime.now())
+                    .sortOrder(0)
+                    .createdAt(LocalDateTime.now())
+                    .build(),
+                net.talaatharb.workday.model.Subtask.builder()
+                    .id(UUID.randomUUID())
+                    .title("Subtask 2")
+                    .completed(true)
+                    .completedAt(LocalDateTime.now())
+                    .sortOrder(1)
+                    .createdAt(LocalDateTime.now())
+                    .build(),
+                net.talaatharb.workday.model.Subtask.builder()
+                    .id(UUID.randomUUID())
+                    .title("Subtask 3")
+                    .completed(false)
+                    .sortOrder(2)
+                    .createdAt(LocalDateTime.now())
+                    .build()
+            ))
+            .build();
+        
+        Task savedTask = taskService.createTask(task);
+        
+        // When: calculating progress
+        long total = savedTask.getSubtasks().size();
+        long completed = savedTask.getSubtasks().stream()
+            .filter(net.talaatharb.workday.model.Subtask::isCompleted)
+            .count();
+        int percentage = (int) ((completed * 100.0) / total);
+        
+        // Then
+        assertEquals(3, total);
+        assertEquals(2, completed);
+        assertEquals(66, percentage);
+    }
+}

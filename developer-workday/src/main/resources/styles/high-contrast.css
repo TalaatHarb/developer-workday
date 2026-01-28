@@ -1,0 +1,63 @@
+/* High Contrast Theme for Accessibility */
+
+/* Root element with high contrast */
+.high-contrast {
+    -fx-base: #000000;
+    -fx-background: #000000;
+    -fx-control-inner-background: #000000;
+}
+
+/* High contrast text */
+.high-contrast .label,
+.high-contrast .text {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: bold;
+}
+
+/* High contrast buttons */
+.high-contrast .button {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #000000;
+    -fx-border-color: #FFFF00;
+    -fx-border-width: 2px;
+    -fx-font-weight: bold;
+}
+
+.high-contrast .button:hover {
+    -fx-background-color: #FFFF00;
+    -fx-text-fill: #000000;
+}
+
+.high-contrast .button:focused {
+    -fx-border-color: #00FFFF;
+    -fx-border-width: 3px;
+}
+
+/* High contrast text fields */
+.high-contrast .text-field,
+.high-contrast .text-area {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #000000;
+    -fx-border-color: #FFFF00;
+    -fx-border-width: 2px;
+}
+
+.high-contrast .text-field:focused,
+.high-contrast .text-area:focused {
+    -fx-border-color: #00FFFF;
+    -fx-border-width: 3px;
+}
+
+/* Enhanced focus indicators */
+.enhanced-focus *:focused {
+    -fx-effect: dropshadow(gaussian, #00FFFF, 10, 0.7, 0, 0);
+    -fx-border-color: #00FFFF;
+    -fx-border-width: 2px;
+}
+
+/* High contrast focus indicators */
+.high-contrast *:focused {
+    -fx-effect: dropshadow(gaussian, #00FFFF, 15, 1.0, 0, 0);
+    -fx-border-color: #00FFFF;
+    -fx-border-width: 3px;
+}

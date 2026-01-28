@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="15" styleClass="weekly-review-dialog" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.talaatharb.workday.ui.controllers.WeeklyReviewController">
+   <padding>
+      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+   </padding>
+   <children>
+      <!-- Header -->
+      <HBox alignment="CENTER_LEFT" spacing="10">
+         <children>
+            <Label text="Weekly Review" styleClass="dialog-title">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Label>
+            <Region HBox.hgrow="ALWAYS" />
+            <Label fx:id="weekRangeLabel" text="Week: Jan 1 - Jan 7, 2024" styleClass="week-range-label" />
+         </children>
+      </HBox>
+      
+      <Separator />
+      
+      <!-- Tabbed Content -->
+      <TabPane fx:id="tabPane" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
+         
+         <!-- Review Tab -->
+         <Tab text="Review Completed">
+            <content>
+               <VBox spacing="15">
+                  <padding>
+                     <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                  </padding>
+                  <children>
+                     <Label text="Completed Tasks This Week" styleClass="section-label">
+                        <font>
+                           <Font name="System Bold" size="12.0" />
+                        </font>
+                     </Label>
+                     
+                     <!-- Completed Tasks List -->
+                     <ListView fx:id="completedTasksListView" VBox.vgrow="ALWAYS" />
+                     
+                     <HBox spacing="10" alignment="CENTER_LEFT">
+                        <children>
+                           <Label fx:id="completedCountLabel" text="0 tasks completed" />
+                        </children>
+                     </HBox>
+                  </children>
+               </VBox>
+            </content>
+         </Tab>
+         
+         <!-- Statistics Tab -->
+         <Tab text="Statistics">
+            <content>
+               <VBox spacing="20">
+                  <padding>
+                     <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                  </padding>
+                  <children>
+                     <Label text="Weekly Statistics" styleClass="section-label">
+                        <font>
+                           <Font name="System Bold" size="12.0" />
+                        </font>
+                     </Label>
+                     
+                     <!-- Statistics Grid -->
+                     <GridPane hgap="20" vgap="15">
+                        <columnConstraints>
+                           <ColumnConstraints halignment="RIGHT" minWidth="150" />
+                           <ColumnConstraints halignment="LEFT" />
+                        </columnConstraints>
+                        <children>
+                           <!-- Row 0 -->
+                           <Label text="Tasks Completed:" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                              <font>
+                                 <Font name="System Bold" size="12.0" />
+                              </font>
+                           </Label>
+                           <Label fx:id="totalCompletedLabel" text="0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                           
+                           <!-- Row 1 -->
+                           <Label text="Tasks Planned:" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                              <font>
+                                 <Font name="System Bold" size="12.0" />
+                              </font>
+                           </Label>
+                           <Label fx:id="totalPlannedLabel" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                           
+                           <!-- Row 2 -->
+                           <Label text="Completion Rate:" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                              <font>
+                                 <Font name="System Bold" size="12.0" />
+                              </font>
+                           </Label>
+                           <Label fx:id="completionRateLabel" text="0%" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                           
+                           <!-- Row 3 -->
+                           <Separator GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="3" />
+                           
+                           <!-- Row 4 -->
+                           <Label text="High Priority Completed:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                           <Label fx:id="highPriorityLabel" text="0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                           
+                           <!-- Row 5 -->
+                           <Label text="Medium Priority Completed:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                           <Label fx:id="mediumPriorityLabel" text="0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                           
+                           <!-- Row 6 -->
+                           <Label text="Low Priority Completed:" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                           <Label fx:id="lowPriorityLabel" text="0" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                           
+                           <!-- Row 7 -->
+                           <Separator GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="7" />
+                           
+                           <!-- Row 8 -->
+                           <Label text="Overdue Tasks:" GridPane.columnIndex="0" GridPane.rowIndex="8" />
+                           <Label fx:id="overdueTasksLabel" text="0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                        </children>
+                     </GridPane>
+                  </children>
+               </VBox>
+            </content>
+         </Tab>
+         
+         <!-- Planning Tab -->
+         <Tab text="Plan Next Week">
+            <content>
+               <VBox spacing="15">
+                  <padding>
+                     <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                  </padding>
+                  <children>
+                     <Label text="Upcoming Tasks" styleClass="section-label">
+                        <font>
+                           <Font name="System Bold" size="12.0" />
+                        </font>
+                     </Label>
+                     
+                     <!-- Upcoming Tasks List -->
+                     <ListView fx:id="upcomingTasksListView" VBox.vgrow="ALWAYS" />
+                     
+                     <HBox spacing="10" alignment="CENTER_LEFT">
+                        <children>
+                           <Label fx:id="upcomingCountLabel" text="0 upcoming tasks" />
+                        </children>
+                     </HBox>
+                  </children>
+               </VBox>
+            </content>
+         </Tab>
+         
+      </TabPane>
+      
+      <Separator />
+      
+      <!-- Action Buttons -->
+      <HBox spacing="10" alignment="CENTER_RIGHT">
+         <children>
+            <Button fx:id="cancelButton" text="Cancel" onAction="#handleCancel" />
+            <Button fx:id="completeButton" text="Complete Review" onAction="#handleComplete" defaultButton="true" />
+         </children>
+      </HBox>
+      
+   </children>
+</VBox>

@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<ScrollPane fitToWidth="true" styleClass="task-detail-panel" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.talaatharb.workday.ui.controllers.TaskDetailPanelController">
+   <content>
+      <VBox spacing="15" styleClass="detail-content">
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+         </padding>
+         <children>
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" spacing="10">
+               <children>
+                  <Label text="Task Details" styleClass="detail-title">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Region HBox.hgrow="ALWAYS" />
+                  <Label fx:id="unsavedIndicator" text="●" visible="false" styleClass="unsaved-indicator">
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="closeButton" text="✕" onAction="#handleClose" styleClass="close-button" />
+               </children>
+            </HBox>
+            
+            <Separator />
+            
+            <!-- Task Title -->
+            <VBox spacing="5">
+               <children>
+                  <Label text="Title" styleClass="field-label">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <TextField fx:id="titleField" promptText="Task title" styleClass="detail-field" />
+               </children>
+            </VBox>
+            
+            <!-- Priority and Status -->
+            <HBox spacing="15">
+               <children>
+                  <VBox spacing="5" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Priority" styleClass="field-label">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <ChoiceBox fx:id="priorityChoice" maxWidth="Infinity" styleClass="detail-field" />
+                     </children>
+                  </VBox>
+                  <VBox spacing="5" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Status" styleClass="field-label">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <ChoiceBox fx:id="statusChoice" maxWidth="Infinity" styleClass="detail-field" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            
+            <!-- Due Date and Time -->
+            <HBox spacing="15">
+               <children>
+                  <VBox spacing="5" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Due Date" styleClass="field-label">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <DatePicker fx:id="dueDatePicker" maxWidth="Infinity" promptText="Select date" styleClass="detail-field" />
+                     </children>
+                  </VBox>
+                  <VBox spacing="5" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Due Time" styleClass="field-label">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <TextField fx:id="dueTimeField" promptText="HH:mm" styleClass="detail-field" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            
+            <!-- Duration Estimation -->
+            <HBox spacing="15">
+               <children>
+                  <VBox spacing="5" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Estimated Duration" styleClass="field-label">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <ChoiceBox fx:id="estimatedDurationChoice" maxWidth="Infinity" styleClass="detail-field" />
+                     </children>
+                  </VBox>
+                  <VBox spacing="5" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Actual Duration" styleClass="field-label">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="actualDurationLabel" text="Not tracked yet" styleClass="duration-display" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            
+            <!-- Description -->
+            <VBox spacing="5" VBox.vgrow="ALWAYS">
+               <children>
+                  <Label text="Description" styleClass="field-label">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <TextArea fx:id="descriptionArea" promptText="Add task description..." wrapText="true" prefRowCount="5" styleClass="detail-field" VBox.vgrow="ALWAYS" />
+               </children>
+            </VBox>
+            
+            <!-- Tags -->
+            <VBox spacing="5">
+               <children>
+                  <Label text="Tags" styleClass="field-label">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <TextField fx:id="tagsField" promptText="Comma-separated tags" styleClass="detail-field" />
+               </children>
+            </VBox>
+            
+            <!-- Reminder -->
+            <VBox spacing="5">
+               <children>
+                  <Label text="Reminder (minutes before)" styleClass="field-label">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <TextField fx:id="reminderField" promptText="e.g., 15" styleClass="detail-field" />
+               </children>
+            </VBox>
+            
+            <!-- Subtasks Section -->
+            <VBox spacing="5">
+               <children>
+                  <HBox alignment="CENTER_LEFT" spacing="10">
+                     <children>
+                        <Label text="Subtasks" styleClass="field-label">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="subtaskProgressLabel" text="0/0 (0%)" styleClass="subtask-progress" />
+                     </children>
+                  </HBox>
+                  <HBox spacing="5">
+                     <children>
+                        <TextField fx:id="subtaskInputField" promptText="Add a subtask..." HBox.hgrow="ALWAYS" styleClass="detail-field" />
+                        <Button fx:id="addSubtaskButton" text="+" onAction="#handleAddSubtask" styleClass="add-subtask-button" />
+                     </children>
+                  </HBox>
+                  <ListView fx:id="subtaskListView" prefHeight="150" styleClass="subtask-list" />
+               </children>
+            </VBox>
+            
+            <!-- Footer Actions -->
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+               <children>
+                  <Button fx:id="deleteButton" text="Delete Task" onAction="#handleDelete" styleClass="delete-button" />
+                  <Region HBox.hgrow="ALWAYS" />
+                  <Button fx:id="saveButton" text="Save" onAction="#handleSave" styleClass="primary-button" />
+               </children>
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </HBox>
+         </children>
+      </VBox>
+   </content>
+</ScrollPane>

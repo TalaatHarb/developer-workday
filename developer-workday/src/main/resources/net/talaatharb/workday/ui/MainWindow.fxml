@@ -1,17 +1,214 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.Spinner?>
-<?import javafx.scene.control.ToolBar?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.talaatharb.workday.ui.controllers.MainUiController">
-   <children>
-   </children>
-</AnchorPane>
+<BorderPane minHeight="600.0" minWidth="800.0" prefHeight="768.0" prefWidth="1024.0" styleClass="main-window" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.talaatharb.workday.ui.controllers.MainUiController">
+   <!-- Menu Bar -->
+   <top>
+      <VBox>
+         <children>
+            <MenuBar>
+               <menus>
+                  <Menu text="File">
+                     <items>
+                        <MenuItem text="Settings..." onAction="#handleOpenSettings">
+                           <accelerator>
+                              <KeyCodeCombination alt="UP" code="COMMA" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                           </accelerator>
+                        </MenuItem>
+                        <SeparatorMenuItem />
+                        <MenuItem text="Exit" onAction="#handleExit">
+                           <accelerator>
+                              <KeyCodeCombination alt="DOWN" code="F4" control="UP" meta="UP" shift="UP" shortcut="UP" />
+                           </accelerator>
+                        </MenuItem>
+                     </items>
+                  </Menu>
+                  <Menu text="View">
+                     <items>
+                        <MenuItem fx:id="focusModeMenuItem" text="Toggle Focus Mode" onAction="#handleToggleFocusMode">
+                           <accelerator>
+                              <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                           </accelerator>
+                        </MenuItem>
+                        <SeparatorMenuItem />
+                        <MenuItem text="Weekly Review..." onAction="#handleOpenWeeklyReview">
+                           <accelerator>
+                              <KeyCodeCombination alt="UP" code="W" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                           </accelerator>
+                        </MenuItem>
+                     </items>
+                  </Menu>
+                  <Menu text="Help">
+                     <items>
+                        <MenuItem text="Check for Updates..." onAction="#handleCheckForUpdates" />
+                        <SeparatorMenuItem />
+                        <MenuItem text="About" onAction="#handleAbout" />
+                     </items>
+                  </Menu>
+               </menus>
+            </MenuBar>
+            <!-- Quick Add Bar -->
+            <HBox alignment="CENTER_LEFT" spacing="10" styleClass="quick-add-bar">
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+               <children>
+                  <Label text="Quick Add:" styleClass="quick-add-label">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                  </Label>
+                  <TextField fx:id="quickAddField" promptText="e.g. 'Buy groceries tomorrow at 5pm #personal'" styleClass="quick-add-field" HBox.hgrow="ALWAYS">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </TextField>
+                  <Button fx:id="quickAddButton" text="Add Task" onAction="#handleQuickAdd" styleClass="quick-add-button" />
+                  <Region HBox.hgrow="SOMETIMES" minWidth="20" />
+                  <Label fx:id="focusModeStatusLabel" text="" styleClass="focus-mode-status" managed="false" visible="false">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </top>
+
+   <!-- Sidebar on Left -->
+   <left>
+      <VBox fx:id="sidebar" minWidth="220.0" prefWidth="250.0" spacing="5" styleClass="sidebar" BorderPane.alignment="CENTER">
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+         <children>
+            <!-- Navigation Sections -->
+            <Label text="Navigation" styleClass="sidebar-section-title">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+               <padding>
+                  <Insets bottom="5.0" top="10.0" />
+               </padding>
+            </Label>
+            
+            <!-- Inbox Section -->
+            <Button fx:id="inboxButton" text="Inbox" onAction="#handleShowInbox" alignment="CENTER_LEFT" maxWidth="Infinity" styleClass="sidebar-nav-button">
+               <graphic>
+                  <HBox alignment="CENTER_LEFT" spacing="5">
+                     <children>
+                        <Label text="📥" styleClass="nav-icon" />
+                        <Label fx:id="inboxBadge" text="" styleClass="inbox-badge" managed="false" visible="false" />
+                     </children>
+                  </HBox>
+               </graphic>
+            </Button>
+            
+            <!-- Today Section -->
+            <Button fx:id="todayButton" text="Today" onAction="#handleShowToday" alignment="CENTER_LEFT" maxWidth="Infinity" styleClass="sidebar-nav-button">
+               <graphic>
+                  <Label text="📅" styleClass="nav-icon" />
+               </graphic>
+            </Button>
+            
+            <!-- Upcoming Section -->
+            <Button fx:id="upcomingButton" text="Upcoming" onAction="#handleShowUpcoming" alignment="CENTER_LEFT" maxWidth="Infinity" styleClass="sidebar-nav-button">
+               <graphic>
+                  <Label text="📆" styleClass="nav-icon" />
+               </graphic>
+            </Button>
+            
+            <!-- Calendar Section -->
+            <Button fx:id="calendarButton" text="Calendar" onAction="#handleShowCalendar" alignment="CENTER_LEFT" maxWidth="Infinity" styleClass="sidebar-nav-button">
+               <graphic>
+                  <Label text="📊" styleClass="nav-icon" />
+               </graphic>
+            </Button>
+            
+            <!-- All Tasks Section -->
+            <Button fx:id="allTasksButton" text="All Tasks" onAction="#handleShowAllTasks" alignment="CENTER_LEFT" maxWidth="Infinity" styleClass="sidebar-nav-button">
+               <graphic>
+                  <Label text="📋" styleClass="nav-icon" />
+               </graphic>
+            </Button>
+            
+            <Separator />
+            
+            <!-- Categories Section -->
+            <HBox alignment="CENTER_LEFT" spacing="5">
+               <children>
+                  <Label text="Categories" styleClass="sidebar-section-title">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <Region HBox.hgrow="ALWAYS" />
+                  <Button fx:id="addCategoryButton" text="+" onAction="#handleAddCategory" styleClass="add-category-button" />
+               </children>
+               <padding>
+                  <Insets bottom="5.0" top="10.0" />
+               </padding>
+            </HBox>
+            
+            <!-- Category List with Task Counts -->
+            <ScrollPane fitToWidth="true" styleClass="category-scroll" VBox.vgrow="ALWAYS">
+               <content>
+                  <ListView fx:id="categoryListView" styleClass="category-list" />
+               </content>
+            </ScrollPane>
+            
+            <!-- Sidebar Toggle Button -->
+            <Button fx:id="sidebarToggleButton" text="◀ Collapse" onAction="#handleToggleSidebar" alignment="CENTER" maxWidth="Infinity" styleClass="sidebar-toggle-button">
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </Button>
+         </children>
+      </VBox>
+   </left>
+
+   <!-- Main Content Area in Center -->
+   <center>
+      <StackPane fx:id="contentArea" styleClass="content-area" BorderPane.alignment="CENTER">
+         <children>
+            <VBox alignment="CENTER" spacing="20">
+               <children>
+                  <Label text="Developer Workday" styleClass="welcome-title">
+                     <font>
+                        <Font name="System Bold" size="32.0" />
+                     </font>
+                  </Label>
+                  <Label text="Select a view from the sidebar to get started" styleClass="welcome-subtitle">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+               </children>
+            </VBox>
+         </children>
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+         </padding>
+      </StackPane>
+   </center>
+</BorderPane>
