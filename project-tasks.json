@@ -133,42 +133,42 @@
       "title": "Main Application Window UI",
       "description": "Design and implement the main application window with a modern, clean interface including sidebar navigation, main content area, and quick action bar",
       "acceptanceCriteria": "Feature: Main Application Window\n  Scenario: Main window layout\n    Given the application is launched\n    When the main window is displayed\n    Then it should have a collapsible sidebar on the left\n    And a main content area in the center\n    And a quick add bar at the top\n    And the window should be resizable with minimum dimensions\n\n  Scenario: Sidebar navigation\n    Given the main window is displayed\n    When viewing the sidebar\n    Then it should show 'Today', 'Upcoming', 'Calendar', and 'All Tasks' sections\n    And it should show the list of categories below\n    And each category should display task count badge",
-      "passes": false
+      "passes": true
     },
     {
       "id": 20,
       "title": "Task List View Controller",
       "description": "Implement the controller for displaying and managing the task list view with sorting, filtering, and grouping options",
       "acceptanceCriteria": "Feature: Task List View\n  Scenario: Display task list\n    Given tasks exist in the system\n    When viewing the task list\n    Then tasks should be displayed with title, due date, priority indicator, and category\n    And completed tasks should be visually distinguished\n    And overdue tasks should be highlighted\n\n  Scenario: Filter tasks\n    Given the task list is displayed\n    When a filter is applied (by category, priority, or status)\n    Then only matching tasks should be displayed\n    And the filter state should be visually indicated\n\n  Scenario: Sort tasks\n    Given the task list is displayed\n    When a sort option is selected (by date, priority, or name)\n    Then tasks should be reordered according to the selected criteria",
-      "passes": false
+      "passes": true
     },
     {
       "id": 21,
       "title": "Task Detail Panel Controller",
       "description": "Implement the controller for the task detail/edit panel that slides in from the right when a task is selected",
       "acceptanceCriteria": "Feature: Task Detail Panel\n  Scenario: View task details\n    Given a task is selected from the list\n    When the detail panel opens\n    Then all task fields should be displayed\n    And the panel should slide in with smooth animation\n\n  Scenario: Edit task inline\n    Given the task detail panel is open\n    When editing any field\n    Then changes should be saved automatically after a brief delay\n    And a visual indicator should show unsaved changes\n    And a TaskUpdatedEvent should be published on save\n\n  Scenario: Close panel\n    Given the task detail panel is open\n    When clicking outside or pressing Escape\n    Then the panel should slide out\n    And any unsaved changes should be saved",
-      "passes": false
+      "passes": true
     },
     {
       "id": 22,
       "title": "Quick Add Task Controller",
       "description": "Implement the quick add task bar that allows rapid task creation with natural language parsing",
       "acceptanceCriteria": "Feature: Quick Add Task\n  Scenario: Quick add with natural language\n    Given the quick add bar is focused\n    When typing 'Call John tomorrow at 3pm #work !high'\n    Then the input should be parsed in real-time\n    And parsed elements should be highlighted (date, time, category, priority)\n\n  Scenario: Submit quick add task\n    Given a task has been typed in the quick add bar\n    When pressing Enter\n    Then the task should be created with parsed attributes\n    And the input should be cleared\n    And the new task should appear in the list\n\n  Scenario: Quick add suggestions\n    Given the user is typing in the quick add bar\n    When typing '#' or '@'\n    Then autocomplete suggestions should appear for categories or contacts",
-      "passes": false
+      "passes": true
     },
     {
       "id": 23,
       "title": "Calendar View Controller",
       "description": "Implement the calendar view with month, week, and day views showing scheduled tasks",
       "acceptanceCriteria": "Feature: Calendar View\n  Scenario: Month view display\n    Given the calendar view is in month mode\n    When viewing the calendar\n    Then a monthly grid should be displayed\n    And days with tasks should show task indicators\n    And clicking a day should show tasks for that day\n\n  Scenario: Week view display\n    Given the calendar view is in week mode\n    When viewing the calendar\n    Then a weekly time grid should be displayed\n    And tasks should be positioned according to their scheduled time\n    And tasks can be dragged to reschedule\n\n  Scenario: Drag and drop scheduling\n    Given a task in the calendar view\n    When dragging the task to a different time slot\n    Then the task schedule should be updated\n    And a TaskScheduledEvent should be published",
-      "passes": false
+      "passes": true
     },
     {
       "id": 24,
       "title": "Category Management Dialog Controller",
       "description": "Implement the dialog for managing categories: create, edit, delete, and reorder",
       "acceptanceCriteria": "Feature: Category Management Dialog\n  Scenario: Create new category\n    Given the category management dialog is open\n    When filling in category name, color, and icon\n    And clicking Save\n    Then the category should be created\n    And the dialog should close\n    And the sidebar should update with the new category\n\n  Scenario: Edit category\n    Given an existing category\n    When editing its properties\n    Then changes should be saved\n    And all tasks in that category should reflect visual changes\n\n  Scenario: Reorder categories\n    Given multiple categories\n    When dragging a category to a new position\n    Then the sort order should be updated\n    And the sidebar should reflect the new order",
-      "passes": false
+      "passes": true
     },
     {
       "id": 25,
@@ -210,7 +210,7 @@
       "title": "Settings/Preferences Dialog",
       "description": "Implement a settings dialog for user preferences including appearance, shortcuts, notifications, and startup behavior",
       "acceptanceCriteria": "Feature: Settings Dialog\n  Scenario: Open settings dialog\n    Given the application is running\n    When opening settings (via menu or shortcut)\n    Then a settings dialog should appear with categorized options\n\n  Scenario: General settings\n    Given the settings dialog is open\n    When viewing general settings\n    Then options for startup behavior, default view, and language should be available\n\n  Scenario: Appearance settings\n    Given the settings dialog is open\n    When viewing appearance settings\n    Then options for theme (light/dark), accent color, and font size should be available\n\n  Scenario: Save settings\n    Given settings have been modified\n    When clicking Save or closing the dialog\n    Then settings should be persisted\n    And applicable changes should take effect immediately",
-      "passes": false
+      "passes": true
     },
     {
       "id": 31,
