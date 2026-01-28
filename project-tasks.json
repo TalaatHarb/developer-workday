@@ -252,28 +252,28 @@
       "title": "Task Due Date Notifications",
       "description": "Implement system notifications for task due dates and reminders",
       "acceptanceCriteria": "Feature: Due Date Notifications\n  Scenario: Notification before due date\n    Given a task with a reminder set for 30 minutes before\n    When 30 minutes before the due time\n    Then a system notification should appear\n    And the notification should show task title and due time\n    And clicking the notification should open the task\n\n  Scenario: Overdue notification\n    Given a task that has become overdue\n    When the task due time passes\n    Then a notification should inform the user of the overdue task\n\n  Scenario: Notification snooze\n    Given a reminder notification is shown\n    When clicking snooze\n    Then the notification should be dismissed\n    And a new reminder should be scheduled for the snooze duration",
-      "passes": false
+      "passes": true
     },
     {
       "id": 37,
       "title": "Recurring Tasks",
       "description": "Implement recurring task functionality with various recurrence patterns (daily, weekly, monthly, custom)",
       "acceptanceCriteria": "Feature: Recurring Tasks\n  Scenario: Create daily recurring task\n    Given task creation form\n    When setting recurrence to 'Daily'\n    Then the task should appear each day until end date or indefinitely\n\n  Scenario: Create weekly recurring task\n    Given task creation form\n    When setting recurrence to 'Weekly' on specific days\n    Then the task should appear on selected days of each week\n\n  Scenario: Complete recurring task instance\n    Given a recurring task instance\n    When marking it complete\n    Then only that instance should be marked complete\n    And the next instance should be generated\n\n  Scenario: Edit recurring task series\n    Given a recurring task\n    When editing and choosing 'Edit all instances'\n    Then all future instances should be updated",
-      "passes": false
+      "passes": true
     },
     {
       "id": 38,
       "title": "Task Time Tracking",
       "description": "Implement time tracking for tasks with start/stop timer and manual time entry",
       "acceptanceCriteria": "Feature: Time Tracking\n  Scenario: Start task timer\n    Given a task without active timer\n    When clicking the play button\n    Then a timer should start for that task\n    And the elapsed time should be displayed and updating\n\n  Scenario: Stop task timer\n    Given a task with active timer\n    When clicking the stop button\n    Then the timer should stop\n    And the elapsed time should be added to actual duration\n    And a TimeTrackedEvent should be published\n\n  Scenario: View time report\n    Given tasks with tracked time\n    When viewing time report for a date range\n    Then total time per category and per task should be displayed",
-      "passes": false
+      "passes": true
     },
     {
       "id": 39,
       "title": "Undo/Redo Functionality",
       "description": "Implement undo/redo functionality for task and category operations",
       "acceptanceCriteria": "Feature: Undo Redo\n  Scenario: Undo task deletion\n    Given a task was just deleted\n    When pressing Ctrl+Z or clicking Undo\n    Then the task should be restored\n    And a toast notification should confirm the undo\n\n  Scenario: Redo undone action\n    Given an action was undone\n    When pressing Ctrl+Y or clicking Redo\n    Then the action should be reapplied\n\n  Scenario: Undo toast notification\n    Given an action was performed (like delete)\n    When the action completes\n    Then a toast should appear with Undo option\n    And the toast should auto-dismiss after 5 seconds",
-      "passes": false
+      "passes": true
     },
     {
       "id": 40,
@@ -294,14 +294,14 @@
       "title": "Task Tags/Labels System",
       "description": "Implement a tagging system for tasks allowing multiple tags per task with autocomplete and filtering",
       "acceptanceCriteria": "Feature: Task Tags\n  Scenario: Add tags to task\n    Given a task being created or edited\n    When adding tags\n    Then multiple tags should be supported\n    And tags should autocomplete from existing tags\n    And new tags should be created if not existing\n\n  Scenario: Filter by tags\n    Given tasks with various tags\n    When selecting a tag filter\n    Then only tasks with that tag should be displayed\n    And multiple tag filters should work with AND logic\n\n  Scenario: Tag management\n    Given existing tags\n    When managing tags\n    Then tags can be renamed or deleted\n    And deleting a tag should remove it from all tasks",
-      "passes": false
+      "passes": true
     },
     {
       "id": 43,
       "title": "Subtasks/Checklist Support",
       "description": "Implement subtasks or checklist items within tasks",
       "acceptanceCriteria": "Feature: Subtasks\n  Scenario: Add subtasks to a task\n    Given a task being edited\n    When adding subtasks\n    Then multiple subtasks should be supported\n    And subtasks should have checkboxes for completion\n\n  Scenario: Subtask completion affects progress\n    Given a task with subtasks\n    When completing subtasks\n    Then a progress indicator should show completion percentage\n    And completing all subtasks should prompt to complete parent task\n\n  Scenario: Reorder subtasks\n    Given a task with multiple subtasks\n    When dragging subtasks\n    Then the order should update",
-      "passes": false
+      "passes": true
     },
     {
       "id": 44,
@@ -329,21 +329,21 @@
       "title": "Natural Language Date Parsing",
       "description": "Implement natural language parsing for dates and times in task input (e.g., 'tomorrow', 'next Monday', '3pm')",
       "acceptanceCriteria": "Feature: Natural Language Date Parsing\n  Scenario: Parse relative dates\n    Given quick add input 'Buy milk tomorrow'\n    When parsing the input\n    Then 'tomorrow' should be parsed as the next day's date\n    And the task should be created with that due date\n\n  Scenario: Parse specific times\n    Given quick add input 'Meeting at 3pm'\n    When parsing the input\n    Then '3pm' should be parsed as 15:00\n    And the task should have that due time\n\n  Scenario: Parse complex date expressions\n    Given quick add input 'Report due next Friday'\n    When parsing the input\n    Then 'next Friday' should be parsed correctly\n    And edge cases like weekends should be handled properly",
-      "passes": false
+      "passes": true
     },
     {
       "id": 48,
       "title": "Data Export and Import",
       "description": "Implement data export and import functionality for backup and migration purposes",
       "acceptanceCriteria": "Feature: Data Export Import\n  Scenario: Export all data\n    Given the application has tasks and categories\n    When exporting data\n    Then a JSON file should be generated with all tasks, categories, and settings\n    And the file should be downloadable to a chosen location\n\n  Scenario: Import data\n    Given a previously exported data file\n    When importing data\n    Then the user should choose merge or replace strategy\n    And data should be imported according to the chosen strategy\n\n  Scenario: Export to CSV\n    Given tasks in the system\n    When exporting to CSV\n    Then a CSV file with task data should be generated\n    And it should be compatible with spreadsheet applications",
-      "passes": false
+      "passes": true
     },
     {
       "id": 49,
       "title": "Application Logging and Error Handling",
       "description": "Implement comprehensive logging and error handling throughout the application",
       "acceptanceCriteria": "Feature: Logging and Error Handling\n  Scenario: Log application events\n    Given the application is running\n    When any significant action occurs\n    Then it should be logged with timestamp and context\n    And log levels should be configurable\n\n  Scenario: Handle errors gracefully\n    Given an error occurs (e.g., database failure)\n    When the error is caught\n    Then a user-friendly error message should be shown\n    And the error should be logged with stack trace\n    And the application should remain stable\n\n  Scenario: View logs\n    Given logged events exist\n    When accessing the log viewer (or log file)\n    Then recent logs should be viewable for troubleshooting",
-      "passes": false
+      "passes": true
     },
     {
       "id": 50,
