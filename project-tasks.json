@@ -175,35 +175,35 @@
       "title": "System Tray Integration",
       "description": "Implement system tray icon with context menu for quick actions and application visibility control",
       "acceptanceCriteria": "Feature: System Tray Integration\n  Scenario: Application minimizes to tray\n    Given the application is running\n    When minimizing the window\n    Then the application should minimize to system tray\n    And a tray icon should be visible\n\n  Scenario: Tray context menu\n    Given the application is in system tray\n    When right-clicking the tray icon\n    Then a context menu should appear with 'Show', 'Quick Add', 'Today's Tasks', and 'Exit' options\n\n  Scenario: Restore from tray\n    Given the application is minimized to tray\n    When clicking the tray icon\n    Then the main window should be restored and focused",
-      "passes": false
+      "passes": true
     },
     {
       "id": 26,
       "title": "Global Keyboard Shortcut - Windows",
       "description": "Implement global keyboard shortcut (e.g., Ctrl+Shift+A) that works system-wide on Windows to show the quick add dialog",
       "acceptanceCriteria": "Feature: Global Shortcut Windows\n  Scenario: Register global shortcut on Windows\n    Given the application is running on Windows\n    When the application starts\n    Then a global keyboard shortcut should be registered using JNativeHook or JNA\n    And the shortcut should work even when the application is not focused\n\n  Scenario: Trigger quick add from global shortcut\n    Given the application is running in background on Windows\n    When pressing the global shortcut (Ctrl+Shift+A)\n    Then a floating quick add dialog should appear\n    And the dialog should be focused and ready for input\n\n  Scenario: Dismiss quick add dialog\n    Given the quick add dialog is open via global shortcut\n    When pressing Escape or clicking outside\n    Then the dialog should close\n    And focus should return to the previous application",
-      "passes": false
+      "passes": true
     },
     {
       "id": 27,
       "title": "Global Keyboard Shortcut - Linux",
       "description": "Implement global keyboard shortcut that works system-wide on Linux to show the quick add dialog",
       "acceptanceCriteria": "Feature: Global Shortcut Linux\n  Scenario: Register global shortcut on Linux\n    Given the application is running on Linux\n    When the application starts\n    Then a global keyboard shortcut should be registered using JNativeHook or X11 bindings\n    And the shortcut should work across different desktop environments (GNOME, KDE, XFCE)\n\n  Scenario: Trigger quick add from global shortcut on Linux\n    Given the application is running in background on Linux\n    When pressing the global shortcut (Ctrl+Shift+A)\n    Then a floating quick add dialog should appear centered on screen",
-      "passes": false
+      "passes": true
     },
     {
       "id": 28,
       "title": "Startup on System Boot - Windows",
       "description": "Implement functionality to optionally start the application when Windows boots up",
       "acceptanceCriteria": "Feature: Startup on Boot Windows\n  Scenario: Enable startup on Windows\n    Given the application settings\n    When 'Start on system boot' is enabled\n    Then a registry entry or startup folder shortcut should be created\n    And the application should start minimized on next boot\n\n  Scenario: Disable startup on Windows\n    Given startup is enabled\n    When 'Start on system boot' is disabled\n    Then the registry entry or shortcut should be removed",
-      "passes": false
+      "passes": true
     },
     {
       "id": 29,
       "title": "Startup on System Boot - Linux",
       "description": "Implement functionality to optionally start the application when Linux boots up",
       "acceptanceCriteria": "Feature: Startup on Boot Linux\n  Scenario: Enable startup on Linux\n    Given the application settings\n    When 'Start on system boot' is enabled\n    Then a .desktop file should be created in ~/.config/autostart/\n    And the application should start minimized on next boot\n\n  Scenario: Disable startup on Linux\n    Given startup is enabled\n    When 'Start on system boot' is disabled\n    Then the autostart .desktop file should be removed",
-      "passes": false
+      "passes": true
     },
     {
       "id": 30,
@@ -217,7 +217,7 @@
       "title": "Light and Dark Theme Support",
       "description": "Implement light and dark theme support with the ability to switch themes and optionally follow system preferences",
       "acceptanceCriteria": "Feature: Theme Support\n  Scenario: Switch to dark theme\n    Given the application is using light theme\n    When switching to dark theme in settings\n    Then all UI components should update to dark colors\n    And the change should be immediate without restart\n\n  Scenario: Follow system theme\n    Given 'Follow system theme' is enabled\n    When the system theme changes\n    Then the application theme should automatically update\n\n  Scenario: Theme persistence\n    Given a theme has been selected\n    When restarting the application\n    Then the selected theme should be applied on startup",
-      "passes": false
+      "passes": true
     },
     {
       "id": 32,
@@ -231,7 +231,7 @@
       "title": "Drag and Drop Task Reordering",
       "description": "Implement drag and drop functionality to reorder tasks in the list and move tasks between categories",
       "acceptanceCriteria": "Feature: Drag and Drop Tasks\n  Scenario: Reorder tasks in list\n    Given a task list with multiple tasks\n    When dragging a task to a new position\n    Then the task should move to the new position\n    And a visual indicator should show the drop target\n    And other tasks should shift to accommodate\n\n  Scenario: Move task to different category\n    Given a task in one category\n    When dragging the task to a different category in the sidebar\n    Then the task should be moved to the new category\n    And a TaskMovedToCategoryEvent should be published",
-      "passes": false
+      "passes": true
     },
     {
       "id": 34,
@@ -315,7 +315,7 @@
       "title": "Responsive Layout Design",
       "description": "Implement responsive layout that adapts to different window sizes and supports minimized/compact views",
       "acceptanceCriteria": "Feature: Responsive Layout\n  Scenario: Narrow window layout\n    Given the window width is reduced below threshold\n    When the window is narrow\n    Then the sidebar should collapse to icons only\n    And the detail panel should become a modal overlay\n\n  Scenario: Wide window layout\n    Given a wide window\n    When viewing tasks\n    Then sidebar, list, and detail panel should be visible simultaneously\n\n  Scenario: Compact mode\n    Given compact mode is enabled in settings\n    When viewing the application\n    Then UI density should increase with smaller spacing and fonts",
-      "passes": false
+      "passes": true
     },
     {
       "id": 46,
