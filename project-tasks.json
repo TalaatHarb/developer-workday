@@ -224,7 +224,7 @@
       "title": "Task Priority Visual Indicators",
       "description": "Implement visual indicators for task priority levels using colors, icons, or badges that are consistent throughout the application",
       "acceptanceCriteria": "Feature: Priority Visual Indicators\n  Scenario: Priority colors in task list\n    Given tasks with different priorities\n    When viewing the task list\n    Then URGENT tasks should have red indicator\n    And HIGH priority tasks should have orange indicator\n    And MEDIUM priority tasks should have yellow indicator\n    And LOW priority tasks should have gray or no indicator\n\n  Scenario: Priority in calendar view\n    Given tasks in calendar view\n    When viewing scheduled tasks\n    Then task blocks should be color-coded by priority",
-      "passes": false
+      "passes": true
     },
     {
       "id": 33,
@@ -238,14 +238,14 @@
       "title": "Task Search Functionality",
       "description": "Implement full-text search across task titles, descriptions, and tags",
       "acceptanceCriteria": "Feature: Task Search\n  Scenario: Search tasks by keyword\n    Given tasks with various titles and descriptions\n    When entering a search query\n    Then matching tasks should be displayed\n    And matching text should be highlighted\n    And search should include title, description, and tags\n\n  Scenario: Search filters\n    Given search results are displayed\n    When applying additional filters\n    Then results should be narrowed by selected filters\n\n  Scenario: Clear search\n    Given an active search\n    When clearing the search box\n    Then the view should return to the previous state",
-      "passes": false
+      "passes": true
     },
     {
       "id": 35,
       "title": "Keyboard Navigation and Shortcuts",
       "description": "Implement comprehensive keyboard navigation and shortcuts throughout the application",
       "acceptanceCriteria": "Feature: Keyboard Navigation\n  Scenario: Navigate task list with keyboard\n    Given the task list is focused\n    When pressing Up/Down arrows\n    Then focus should move between tasks\n    And pressing Enter should open task details\n    And pressing Delete should delete the task with confirmation\n\n  Scenario: Application shortcuts\n    Given the application is focused\n    When pressing Ctrl+N\n    Then a new task dialog should open\n    When pressing Ctrl+F\n    Then the search bar should be focused\n    When pressing Ctrl+1/2/3/4\n    Then the view should switch to Today/Upcoming/Calendar/All Tasks",
-      "passes": false
+      "passes": true
     },
     {
       "id": 36,
@@ -308,7 +308,7 @@
       "title": "Smooth Animations and Transitions",
       "description": "Implement smooth animations and transitions for UI interactions to enhance user experience",
       "acceptanceCriteria": "Feature: UI Animations\n  Scenario: List item animations\n    Given tasks in a list\n    When a task is added\n    Then it should animate into position\n    When a task is removed\n    Then it should animate out smoothly\n\n  Scenario: Panel transitions\n    Given the detail panel is closed\n    When opening the detail panel\n    Then it should slide in from the right with smooth animation\n    And content should fade in\n\n  Scenario: Checkbox animations\n    Given a task with unchecked checkbox\n    When checking the checkbox\n    Then a satisfying checkmark animation should play\n    And the task should have a completion animation",
-      "passes": false
+      "passes": true
     },
     {
       "id": 45,
@@ -322,7 +322,7 @@
       "title": "Empty States and Onboarding",
       "description": "Implement friendly empty states for lists and first-time user onboarding",
       "acceptanceCriteria": "Feature: Empty States and Onboarding\n  Scenario: First time user onboarding\n    Given a new user opens the application for the first time\n    When the main window appears\n    Then an onboarding overlay or wizard should guide them through key features\n    And sample tasks and categories should optionally be created\n\n  Scenario: Empty category state\n    Given a category with no tasks\n    When viewing that category\n    Then a helpful empty state with illustration should be shown\n    And a clear call-to-action to add a task should be visible\n\n  Scenario: Skip onboarding\n    Given the onboarding is shown\n    When clicking 'Skip'\n    Then onboarding should close and not show again",
-      "passes": false
+      "passes": true
     },
     {
       "id": 47,
