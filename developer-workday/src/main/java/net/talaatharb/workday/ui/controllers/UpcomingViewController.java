@@ -2,7 +2,6 @@ package net.talaatharb.workday.ui.controllers;
 
 import java.net.URL;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -77,8 +76,8 @@ public class UpcomingViewController implements Initializable {
      */
     public void loadTasks(int daysAhead) {
         if (taskFacade == null) {
-            log.warn("TaskFacade not set, using sample data");
-            loadSampleTasks();
+            log.warn("TaskFacade not set, cannot load upcoming tasks");
+            showEmptyState();
             return;
         }
         
@@ -185,15 +184,14 @@ public class UpcomingViewController implements Initializable {
         // Date header with relative label
         HBox headerBox = new HBox(15);
         headerBox.setAlignment(Pos.CENTER_LEFT);
-        headerBox.setStyle("-fx-background-color: #f8f9fa; -fx-padding: 10; -fx-background-radius: 5;");
+        headerBox.getStyleClass().add("date-section-header");
         
         Label dateLabel = new Label(date.format(DATE_FORMATTER));
         dateLabel.setFont(Font.font("System Bold", 16));
         
         Label relativeLabel = new Label(getRelativeDateLabel(date));
         relativeLabel.setFont(Font.font(12));
-        relativeLabel.setStyle("-fx-text-fill: #6c757d; -fx-padding: 2 8 2 8; " +
-                             "-fx-background-color: #e9ecef; -fx-background-radius: 3;");
+        relativeLabel.getStyleClass().add("tag-label");
         
         Label countLabel = new Label(tasks.size() + (tasks.size() == 1 ? " task" : " tasks"));
         countLabel.setFont(Font.font(12));
@@ -238,8 +236,6 @@ public class UpcomingViewController implements Initializable {
     private VBox createTaskCard(Task task) {
         VBox card = new VBox(5);
         card.getStyleClass().add("task-card");
-        card.setStyle("-fx-background-color: white; -fx-background-radius: 5; " +
-                     "-fx-padding: 10; -fx-border-color: #ecf0f1; -fx-border-radius: 5; -fx-border-width: 1;");
         
         // Top row: priority and title
         HBox topRow = new HBox(10);
@@ -266,14 +262,13 @@ public class UpcomingViewController implements Initializable {
         }
         
         Label statusLabel = new Label(task.getStatus().toString());
-        statusLabel.setStyle(getStatusStyle(task.getStatus()));
+        statusLabel.getStyleClass().add(getStatusStyleClass(task.getStatus()));
         bottomRow.getChildren().add(statusLabel);
         
         if (task.getTags() != null && !task.getTags().isEmpty()) {
             for (String tag : task.getTags()) {
                 Label tagLabel = new Label("#" + tag);
-                tagLabel.setStyle("-fx-font-size: 10px; -fx-padding: 2 6 2 6; " +
-                               "-fx-background-color: #ecf0f1; -fx-background-radius: 3;");
+                tagLabel.getStyleClass().add("tag-label");
                 bottomRow.getChildren().add(tagLabel);
             }
         }
@@ -301,16 +296,14 @@ public class UpcomingViewController implements Initializable {
     }
     
     /**
-     * Get status style CSS
+     * Get status CSS style class
      */
-    private String getStatusStyle(TaskStatus status) {
-        String baseStyle = "-fx-font-size: 10px; -fx-padding: 3 8 3 8; " +
-                         "-fx-background-radius: 3; -fx-font-weight: bold;";
+    private String getStatusStyleClass(TaskStatus status) {
         return switch (status) {
-            case TODO -> baseStyle + "-fx-background-color: #3498db; -fx-text-fill: white;";
-            case IN_PROGRESS -> baseStyle + "-fx-background-color: #f39c12; -fx-text-fill: white;";
-            case COMPLETED -> baseStyle + "-fx-background-color: #2ecc71; -fx-text-fill: white;";
-            case CANCELLED -> baseStyle + "-fx-background-color: #95a5a6; -fx-text-fill: white;";
+            case TODO -> "status-badge-todo";
+            case IN_PROGRESS -> "status-badge-in-progress";
+            case COMPLETED -> "status-badge-completed";
+            case CANCELLED -> "status-badge-cancelled";
         };
     }
     
@@ -346,76 +339,5 @@ public class UpcomingViewController implements Initializable {
     private void handleQuickAdd() {
         log.info("Quick add button clicked");
         // TODO: Integrate with quick add functionality
-    }
-    
-    /**
-     * Load sample tasks for demonstration
-     */
-    private void loadSampleTasks() {
-        List<Task> sampleTasks = new ArrayList<>();
-        LocalDate today = LocalDate.now();
-        
-        // Tomorrow tasks
-        sampleTasks.add(Task.builder()
-            .title("Client meeting")
-            .status(TaskStatus.TODO)
-            .priority(Priority.HIGH)
-            .scheduledDate(today.plusDays(1))
-            .dueDate(today.plusDays(1))
-            .dueTime(LocalTime.of(10, 0))
-            .tags(List.of("meeting", "client"))
-            .build());
-        
-        sampleTasks.add(Task.builder()
-            .title("Prepare presentation slides")
-            .status(TaskStatus.IN_PROGRESS)
-            .priority(Priority.HIGH)
-            .scheduledDate(today.plusDays(1))
-            .dueDate(today.plusDays(1))
-            .dueTime(LocalTime.of(14, 0))
-            .tags(List.of("presentation"))
-            .build());
-        
-        // This week tasks
-        sampleTasks.add(Task.builder()
-            .title("Code review for PR #456")
-            .status(TaskStatus.TODO)
-            .priority(Priority.MEDIUM)
-            .scheduledDate(today.plusDays(3))
-            .dueDate(today.plusDays(3))
-            .tags(List.of("code-review", "development"))
-            .build());
-        
-        sampleTasks.add(Task.builder()
-            .title("Team retrospective")
-            .status(TaskStatus.TODO)
-            .priority(Priority.MEDIUM)
-            .scheduledDate(today.plusDays(5))
-            .dueDate(today.plusDays(5))
-            .dueTime(LocalTime.of(15, 0))
-            .tags(List.of("meeting", "team"))
-            .build());
-        
-        // Next week tasks
-        sampleTasks.add(Task.builder()
-            .title("Sprint planning")
-            .status(TaskStatus.TODO)
-            .priority(Priority.HIGH)
-            .scheduledDate(today.plusDays(8))
-            .dueDate(today.plusDays(8))
-            .dueTime(LocalTime.of(9, 0))
-            .tags(List.of("planning", "sprint"))
-            .build());
-        
-        sampleTasks.add(Task.builder()
-            .title("Update documentation")
-            .status(TaskStatus.TODO)
-            .priority(Priority.LOW)
-            .scheduledDate(today.plusDays(10))
-            .dueDate(today.plusDays(10))
-            .tags(List.of("documentation"))
-            .build());
-        
-        displayTasks(sampleTasks);
     }
 }

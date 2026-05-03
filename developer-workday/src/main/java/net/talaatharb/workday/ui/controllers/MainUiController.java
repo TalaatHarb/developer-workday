@@ -3,6 +3,7 @@ package net.talaatharb.workday.ui.controllers;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -26,10 +27,15 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import net.talaatharb.workday.facade.FocusModeFacade;
-import net.talaatharb.workday.facade.UpdateCheckFacade;
+import net.talaatharb.workday.dtos.CategoryWithTaskCount;
 import net.talaatharb.workday.dtos.FocusModeDTO;
+import net.talaatharb.workday.event.EventDispatcher;
+import net.talaatharb.workday.facade.CategoryFacade;
+import net.talaatharb.workday.facade.FocusModeFacade;
+import net.talaatharb.workday.facade.TaskFacade;
+import net.talaatharb.workday.facade.UpdateCheckFacade;
 import net.talaatharb.workday.model.UpdateInfo;
 import net.talaatharb.workday.utils.ContextMenuHelper;
 
@@ -82,6 +88,10 @@ public class MainUiController implements Initializable {
     private Label focusModeStatusLabel;
     
     private boolean sidebarCollapsed = false;
+    @Setter
+    private TaskFacade taskFacade;
+    @Setter
+    private CategoryFacade categoryFacade;
     private FocusModeFacade focusModeFacade;
     private UpdateCheckFacade updateCheckFacade;
     private net.talaatharb.workday.facade.WeeklyReviewFacade weeklyReviewFacade;
@@ -106,10 +116,38 @@ public class MainUiController implements Initializable {
         // Set up category list view with custom cell factory
         categoryListView.setCellFactory(listView -> new CategoryCell(this));
         
-        // Load sample categories for demonstration
-        loadSampleCategories();
-        
         log.info("Main window controller initialized successfully");
+    }
+    
+    /**
+     * Load initial data after facades have been injected.
+     * Called by JavafxApplication after setting all facades.
+     */
+    public void loadInitialData() {
+        loadCategories();
+    }
+    
+    /**
+     * Load categories from the CategoryFacade into the sidebar.
+     */
+    private void loadCategories() {
+        if (categoryFacade == null) {
+            log.warn("CategoryFacade not available, sidebar categories will be empty");
+            return;
+        }
+        try {
+            List<CategoryWithTaskCount> categories = categoryFacade.getCategoriesWithTaskCount();
+            categoryListView.getItems().clear();
+            for (CategoryWithTaskCount cat : categories) {
+                categoryListView.getItems().add(
+                    new CategoryItem(cat.getId(), cat.getName(), (int) cat.getTaskCount(),
+                        cat.getColor() != null ? cat.getColor() : "#95a5a6")
+                );
+            }
+            log.info("Loaded {} categories into sidebar", categories.size());
+        } catch (Exception e) {
+            log.error("Failed to load categories into sidebar", e);
+        }
     }
     
     @FXML
@@ -117,9 +155,18 @@ public class MainUiController implements Initializable {
         String taskInput = quickAddField.getText();
         if (taskInput != null && !taskInput.trim().isEmpty()) {
             log.info("Quick add task: {}", taskInput);
-            // TODO: Integrate with TaskFacade.quickAddTask()
-            // For now, the QuickAddController handles this logic when integrated
-            quickAddField.clear();
+            if (taskFacade != null) {
+                try {
+                    taskFacade.quickAddTask(taskInput);
+                    quickAddField.clear();
+                    log.info("Task created via quick add: {}", taskInput);
+                } catch (Exception e) {
+                    log.error("Failed to create task via quick add", e);
+                }
+            } else {
+                log.warn("TaskFacade not available, cannot create task");
+                quickAddField.clear();
+            }
         }
     }
     
@@ -147,21 +194,21 @@ public class MainUiController implements Initializable {
     @FXML
     private void handleShowCalendar() {
         log.info("Show calendar view");
-        // TODO: Load calendar view into contentArea
+        loadViewIntoContentArea("/net/talaatharb/workday/ui/CalendarView.fxml");
         setActiveNavButton(calendarButton);
     }
     
     @FXML
     private void handleShowAllTasks() {
         log.info("Show all tasks view");
-        // TODO: Load all tasks view into contentArea
+        loadViewIntoContentArea("/net/talaatharb/workday/ui/TaskListView.fxml");
         setActiveNavButton(allTasksButton);
     }
     
     @FXML
     private void handleAddCategory() {
         log.info("Add new category");
-        // TODO: Open add category dialog
+        openCategoryManagementDialog();
     }
     
     /**
@@ -169,12 +216,7 @@ public class MainUiController implements Initializable {
      */
     private void handleEditCategory(CategoryItem category) {
         log.info("Editing category: {}", category.getName());
-        // TODO: Open edit category dialog
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Edit Category");
-        alert.setHeaderText("Edit: " + category.getName());
-        alert.setContentText("Edit category dialog will be implemented here.");
-        alert.showAndWait();
+        openCategoryManagementDialog();
     }
     
     /**
@@ -203,10 +245,52 @@ public class MainUiController implements Initializable {
         
         confirmAlert.showAndWait().ifPresent(response -> {
             if (response == javafx.scene.control.ButtonType.OK) {
-                categoryListView.getItems().remove(category);
-                log.info("Category deleted: {}", category.getName());
+                if (categoryFacade != null && category.getId() != null) {
+                    try {
+                        categoryFacade.deleteCategory(category.getId());
+                        loadCategories();
+                        log.info("Category deleted: {}", category.getName());
+                    } catch (Exception e) {
+                        log.error("Failed to delete category", e);
+                    }
+                } else {
+                    categoryListView.getItems().remove(category);
+                    log.info("Category removed from display: {}", category.getName());
+                }
             }
         });
+    }
+    
+    /**
+     * Open the category management dialog.
+     */
+    private void openCategoryManagementDialog() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/net/talaatharb/workday/ui/CategoryManagementDialog.fxml"));
+            VBox dialogRoot = loader.load();
+            
+            CategoryManagementDialogController controller = loader.getController();
+            if (categoryFacade != null) {
+                controller.setCategoryFacade(categoryFacade);
+            }
+            
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Manage Categories");
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            
+            Scene dialogScene = new Scene(dialogRoot);
+            net.talaatharb.workday.utils.ThemeManager.getInstance().registerScene(dialogScene);
+            dialogStage.setScene(dialogScene);
+            
+            dialogStage.setOnHidden(event -> {
+                net.talaatharb.workday.utils.ThemeManager.getInstance().unregisterScene(dialogScene);
+                loadCategories();
+            });
+            
+            dialogStage.showAndWait();
+        } catch (IOException e) {
+            log.error("Failed to open category management dialog", e);
+        }
     }
     
     @FXML
@@ -526,14 +610,27 @@ public class MainUiController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             javafx.scene.Node view = loader.load();
             
-            // Get the controller and initialize if needed
+            // Get the controller and inject facades
             Object controller = loader.getController();
             if (controller instanceof TodayViewController todayController) {
-                // TODO: Inject TaskFacade when available
+                todayController.setTaskFacade(taskFacade);
                 todayController.loadTasks();
             } else if (controller instanceof UpcomingViewController upcomingController) {
-                // TODO: Inject TaskFacade when available
+                upcomingController.setTaskFacade(taskFacade);
                 upcomingController.loadTasks();
+            } else if (controller instanceof TaskListViewController taskListController) {
+                taskListController.setTaskFacade(taskFacade);
+                taskListController.setCategoryFacade(categoryFacade);
+                taskListController.loadTasksFromFacade();
+            } else if (controller instanceof CalendarViewController calendarController) {
+                calendarController.setTaskFacade(taskFacade);
+                calendarController.setCalendarFacade(
+                    net.talaatharb.workday.config.ApplicationContext.getInstance()
+                        .getBeanOptional(net.talaatharb.workday.facade.CalendarFacade.class)
+                        .orElse(null));
+            } else if (controller instanceof InboxViewController inboxController) {
+                inboxController.setTaskFacade(taskFacade);
+                inboxController.setCategoryFacade(categoryFacade);
             }
             
             contentArea.getChildren().clear();
@@ -550,28 +647,28 @@ public class MainUiController implements Initializable {
         }
     }
     
-    private void loadSampleCategories() {
-        // Sample data for demonstration
-        categoryListView.getItems().addAll(
-            new CategoryItem("Work", 5, "#3498db"),
-            new CategoryItem("Personal", 3, "#2ecc71"),
-            new CategoryItem("Shopping", 2, "#e74c3c"),
-            new CategoryItem("Health", 1, "#9b59b6")
-        );
-    }
-    
     /**
      * Category item for display in the list
      */
     public static class CategoryItem {
+        private final java.util.UUID id;
         private final String name;
         private final int taskCount;
         private final String color;
         
         public CategoryItem(String name, int taskCount, String color) {
+            this(null, name, taskCount, color);
+        }
+        
+        public CategoryItem(java.util.UUID id, String name, int taskCount, String color) {
+            this.id = id;
             this.name = name;
             this.taskCount = taskCount;
             this.color = color;
+        }
+        
+        public java.util.UUID getId() {
+            return id;
         }
         
         public String getName() {
