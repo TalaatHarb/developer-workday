@@ -99,8 +99,8 @@ public class TodayViewController implements Initializable {
      */
     public void loadTasks() {
         if (taskFacade == null) {
-            log.warn("TaskFacade not set, using sample data");
-            loadSampleTasks();
+            log.warn("TaskFacade not set, cannot load tasks for today");
+            showEmptyState();
             return;
         }
         
@@ -256,8 +256,11 @@ public class TodayViewController implements Initializable {
     private VBox createTaskCard(Task task) {
         VBox card = new VBox(5);
         card.getStyleClass().add("task-card");
-        card.setStyle("-fx-background-color: white; -fx-background-radius: 5; " +
-                     "-fx-padding: 10; -fx-border-color: #ecf0f1; -fx-border-radius: 5; -fx-border-width: 1;");
+        
+        // Add overdue style if applicable
+        if (task.getDueDate() != null && task.getDueDate().isBefore(LocalDate.now())) {
+            card.getStyleClass().add("task-card-overdue");
+        }
         
         // Top row: priority and title
         HBox topRow = new HBox(10);
@@ -284,14 +287,13 @@ public class TodayViewController implements Initializable {
         }
         
         Label statusLabel = new Label(task.getStatus().toString());
-        statusLabel.setStyle(getStatusStyle(task.getStatus()));
+        statusLabel.getStyleClass().add(getStatusStyleClass(task.getStatus()));
         bottomRow.getChildren().add(statusLabel);
         
         if (task.getTags() != null && !task.getTags().isEmpty()) {
             for (String tag : task.getTags()) {
                 Label tagLabel = new Label("#" + tag);
-                tagLabel.setStyle("-fx-font-size: 10px; -fx-padding: 2 6 2 6; " +
-                               "-fx-background-color: #ecf0f1; -fx-background-radius: 3;");
+                tagLabel.getStyleClass().add("tag-label");
                 bottomRow.getChildren().add(tagLabel);
             }
         }
@@ -319,16 +321,14 @@ public class TodayViewController implements Initializable {
     }
     
     /**
-     * Get status style CSS
+     * Get status CSS style class
      */
-    private String getStatusStyle(TaskStatus status) {
-        String baseStyle = "-fx-font-size: 10px; -fx-padding: 3 8 3 8; " +
-                         "-fx-background-radius: 3; -fx-font-weight: bold;";
+    private String getStatusStyleClass(TaskStatus status) {
         return switch (status) {
-            case TODO -> baseStyle + "-fx-background-color: #3498db; -fx-text-fill: white;";
-            case IN_PROGRESS -> baseStyle + "-fx-background-color: #f39c12; -fx-text-fill: white;";
-            case COMPLETED -> baseStyle + "-fx-background-color: #2ecc71; -fx-text-fill: white;";
-            case CANCELLED -> baseStyle + "-fx-background-color: #95a5a6; -fx-text-fill: white;";
+            case TODO -> "status-badge-todo";
+            case IN_PROGRESS -> "status-badge-in-progress";
+            case COMPLETED -> "status-badge-completed";
+            case CANCELLED -> "status-badge-cancelled";
         };
     }
     
@@ -382,59 +382,6 @@ public class TodayViewController implements Initializable {
         todayTasksContainer.setManaged(!todaySectionCollapsed);
         todaySectionToggle.setText(todaySectionCollapsed ? "▶" : "▼");
         log.debug("Today section collapsed: {}", todaySectionCollapsed);
-    }
-    
-    /**
-     * Load sample tasks for demonstration
-     */
-    private void loadSampleTasks() {
-        List<Task> sampleTasks = new ArrayList<>();
-        LocalDate today = LocalDate.now();
-        
-        // Overdue task
-        sampleTasks.add(Task.builder()
-            .title("Review pull request #123")
-            .status(TaskStatus.IN_PROGRESS)
-            .priority(Priority.HIGH)
-            .dueDate(today.minusDays(1))
-            .dueTime(LocalTime.of(10, 0))
-            .tags(List.of("code-review", "urgent"))
-            .build());
-        
-        // Morning task
-        sampleTasks.add(Task.builder()
-            .title("Team standup meeting")
-            .status(TaskStatus.TODO)
-            .priority(Priority.MEDIUM)
-            .scheduledDate(today)
-            .dueDate(today)
-            .dueTime(LocalTime.of(9, 30))
-            .tags(List.of("meeting"))
-            .build());
-        
-        // Afternoon task
-        sampleTasks.add(Task.builder()
-            .title("Write unit tests for new feature")
-            .status(TaskStatus.TODO)
-            .priority(Priority.MEDIUM)
-            .scheduledDate(today)
-            .dueDate(today)
-            .dueTime(LocalTime.of(14, 0))
-            .tags(List.of("testing", "development"))
-            .build());
-        
-        // Evening task
-        sampleTasks.add(Task.builder()
-            .title("Deploy to staging environment")
-            .status(TaskStatus.TODO)
-            .priority(Priority.HIGH)
-            .scheduledDate(today)
-            .dueDate(today)
-            .dueTime(LocalTime.of(17, 30))
-            .tags(List.of("deployment"))
-            .build());
-        
-        displayTasks(sampleTasks);
     }
     
     /**

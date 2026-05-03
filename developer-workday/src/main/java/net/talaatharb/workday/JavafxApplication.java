@@ -8,24 +8,33 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import net.talaatharb.workday.config.ApplicationContext;
+import net.talaatharb.workday.facade.CategoryFacade;
+import net.talaatharb.workday.facade.FocusModeFacade;
 import net.talaatharb.workday.facade.PreferencesFacade;
+import net.talaatharb.workday.facade.TaskFacade;
 import net.talaatharb.workday.facade.UpdateCheckFacade;
+import net.talaatharb.workday.facade.WeeklyReviewFacade;
 import net.talaatharb.workday.model.UpdateInfo;
 import net.talaatharb.workday.model.UserPreferences;
+import net.talaatharb.workday.ui.controllers.MainUiController;
 import net.talaatharb.workday.utils.ThemeManager;
 
 public class JavafxApplication extends Application {
 
-	private static final int HEIGHT = 50;
+	private static final int HEIGHT = 768;
 	private static final String MAIN_FXML = "ui/MainWindow.fxml";
 	private static final String ICON_FILE = "ui/logo.jpg";
 	private static final String TITLE = "Developer Workday";
-	private static final int WIDTH = 800;
+	private static final int WIDTH = 1024;
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		final FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(MAIN_FXML));
 		final Parent root = fxmlLoader.load();
+
+		// Inject facades into the main controller
+		MainUiController mainController = fxmlLoader.getController();
+		injectFacades(mainController);
 
 		final Image icon = new Image(getClass().getResourceAsStream(ICON_FILE));
 		final Scene scene = new Scene(root, WIDTH, HEIGHT);
@@ -38,8 +47,30 @@ public class JavafxApplication extends Application {
 		primaryStage.getIcons().add(icon);
 		primaryStage.show();
 		
+		// Load initial data after scene is shown
+		mainController.loadInitialData();
+		
 		// Check for updates on startup (in background)
 		checkForUpdatesOnStartup();
+	}
+
+	private void injectFacades(MainUiController controller) {
+		ApplicationContext context = ApplicationContext.getInstance();
+		if (context.hasBean(TaskFacade.class)) {
+			controller.setTaskFacade(context.getBean(TaskFacade.class));
+		}
+		if (context.hasBean(CategoryFacade.class)) {
+			controller.setCategoryFacade(context.getBean(CategoryFacade.class));
+		}
+		if (context.hasBean(FocusModeFacade.class)) {
+			controller.setFocusModeFacade(context.getBean(FocusModeFacade.class));
+		}
+		if (context.hasBean(UpdateCheckFacade.class)) {
+			controller.setUpdateCheckFacade(context.getBean(UpdateCheckFacade.class));
+		}
+		if (context.hasBean(WeeklyReviewFacade.class)) {
+			controller.setWeeklyReviewFacade(context.getBean(WeeklyReviewFacade.class));
+		}
 	}
 
 	private void loadAndApplyTheme(Scene scene) {

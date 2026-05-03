@@ -144,6 +144,179 @@
     -fx-background-color: transparent;
 }
 
+/* Task cards */
+.task-card {
+    -fx-background-color: white;
+    -fx-background-radius: 6;
+    -fx-padding: 10;
+    -fx-border-color: #e8eaed;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 3, 0, 0, 1);
+}
+
+.task-card:hover {
+    -fx-border-color: #3498db;
+    -fx-effect: dropshadow(gaussian, rgba(52,152,219,0.15), 6, 0, 0, 2);
+}
+
+.task-card-overdue {
+    -fx-border-color: #e74c3c;
+    -fx-background-color: #fff8f8;
+}
+
+/* Status badges */
+.status-badge-todo {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-padding: 3 8 3 8;
+    -fx-background-radius: 3;
+    -fx-font-weight: bold;
+}
+
+.status-badge-in-progress {
+    -fx-background-color: #f39c12;
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-padding: 3 8 3 8;
+    -fx-background-radius: 3;
+    -fx-font-weight: bold;
+}
+
+.status-badge-completed {
+    -fx-background-color: #2ecc71;
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-padding: 3 8 3 8;
+    -fx-background-radius: 3;
+    -fx-font-weight: bold;
+}
+
+.status-badge-cancelled {
+    -fx-background-color: #95a5a6;
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-padding: 3 8 3 8;
+    -fx-background-radius: 3;
+    -fx-font-weight: bold;
+}
+
+/* Tag labels */
+.tag-label {
+    -fx-font-size: 10px;
+    -fx-padding: 2 6 2 6;
+    -fx-background-color: #ecf0f1;
+    -fx-background-radius: 3;
+    -fx-text-fill: #555;
+}
+
+/* Section headers (Today/Overdue in TodayView) */
+.section-header {
+    -fx-padding: 5 0 5 0;
+}
+
+.section-title {
+    -fx-text-fill: #2c3e50;
+}
+
+.section-toggle {
+    -fx-cursor: hand;
+    -fx-text-fill: #7f8c8d;
+}
+
+.section-count {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+    -fx-padding: 2 7 2 7;
+}
+
+/* Empty state */
+.empty-state-container {
+    -fx-background-color: transparent;
+}
+
+.empty-state-title {
+    -fx-text-fill: #2c3e50;
+}
+
+.empty-state-subtitle {
+    -fx-text-fill: #95a5a6;
+}
+
+.empty-state-add-button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-padding: 10 20;
+}
+
+.empty-state-add-button:hover {
+    -fx-background-color: #2980b9;
+}
+
+/* New task button */
+.new-task-button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-background-radius: 4;
+    -fx-cursor: hand;
+    -fx-padding: 6 14;
+    -fx-font-weight: bold;
+}
+
+.new-task-button:hover {
+    -fx-background-color: #2980b9;
+}
+
+/* View title */
+.view-title {
+    -fx-text-fill: #2c3e50;
+}
+
+/* Time block */
+.time-block-header {
+    -fx-text-fill: #7f8c8d;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+/* Date section header (UpcomingView) */
+.date-section-header {
+    -fx-background-color: #f8f9fa;
+    -fx-padding: 10;
+    -fx-background-radius: 5;
+}
+
+/* Inbox badge */
+.inbox-badge {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+    -fx-padding: 1 6 1 6;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+/* Task list cell states */
+.task-cell-overdue {
+    -fx-background-color: #ffe6e6;
+}
+
+.task-cell-completed {
+    -fx-background-color: #f0f0f0;
+}
+
+/* Focus mode status */
+.focus-mode-status {
+    -fx-text-fill: #27ae60;
+    -fx-font-weight: bold;
+}
+
+
 .scroll-bar .thumb {
     -fx-background-color: rgba(149, 165, 166, 0.5);
     -fx-background-radius: 5;

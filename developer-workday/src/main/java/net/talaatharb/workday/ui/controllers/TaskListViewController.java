@@ -32,7 +32,11 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import net.talaatharb.workday.facade.CategoryFacade;
+import net.talaatharb.workday.facade.TaskFacade;
+import net.talaatharb.workday.model.Category;
 import net.talaatharb.workday.model.Priority;
 import net.talaatharb.workday.model.Task;
 import net.talaatharb.workday.model.TaskStatus;
@@ -86,6 +90,12 @@ public class TaskListViewController implements Initializable {
     private List<Task> filteredTasks = new ArrayList<>();
     private String currentSearchKeyword = "";
     
+    @Setter
+    private TaskFacade taskFacade;
+    
+    @Setter
+    private CategoryFacade categoryFacade;
+    
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         log.info("Initializing Task List View Controller");
@@ -105,10 +115,8 @@ public class TaskListViewController implements Initializable {
         // Enable multiple selection for task list
         taskListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         
-        // Setup category filter
-        categoryFilterChoice.setItems(FXCollections.observableArrayList(
-            "All Categories", "Work", "Personal", "Shopping", "Health"
-        ));
+        // Setup category filter (will be populated from facade later)
+        categoryFilterChoice.setItems(FXCollections.observableArrayList("All Categories"));
         categoryFilterChoice.setValue("All Categories");
         categoryFilterChoice.setOnAction(e -> applyFilters());
         
@@ -136,11 +144,45 @@ public class TaskListViewController implements Initializable {
         // Setup task list custom cell factory
         taskListView.setCellFactory(listView -> new TaskCell());
         
-        // Load sample tasks for demonstration
-        loadSampleTasks();
-        applyFilters();
-        
         log.info("Task List View Controller initialized successfully");
+    }
+    
+    /**
+     * Load tasks from the TaskFacade. Called by MainUiController after injecting facades.
+     */
+    public void loadTasksFromFacade() {
+        populateCategoryFilter();
+        if (taskFacade != null) {
+            try {
+                List<Task> tasks = taskFacade.findAll();
+                loadTasks(tasks);
+                log.info("Loaded {} tasks from facade", tasks.size());
+            } catch (Exception e) {
+                log.error("Failed to load tasks from facade", e);
+            }
+        } else {
+            log.warn("TaskFacade not set, task list will be empty");
+        }
+    }
+    
+    /**
+     * Populate category filter from CategoryFacade.
+     */
+    private void populateCategoryFilter() {
+        List<String> items = new ArrayList<>();
+        items.add("All Categories");
+        if (categoryFacade != null) {
+            try {
+                List<Category> categories = categoryFacade.findAll();
+                for (Category cat : categories) {
+                    items.add(cat.getName());
+                }
+            } catch (Exception e) {
+                log.error("Failed to load categories for filter", e);
+            }
+        }
+        categoryFilterChoice.setItems(FXCollections.observableArrayList(items));
+        categoryFilterChoice.setValue("All Categories");
     }
     
     @FXML
@@ -244,9 +286,20 @@ public class TaskListViewController implements Initializable {
         
         Optional<ButtonType> result = confirmAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            allTasks.remove(task);
-            applyFilters();
-            log.info("Task deleted: {}", task.getTitle());
+            if (taskFacade != null && task.getId() != null) {
+                try {
+                    taskFacade.deleteTask(task.getId());
+                    allTasks.remove(task);
+                    applyFilters();
+                    log.info("Task deleted via facade: {}", task.getTitle());
+                } catch (Exception e) {
+                    log.error("Failed to delete task via facade", e);
+                }
+            } else {
+                allTasks.remove(task);
+                applyFilters();
+                log.info("Task removed from view: {}", task.getTitle());
+            }
         }
     }
     
@@ -257,11 +310,33 @@ public class TaskListViewController implements Initializable {
         log.info("Toggling completion for task: {}", task.getTitle());
         
         if (task.getStatus() == TaskStatus.COMPLETED) {
-            task.setStatus(TaskStatus.TODO);
-            log.info("Task marked as TODO: {}", task.getTitle());
+            if (taskFacade != null && task.getId() != null) {
+                try {
+                    task.setStatus(TaskStatus.TODO);
+                    taskFacade.updateTask(task);
+                    log.info("Task marked as TODO via facade: {}", task.getTitle());
+                } catch (Exception e) {
+                    log.error("Failed to update task status", e);
+                    task.setStatus(TaskStatus.TODO);
+                }
+            } else {
+                task.setStatus(TaskStatus.TODO);
+                log.info("Task marked as TODO: {}", task.getTitle());
+            }
         } else {
-            task.setStatus(TaskStatus.COMPLETED);
-            log.info("Task marked as COMPLETED: {}", task.getTitle());
+            if (taskFacade != null && task.getId() != null) {
+                try {
+                    taskFacade.completeTask(task.getId());
+                    task.setStatus(TaskStatus.COMPLETED);
+                    log.info("Task marked as COMPLETED via facade: {}", task.getTitle());
+                } catch (Exception e) {
+                    log.error("Failed to complete task via facade", e);
+                    task.setStatus(TaskStatus.COMPLETED);
+                }
+            } else {
+                task.setStatus(TaskStatus.COMPLETED);
+                log.info("Task marked as COMPLETED: {}", task.getTitle());
+            }
         }
         
         applyFilters();
@@ -362,10 +437,17 @@ public class TaskListViewController implements Initializable {
             .tags(task.getTags() != null ? new ArrayList<>(task.getTags()) : null)
             .build();
         
+        if (taskFacade != null) {
+            try {
+                duplicatedTask = taskFacade.createTask(duplicatedTask);
+                log.info("Task duplicated via facade: {}", duplicatedTask.getTitle());
+            } catch (Exception e) {
+                log.error("Failed to duplicate task via facade", e);
+            }
+        }
+        
         allTasks.add(duplicatedTask);
         applyFilters();
-        
-        log.info("Task duplicated: {}", duplicatedTask.getTitle());
     }
     
     /**
@@ -382,7 +464,17 @@ public class TaskListViewController implements Initializable {
         Optional<ButtonType> result = confirmAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             for (Task task : tasks) {
-                task.setStatus(TaskStatus.COMPLETED);
+                if (taskFacade != null && task.getId() != null) {
+                    try {
+                        taskFacade.completeTask(task.getId());
+                        task.setStatus(TaskStatus.COMPLETED);
+                    } catch (Exception e) {
+                        log.error("Failed to complete task: {}", task.getTitle(), e);
+                        task.setStatus(TaskStatus.COMPLETED);
+                    }
+                } else {
+                    task.setStatus(TaskStatus.COMPLETED);
+                }
             }
             applyFilters();
             log.info("{} tasks marked as completed", tasks.size());
@@ -415,6 +507,15 @@ public class TaskListViewController implements Initializable {
         
         Optional<ButtonType> result = confirmAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
+            for (Task task : tasks) {
+                if (taskFacade != null && task.getId() != null) {
+                    try {
+                        taskFacade.deleteTask(task.getId());
+                    } catch (Exception e) {
+                        log.error("Failed to delete task: {}", task.getTitle(), e);
+                    }
+                }
+            }
             allTasks.removeAll(tasks);
             applyFilters();
             log.info("{} tasks deleted", tasks.size());
@@ -498,7 +599,19 @@ public class TaskListViewController implements Initializable {
         if (selected == null || "All Categories".equals(selected)) {
             return true;
         }
-        // TODO: Implement actual category filtering with CategoryFacade
+        if (categoryFacade != null && task.getCategoryId() != null) {
+            try {
+                List<Category> categories = categoryFacade.findAll();
+                return categories.stream()
+                    .filter(cat -> selected.equals(cat.getName()))
+                    .findFirst()
+                    .map(cat -> cat.getId().equals(task.getCategoryId()))
+                    .orElse(false);
+            } catch (Exception e) {
+                log.error("Failed to filter by category", e);
+                return true;
+            }
+        }
         return true;
     }
     
@@ -579,68 +692,6 @@ public class TaskListViewController implements Initializable {
     public void loadTasks(List<Task> tasks) {
         this.allTasks = new ArrayList<>(tasks);
         applyFilters();
-    }
-    
-    /**
-     * Load sample tasks for demonstration
-     */
-    private void loadSampleTasks() {
-        allTasks = new ArrayList<>();
-        
-        // Sample task 1: Overdue high priority
-        Task task1 = Task.builder()
-            .title("Fix critical bug in production")
-            .description("Memory leak causing server crashes")
-            .status(TaskStatus.IN_PROGRESS)
-            .priority(Priority.URGENT)
-            .dueDate(java.time.LocalDate.now().minusDays(1))
-            .tags(List.of("bug", "production", "urgent"))
-            .build();
-        
-        // Sample task 2: Today medium priority
-        Task task2 = Task.builder()
-            .title("Review pull requests")
-            .description("Check code quality and test coverage")
-            .status(TaskStatus.TODO)
-            .priority(Priority.MEDIUM)
-            .dueDate(java.time.LocalDate.now())
-            .tags(List.of("code-review", "team"))
-            .build();
-        
-        // Sample task 3: Completed task
-        Task task3 = Task.builder()
-            .title("Write unit tests")
-            .description("Add tests for new search functionality")
-            .status(TaskStatus.COMPLETED)
-            .priority(Priority.HIGH)
-            .dueDate(java.time.LocalDate.now().minusDays(2))
-            .tags(List.of("testing", "development"))
-            .build();
-        
-        // Sample task 4: Future low priority
-        Task task4 = Task.builder()
-            .title("Update documentation")
-            .description("Add API documentation for new endpoints")
-            .status(TaskStatus.TODO)
-            .priority(Priority.LOW)
-            .dueDate(java.time.LocalDate.now().plusDays(3))
-            .tags(List.of("documentation", "api"))
-            .build();
-        
-        // Sample task 5: No due date
-        Task task5 = Task.builder()
-            .title("Brainstorm new features")
-            .description("Research competitor features and user feedback")
-            .status(TaskStatus.TODO)
-            .priority(Priority.LOW)
-            .tags(List.of("planning", "research"))
-            .build();
-        
-        allTasks.add(task1);
-        allTasks.add(task2);
-        allTasks.add(task3);
-        allTasks.add(task4);
-        allTasks.add(task5);
     }
     
     /**
@@ -757,7 +808,7 @@ public class TaskListViewController implements Initializable {
                 
                 // Status badge
                 Label statusLabel = new Label(task.getStatus().toString());
-                statusLabel.setStyle(getStatusStyle(task.getStatus()));
+                statusLabel.getStyleClass().add(getStatusStyleClass(task.getStatus()));
                 bottomRow.getChildren().add(statusLabel);
                 
                 // Tags with highlighting
@@ -766,13 +817,11 @@ public class TaskListViewController implements Initializable {
                         if (currentSearchKeyword != null && !currentSearchKeyword.trim().isEmpty() 
                             && tag.toLowerCase().contains(currentSearchKeyword.toLowerCase())) {
                             TextFlow tagFlow = createHighlightedTextFlow("#" + tag, currentSearchKeyword);
-                            tagFlow.setStyle("-fx-font-size: 10px; -fx-padding: 2 6 2 6; " +
-                                           "-fx-background-color: #ecf0f1; -fx-background-radius: 3;");
+                            tagFlow.getStyleClass().add("tag-label");
                             bottomRow.getChildren().add(tagFlow);
                         } else {
                             Label tagLabel = new Label("#" + tag);
-                            tagLabel.setStyle("-fx-font-size: 10px; -fx-padding: 2 6 2 6; " +
-                                            "-fx-background-color: #ecf0f1; -fx-background-radius: 3;");
+                            tagLabel.getStyleClass().add("tag-label");
                             bottomRow.getChildren().add(tagLabel);
                         }
                     }
@@ -790,13 +839,13 @@ public class TaskListViewController implements Initializable {
                 // Highlight overdue tasks
                 if (task.getDueDate() != null && task.getDueDate().isBefore(java.time.LocalDate.now()) 
                     && task.getStatus() != TaskStatus.COMPLETED) {
-                    setStyle("-fx-background-color: #ffe6e6;");
+                    getStyleClass().add("task-cell-overdue");
                 } else if (task.getStatus() == TaskStatus.COMPLETED) {
-                    setStyle("-fx-background-color: #f0f0f0;");
+                    getStyleClass().add("task-cell-completed");
                     // Apply completion animation style
                     container.setOpacity(0.6);
                 } else {
-                    setStyle("");
+                    getStyleClass().removeAll("task-cell-overdue", "task-cell-completed");
                     container.setOpacity(1.0);
                 }
             }
@@ -858,14 +907,12 @@ public class TaskListViewController implements Initializable {
             };
         }
         
-        private String getStatusStyle(TaskStatus status) {
-            String baseStyle = "-fx-font-size: 10px; -fx-padding: 3 8 3 8; " +
-                             "-fx-background-radius: 3; -fx-font-weight: bold;";
+        private String getStatusStyleClass(TaskStatus status) {
             return switch (status) {
-                case TODO -> baseStyle + "-fx-background-color: #3498db; -fx-text-fill: white;";
-                case IN_PROGRESS -> baseStyle + "-fx-background-color: #f39c12; -fx-text-fill: white;";
-                case COMPLETED -> baseStyle + "-fx-background-color: #2ecc71; -fx-text-fill: white;";
-                case CANCELLED -> baseStyle + "-fx-background-color: #95a5a6; -fx-text-fill: white;";
+                case TODO -> "status-badge-todo";
+                case IN_PROGRESS -> "status-badge-in-progress";
+                case COMPLETED -> "status-badge-completed";
+                case CANCELLED -> "status-badge-cancelled";
             };
         }
     }
