@@ -92,6 +92,34 @@ class TaskRepositoryTest {
         List<Task> tasksInRange = repository.findByDueDateBetween(start, end);
         assertEquals(2, tasksInRange.size());
     }
+
+    @Test
+    void testFindByDateBetween_PrefersScheduledDate() {
+        LocalDate start = LocalDate.of(2024, 1, 1);
+        LocalDate end = LocalDate.of(2024, 1, 31);
+
+        repository.save(Task.builder()
+            .title("Scheduled task")
+            .scheduledDate(LocalDate.of(2024, 1, 10))
+            .dueDate(LocalDate.of(2024, 2, 10))
+            .build());
+        repository.save(Task.builder()
+            .title("Due-date fallback task")
+            .dueDate(LocalDate.of(2024, 1, 20))
+            .build());
+        repository.save(Task.builder()
+            .title("Outside range")
+            .scheduledDate(LocalDate.of(2024, 2, 1))
+            .dueDate(LocalDate.of(2024, 1, 15))
+            .build());
+
+        List<Task> tasksInRange = repository.findByDateBetween(start, end);
+
+        assertEquals(2, tasksInRange.size());
+        assertTrue(tasksInRange.stream().anyMatch(task -> "Scheduled task".equals(task.getTitle())));
+        assertTrue(tasksInRange.stream().anyMatch(task -> "Due-date fallback task".equals(task.getTitle())));
+        assertFalse(tasksInRange.stream().anyMatch(task -> "Outside range".equals(task.getTitle())));
+    }
     
     @Test
     void testFindOverdueTasks() {

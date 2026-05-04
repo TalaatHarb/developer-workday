@@ -628,9 +628,11 @@ public class MainUiController implements Initializable {
                     net.talaatharb.workday.config.ApplicationContext.getInstance()
                         .getBeanOptional(net.talaatharb.workday.facade.CalendarFacade.class)
                         .orElse(null));
+                calendarController.loadCalendarTasks();
             } else if (controller instanceof InboxViewController inboxController) {
                 inboxController.setTaskFacade(taskFacade);
                 inboxController.setCategoryFacade(categoryFacade);
+                inboxController.loadInboxTasks();
             }
             
             contentArea.getChildren().clear();

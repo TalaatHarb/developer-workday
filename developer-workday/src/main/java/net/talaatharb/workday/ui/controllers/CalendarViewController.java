@@ -217,6 +217,13 @@ public class CalendarViewController implements Initializable {
         // Update task count
         updateTaskCount();
     }
+
+    /**
+     * Reload calendar tasks after dependencies are injected.
+     */
+    public void loadCalendarTasks() {
+        refreshCalendarView();
+    }
     
     /**
      * Update header label based on view mode

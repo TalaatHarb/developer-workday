@@ -339,6 +339,14 @@ public class TaskService {
     public List<Task> findByDueDateBetween(LocalDate startDate, LocalDate endDate) {
         return taskRepository.findByDueDateBetween(startDate, endDate);
     }
+
+    /**
+     * Find tasks whose primary calendar date falls within a date range.
+     * Prefers scheduled date and falls back to due date.
+     */
+    public List<Task> findByDateBetween(LocalDate startDate, LocalDate endDate) {
+        return taskRepository.findByDateBetween(startDate, endDate);
+    }
     
     /**
      * Search tasks by keyword in title, description, and tags

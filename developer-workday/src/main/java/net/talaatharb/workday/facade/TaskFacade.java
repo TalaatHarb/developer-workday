@@ -322,6 +322,15 @@ public class TaskFacade {
         log.debug("Getting inbox tasks");
         return taskService.findInboxTasks();
     }
+
+    /**
+     * Get tasks in an upcoming date range using the task's scheduled date first
+     * and falling back to its due date.
+     */
+    public List<Task> getUpcomingTasks(LocalDate startDate, LocalDate endDate) {
+        log.debug("Getting upcoming tasks from {} to {}", startDate, endDate);
+        return taskService.findByDateBetween(startDate.plusDays(1), endDate);
+    }
     
     /**
      * Helper to get priority value for sorting

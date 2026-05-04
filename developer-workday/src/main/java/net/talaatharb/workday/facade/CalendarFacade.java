@@ -43,12 +43,12 @@ public class CalendarFacade {
         LocalDate endDate = yearMonth.atEndOfMonth();
         
         // Get all tasks in the month
-        List<Task> tasks = taskService.findByDueDateBetween(startDate, endDate);
+        List<Task> tasks = taskService.findByDateBetween(startDate, endDate);
         
         // Group tasks by date
         Map<LocalDate, List<Task>> tasksByDate = new HashMap<>();
         for (Task task : tasks) {
-            LocalDate taskDate = task.getDueDate();
+            LocalDate taskDate = getCalendarDate(task);
             if (taskDate != null) {
                 tasksByDate.computeIfAbsent(taskDate, k -> new ArrayList<>()).add(task);
             }
@@ -95,12 +95,12 @@ public class CalendarFacade {
         LocalDate endDate = date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
         
         // Get all tasks in the week
-        List<Task> tasks = taskService.findByDueDateBetween(startDate, endDate);
+        List<Task> tasks = taskService.findByDateBetween(startDate, endDate);
         
         // Group tasks by date
         Map<LocalDate, List<Task>> tasksByDate = new HashMap<>();
         for (Task task : tasks) {
-            LocalDate taskDate = task.getDueDate();
+            LocalDate taskDate = getCalendarDate(task);
             if (taskDate != null) {
                 tasksByDate.computeIfAbsent(taskDate, k -> new ArrayList<>()).add(task);
             }
@@ -153,7 +153,7 @@ public class CalendarFacade {
      */
     public List<Task> getTasksForPeriod(LocalDate startDate, LocalDate endDate) {
         log.debug("Getting tasks for period: {} to {}", startDate, endDate);
-        return taskService.findByDueDateBetween(startDate, endDate);
+        return taskService.findByDateBetween(startDate, endDate);
     }
     
     /**
@@ -164,6 +164,13 @@ public class CalendarFacade {
      */
     public List<Task> getTasksForDay(LocalDate date) {
         log.debug("Getting tasks for day: {}", date);
-        return taskService.findByDueDateBetween(date, date);
+        return taskService.findByDateBetween(date, date);
+    }
+
+    private LocalDate getCalendarDate(Task task) {
+        if (task.getScheduledDate() != null) {
+            return task.getScheduledDate();
+        }
+        return task.getDueDate();
     }
 }

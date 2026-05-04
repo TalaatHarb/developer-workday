@@ -1,22 +1,29 @@
 package net.talaatharb.workday.ui.controllers;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
+import net.talaatharb.workday.facade.CategoryFacade;
+import net.talaatharb.workday.facade.TaskFacade;
+import net.talaatharb.workday.model.Category;
 import net.talaatharb.workday.model.Priority;
 import net.talaatharb.workday.model.Task;
 import net.talaatharb.workday.model.TaskStatus;
@@ -320,6 +327,57 @@ class TaskListViewControllerTest {
             }
         });
         
+        Thread.sleep(500);
+    }
+
+    @Test
+    @DisplayName("Filter tasks - category excludes uncategorized tasks")
+    void testFilterByCategoryExcludesUncategorizedTasks() throws Exception {
+        Platform.runLater(() -> {
+            try {
+                URL fxmlResource = getClass().getResource("/net/talaatharb/workday/ui/TaskListView.fxml");
+                FXMLLoader loader = new FXMLLoader(fxmlResource);
+                VBox root = loader.load();
+                TaskListViewController controller = loader.getController();
+
+                UUID workCategoryId = UUID.randomUUID();
+                CategoryFacade mockCategoryFacade = mock(CategoryFacade.class);
+                TaskFacade mockTaskFacade = mock(TaskFacade.class);
+
+                when(mockCategoryFacade.findAll()).thenReturn(List.of(
+                    Category.builder().id(workCategoryId).name("Work").build()
+                ));
+                when(mockTaskFacade.findAll()).thenReturn(List.of(
+                    Task.builder()
+                        .title("Work task")
+                        .categoryId(workCategoryId)
+                        .status(TaskStatus.TODO)
+                        .build(),
+                    Task.builder()
+                        .title("Inbox task")
+                        .status(TaskStatus.TODO)
+                        .build()
+                ));
+
+                controller.setCategoryFacade(mockCategoryFacade);
+                controller.setTaskFacade(mockTaskFacade);
+                controller.loadTasksFromFacade();
+
+                @SuppressWarnings("unchecked")
+                ChoiceBox<String> categoryFilter = (ChoiceBox<String>) root.lookup("#categoryFilterChoice");
+                @SuppressWarnings("unchecked")
+                ListView<Task> taskListView = (ListView<Task>) root.lookup(".task-list");
+
+                categoryFilter.setValue("Work");
+                categoryFilter.getOnAction().handle(new ActionEvent());
+
+                assertEquals(1, taskListView.getItems().size());
+                assertEquals("Work task", taskListView.getItems().get(0).getTitle());
+            } catch (Exception e) {
+                fail("Failed to load FXML: " + e.getMessage());
+            }
+        });
+
         Thread.sleep(500);
     }
 }

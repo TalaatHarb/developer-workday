@@ -184,6 +184,23 @@ class CalendarFacadeTest {
             .sum();
         assertEquals(0, totalTasks, "Tasks without due date should not appear");
     }
+
+    @Test
+    @DisplayName("Get tasks for day - includes scheduled tasks without due date")
+    void testGetTasksForDay_UsesScheduledDateFallback() {
+        LocalDate targetDate = LocalDate.of(2024, 1, 10);
+
+        taskRepository.save(Task.builder()
+            .title("Scheduled-only task")
+            .status(TaskStatus.TODO)
+            .scheduledDate(targetDate)
+            .build());
+
+        List<Task> tasksForDay = calendarFacade.getTasksForDay(targetDate);
+
+        assertEquals(1, tasksForDay.size());
+        assertEquals("Scheduled-only task", tasksForDay.get(0).getTitle());
+    }
     
     @Test
     @DisplayName("Get tasks for week - groups tasks by date and time slots")

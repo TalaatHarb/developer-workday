@@ -97,17 +97,7 @@ public class UpcomingViewController implements Initializable {
         if (taskFacade == null) {
             return new ArrayList<>();
         }
-        
-        // Get all tasks and filter for upcoming ones
-        List<Task> allTasks = taskFacade.findAll();
-        return allTasks.stream()
-            .filter(task -> {
-                LocalDate taskDate = getTaskDate(task);
-                return taskDate != null 
-                    && taskDate.isAfter(startDate) 
-                    && (taskDate.isBefore(endDate) || taskDate.isEqual(endDate));
-            })
-            .collect(Collectors.toList());
+        return taskFacade.getUpcomingTasks(startDate, endDate);
     }
     
     /**

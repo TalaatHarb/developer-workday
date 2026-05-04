@@ -4,7 +4,9 @@ import java.net.URL;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -88,6 +90,7 @@ public class TaskListViewController implements Initializable {
     
     private List<Task> allTasks = new ArrayList<>();
     private List<Task> filteredTasks = new ArrayList<>();
+    private final Map<String, java.util.UUID> categoryIdsByName = new HashMap<>();
     private String currentSearchKeyword = "";
     
     @Setter
@@ -171,11 +174,13 @@ public class TaskListViewController implements Initializable {
     private void populateCategoryFilter() {
         List<String> items = new ArrayList<>();
         items.add("All Categories");
+        categoryIdsByName.clear();
         if (categoryFacade != null) {
             try {
                 List<Category> categories = categoryFacade.findAll();
                 for (Category cat : categories) {
                     items.add(cat.getName());
+                    categoryIdsByName.put(cat.getName(), cat.getId());
                 }
             } catch (Exception e) {
                 log.error("Failed to load categories for filter", e);
@@ -599,20 +604,8 @@ public class TaskListViewController implements Initializable {
         if (selected == null || "All Categories".equals(selected)) {
             return true;
         }
-        if (categoryFacade != null && task.getCategoryId() != null) {
-            try {
-                List<Category> categories = categoryFacade.findAll();
-                return categories.stream()
-                    .filter(cat -> selected.equals(cat.getName()))
-                    .findFirst()
-                    .map(cat -> cat.getId().equals(task.getCategoryId()))
-                    .orElse(false);
-            } catch (Exception e) {
-                log.error("Failed to filter by category", e);
-                return true;
-            }
-        }
-        return true;
+        java.util.UUID selectedCategoryId = categoryIdsByName.get(selected);
+        return selectedCategoryId != null && selectedCategoryId.equals(task.getCategoryId());
     }
     
     private boolean filterByPriority(Task task) {

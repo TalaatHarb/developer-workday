@@ -91,6 +91,21 @@ public class TaskRepository {
             .filter(task -> !task.getDueDate().isBefore(startDate) && !task.getDueDate().isAfter(endDate))
             .collect(Collectors.toList());
     }
+
+    /**
+     * Find tasks whose primary calendar date falls within a date range.
+     * Prefers scheduled date and falls back to due date.
+     */
+    public List<Task> findByDateBetween(LocalDate startDate, LocalDate endDate) {
+        return tasksMap.values().stream()
+            .filter(task -> {
+                LocalDate taskDate = getPrimaryTaskDate(task);
+                return taskDate != null
+                    && !taskDate.isBefore(startDate)
+                    && !taskDate.isAfter(endDate);
+            })
+            .collect(Collectors.toList());
+    }
     
     /**
      * Find overdue tasks (past due date, not completed)
@@ -172,6 +187,13 @@ public class TaskRepository {
             .filter(task -> task.getScheduledDate() == null && task.getCategoryId() == null)
             .filter(task -> task.getStatus() != TaskStatus.COMPLETED && task.getStatus() != TaskStatus.CANCELLED)
             .collect(Collectors.toList());
+    }
+
+    private LocalDate getPrimaryTaskDate(Task task) {
+        if (task.getScheduledDate() != null) {
+            return task.getScheduledDate();
+        }
+        return task.getDueDate();
     }
     
     /**

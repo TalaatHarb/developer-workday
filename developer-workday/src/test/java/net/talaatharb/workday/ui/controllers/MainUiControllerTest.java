@@ -1,9 +1,13 @@
 package net.talaatharb.workday.ui.controllers;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDate;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -13,12 +17,19 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import net.talaatharb.workday.config.ApplicationContext;
+import net.talaatharb.workday.facade.CalendarFacade;
+import net.talaatharb.workday.facade.CategoryFacade;
+import net.talaatharb.workday.facade.TaskFacade;
+import net.talaatharb.workday.model.Task;
+import net.talaatharb.workday.model.TaskStatus;
 
 /**
  * Tests for MainUiController following the acceptance criteria.
@@ -244,5 +255,90 @@ class MainUiControllerTest {
         });
         
         Thread.sleep(500);
+    }
+
+    @Test
+    @DisplayName("Sidebar navigation - inbox view loads inbox tasks")
+    void testInboxNavigationLoadsTasks() throws IOException, InterruptedException {
+        ApplicationContext.getInstance().clear();
+
+        Platform.runLater(() -> {
+            try {
+                URL fxmlResource = getClass().getResource("/net/talaatharb/workday/ui/MainWindow.fxml");
+                FXMLLoader loader = new FXMLLoader(fxmlResource);
+                BorderPane root = loader.load();
+                MainUiController controller = loader.getController();
+
+                TaskFacade mockTaskFacade = mock(TaskFacade.class);
+                CategoryFacade mockCategoryFacade = mock(CategoryFacade.class);
+                when(mockTaskFacade.getInboxTasks()).thenReturn(List.of(
+                    Task.builder().title("Inbox task").status(TaskStatus.TODO).build()
+                ));
+                when(mockCategoryFacade.findAll()).thenReturn(List.of());
+
+                controller.setTaskFacade(mockTaskFacade);
+                controller.setCategoryFacade(mockCategoryFacade);
+
+                Button inboxButton = (Button) root.lookup("#inboxButton");
+                inboxButton.fire();
+
+                StackPane contentArea = (StackPane) root.lookup("#contentArea");
+                Label inboxCountLabel = (Label) contentArea.lookup("#inboxCountLabel");
+
+                assertNotNull(inboxCountLabel, "Inbox view should be loaded into the content area");
+                assertEquals("1 item", inboxCountLabel.getText());
+            } catch (IOException e) {
+                fail("Failed to load FXML: " + e.getMessage());
+            }
+        });
+
+        Thread.sleep(500);
+        ApplicationContext.getInstance().clear();
+    }
+
+    @Test
+    @DisplayName("Sidebar navigation - calendar view loads scheduled tasks")
+    void testCalendarNavigationLoadsTasks() throws IOException, InterruptedException {
+        ApplicationContext.getInstance().clear();
+
+        Platform.runLater(() -> {
+            try {
+                URL fxmlResource = getClass().getResource("/net/talaatharb/workday/ui/MainWindow.fxml");
+                FXMLLoader loader = new FXMLLoader(fxmlResource);
+                BorderPane root = loader.load();
+                MainUiController controller = loader.getController();
+
+                TaskFacade mockTaskFacade = mock(TaskFacade.class);
+                CategoryFacade mockCategoryFacade = mock(CategoryFacade.class);
+                CalendarFacade mockCalendarFacade = mock(CalendarFacade.class);
+                when(mockCategoryFacade.findAll()).thenReturn(List.of());
+                when(mockCalendarFacade.getTasksForPeriod(org.mockito.ArgumentMatchers.any(LocalDate.class),
+                    org.mockito.ArgumentMatchers.any(LocalDate.class))).thenReturn(List.of(
+                    Task.builder()
+                        .title("Calendar task")
+                        .scheduledDate(LocalDate.now())
+                        .status(TaskStatus.TODO)
+                        .build()
+                ));
+
+                controller.setTaskFacade(mockTaskFacade);
+                controller.setCategoryFacade(mockCategoryFacade);
+                ApplicationContext.getInstance().registerBean(CalendarFacade.class, mockCalendarFacade);
+
+                Button calendarButton = (Button) root.lookup("#calendarButton");
+                calendarButton.fire();
+
+                StackPane contentArea = (StackPane) root.lookup("#contentArea");
+                Label taskCountLabel = (Label) contentArea.lookup("#taskCountLabel");
+
+                assertNotNull(taskCountLabel, "Calendar view should be loaded into the content area");
+                assertEquals("1 task scheduled", taskCountLabel.getText());
+            } catch (IOException e) {
+                fail("Failed to load FXML: " + e.getMessage());
+            }
+        });
+
+        Thread.sleep(500);
+        ApplicationContext.getInstance().clear();
     }
 }

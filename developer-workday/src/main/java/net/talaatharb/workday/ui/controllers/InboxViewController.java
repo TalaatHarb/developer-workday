@@ -84,10 +84,11 @@ public class InboxViewController implements Initializable {
         // Get inbox tasks
         List<Task> inboxTasks = taskFacade.getInboxTasks();
         
-        // Update UI on JavaFX thread
-        Platform.runLater(() -> {
+        if (Platform.isFxApplicationThread()) {
             displayInboxTasks(inboxTasks);
-        });
+        } else {
+            Platform.runLater(() -> displayInboxTasks(inboxTasks));
+        }
     }
     
     /**
