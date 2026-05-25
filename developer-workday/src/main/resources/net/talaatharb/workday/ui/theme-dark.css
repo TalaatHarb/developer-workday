@@ -591,3 +591,62 @@
     -fx-font-weight: bold;
 }
 
+/* Dialogs */
+.settings-dialog, .category-dialog {
+    -fx-background-color: #252526;
+}
+
+.dialog-title, .section-label, .form-title, .field-label, .calendar-title, .view-title {
+    -fx-text-fill: #cccccc;
+}
+
+/* Sidebar category cell pieces */
+.category-cell-row { -fx-alignment: center-left; }
+.category-cell-name { -fx-font-size: 13px; -fx-text-fill: #cccccc; }
+.category-cell-color { -fx-font-size: 16px; }
+.category-count-badge {
+    -fx-background-color: #4a4a4f;
+    -fx-text-fill: #cccccc;
+    -fx-background-radius: 10;
+    -fx-padding: 2 8 2 8;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+/* Calendar grids */
+.calendar-grid, .week-grid, .day-grid {
+    -fx-background-color: #1e1e1e;
+}
+.calendar-day-cell {
+    -fx-border-color: #3e3e42;
+    -fx-border-width: 0.5;
+    -fx-padding: 5;
+    -fx-min-width: 80;
+    -fx-min-height: 80;
+    -fx-background-color: #252526;
+}
+.calendar-day-cell-today {
+    -fx-background-color: #0d3b66;
+}
+.calendar-day-cell-other-month {
+    -fx-background-color: #1a1a1a;
+    -fx-opacity: 0.7;
+}
+.calendar-day-number { -fx-font-weight: bold; -fx-text-fill: #cccccc; }
+.calendar-task-indicator { -fx-font-size: 10; -fx-text-fill: #4fc3f7; }
+.calendar-time-slot {
+    -fx-border-color: #3e3e42;
+    -fx-border-width: 0.5;
+    -fx-padding: 4;
+    -fx-min-height: 30;
+    -fx-background-color: #252526;
+}
+.calendar-time-label { -fx-text-fill: #858585; -fx-font-size: 11px; -fx-padding: 4 6; }
+.calendar-task-chip {
+    -fx-background-color: rgba(0,122,204,0.30);
+    -fx-text-fill: #cfe7ff;
+    -fx-background-radius: 4;
+    -fx-padding: 2 6;
+    -fx-font-size: 11px;
+}
+.calendar-placeholder { -fx-font-size: 16; -fx-text-fill: #858585; }

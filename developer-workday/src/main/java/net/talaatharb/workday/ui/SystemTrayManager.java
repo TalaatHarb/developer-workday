@@ -17,6 +17,8 @@ public class SystemTrayManager {
     private final Stage primaryStage;
     private TrayIcon trayIcon;
     private boolean traySupported;
+    private Runnable onQuickAddAction;
+    private Runnable onShowTodayAction;
     
     public SystemTrayManager(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -25,6 +27,22 @@ public class SystemTrayManager {
         if (!traySupported) {
             log.warn("System tray is not supported on this platform");
         }
+    }
+
+    /**
+     * Set the action to perform when the user clicks "Quick Add Task" in the tray menu.
+     * The runnable is invoked on the JavaFX application thread.
+     */
+    public void setOnQuickAddAction(Runnable action) {
+        this.onQuickAddAction = action;
+    }
+
+    /**
+     * Set the action to perform when the user clicks "Today's Tasks" in the tray menu.
+     * The runnable is invoked on the JavaFX application thread.
+     */
+    public void setOnShowTodayAction(Runnable action) {
+        this.onShowTodayAction = action;
     }
     
     /**
@@ -77,8 +95,12 @@ public class SystemTrayManager {
         MenuItem quickAddItem = new MenuItem("Quick Add Task");
         quickAddItem.addActionListener(e -> {
             restoreWindow();
-            // TODO: Focus quick add field when implemented
-            log.debug("Quick add triggered from tray");
+            if (onQuickAddAction != null) {
+                Platform.runLater(onQuickAddAction);
+                log.debug("Quick add triggered from tray");
+            } else {
+                log.debug("Quick add triggered from tray (no handler registered)");
+            }
         });
         popup.add(quickAddItem);
         
@@ -86,8 +108,12 @@ public class SystemTrayManager {
         MenuItem todayItem = new MenuItem("Today's Tasks");
         todayItem.addActionListener(e -> {
             restoreWindow();
-            // TODO: Navigate to today view when implemented
-            log.debug("Today's tasks triggered from tray");
+            if (onShowTodayAction != null) {
+                Platform.runLater(onShowTodayAction);
+                log.debug("Today's tasks triggered from tray");
+            } else {
+                log.debug("Today's tasks triggered from tray (no handler registered)");
+            }
         });
         popup.add(todayItem);
         

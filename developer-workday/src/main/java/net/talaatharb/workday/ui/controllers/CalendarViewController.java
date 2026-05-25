@@ -323,17 +323,16 @@ public class CalendarViewController implements Initializable {
      */
     private Pane createMonthDayCell(LocalDate date) {
         VBox cell = new VBox(5);
-        cell.setStyle("-fx-border-color: #cccccc; -fx-border-width: 0.5; -fx-padding: 5; " +
-                     "-fx-min-width: 80; -fx-min-height: 80;");
+        cell.getStyleClass().add("calendar-day-cell");
         
         // Highlight today
         if (date.equals(LocalDate.now())) {
-            cell.setStyle(cell.getStyle() + "-fx-background-color: #e3f2fd;");
+            cell.getStyleClass().add("calendar-day-cell-today");
         }
         
         // Day number
         Label dayLabel = new Label(String.valueOf(date.getDayOfMonth()));
-        dayLabel.setStyle("-fx-font-weight: bold;");
+        dayLabel.getStyleClass().add("calendar-day-number");
         cell.getChildren().add(dayLabel);
         
         // Task indicators
@@ -343,7 +342,7 @@ public class CalendarViewController implements Initializable {
         
         if (taskCount > 0) {
             Label taskIndicator = new Label(taskCount + " task" + (taskCount > 1 ? "s" : ""));
-            taskIndicator.setStyle("-fx-font-size: 10; -fx-text-fill: #1976d2;");
+            taskIndicator.getStyleClass().add("calendar-task-indicator");
             cell.getChildren().add(taskIndicator);
         }
         
@@ -386,41 +385,163 @@ public class CalendarViewController implements Initializable {
     }
     
     /**
-     * Handle day cell click
+     * Handle day cell click - show a dialog listing tasks scheduled/due on that day.
      */
-    private void handleDayClick(LocalDate date) {
+    void handleDayClick(LocalDate date) {
         log.debug("Day clicked: {}", date);
-        // TODO: Show task list for the selected day in a side panel or dialog
+
+        List<Task> tasksForDay;
+        if (calendarFacade != null) {
+            try {
+                tasksForDay = calendarFacade.getTasksForDay(date);
+            } catch (Exception e) {
+                log.error("Failed to fetch tasks for day {}", date, e);
+                tasksForDay = filterTasksForDay(date);
+            }
+        } else {
+            tasksForDay = filterTasksForDay(date);
+        }
+
+        javafx.scene.control.Alert dialog = createDayTasksDialog(date, tasksForDay);
+        dialog.showAndWait();
     }
-    
+
     /**
-     * Render week view
+     * Visible-for-testing factory for the day-tasks dialog.
+     */
+    javafx.scene.control.Alert createDayTasksDialog(LocalDate date, List<Task> tasksForDay) {
+        javafx.scene.control.Alert dialog = new javafx.scene.control.Alert(
+            javafx.scene.control.Alert.AlertType.INFORMATION);
+        dialog.setTitle("Tasks");
+        dialog.setHeaderText("Tasks on " + date.format(DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy")));
+
+        if (tasksForDay.isEmpty()) {
+            dialog.setContentText("No tasks scheduled.");
+        } else {
+            StringBuilder sb = new StringBuilder();
+            for (Task t : tasksForDay) {
+                sb.append("• ").append(t.getTitle() == null ? "(untitled)" : t.getTitle());
+                if (t.getDueTime() != null) {
+                    sb.append("  @ ").append(t.getDueTime());
+                }
+                sb.append('\n');
+            }
+            dialog.setContentText(sb.toString());
+        }
+        return dialog;
+    }
+
+    private List<Task> filterTasksForDay(LocalDate date) {
+        List<Task> result = new ArrayList<>();
+        for (Task t : currentTasks) {
+            if (date.equals(t.getScheduledDate()) || date.equals(t.getDueDate())) {
+                result.add(t);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Render week view with day columns and task chips.
      */
     private void renderWeekView() {
-        // Clear existing grid
         weekGrid.getChildren().clear();
-        
-        // TODO: Implement week view with time slots
-        Label placeholder = new Label("Week view coming soon");
-        placeholder.setStyle("-fx-font-size: 16; -fx-text-fill: #666;");
-        weekGrid.add(placeholder, 0, 0);
-        
-        log.debug("Week view rendered (placeholder)");
+        weekGrid.getColumnConstraints().clear();
+
+        LocalDate weekStart = currentDate.minusDays(currentDate.getDayOfWeek().getValue() % 7);
+
+        // Day headers
+        for (int i = 0; i < 7; i++) {
+            LocalDate dayDate = weekStart.plusDays(i);
+            VBox header = new VBox(2);
+            header.setAlignment(Pos.CENTER);
+            Label nameLabel = new Label(dayDate.getDayOfWeek()
+                .getDisplayName(TextStyle.SHORT, Locale.getDefault()));
+            nameLabel.getStyleClass().add("calendar-day-number");
+            Label dateLabel = new Label(String.valueOf(dayDate.getDayOfMonth()));
+            dateLabel.getStyleClass().add("calendar-day-number");
+            header.getChildren().addAll(nameLabel, dateLabel);
+            weekGrid.add(header, i, 0);
+        }
+
+        // Day columns with tasks
+        for (int i = 0; i < 7; i++) {
+            final LocalDate dayDate = weekStart.plusDays(i);
+            VBox column = new VBox(4);
+            column.getStyleClass().add("calendar-day-cell");
+            if (dayDate.equals(LocalDate.now())) {
+                column.getStyleClass().add("calendar-day-cell-today");
+            }
+
+            List<Task> dayTasks = filterTasksForDay(dayDate);
+            for (Task t : dayTasks) {
+                Label chip = new Label(t.getTitle() == null ? "(untitled)" : t.getTitle());
+                chip.getStyleClass().add("calendar-task-chip");
+                chip.setMaxWidth(Double.MAX_VALUE);
+                column.getChildren().add(chip);
+            }
+
+            column.setOnMouseClicked(e -> handleDayClick(dayDate));
+            setupDayDragAndDrop(column, dayDate);
+            weekGrid.add(column, i, 1);
+        }
+
+        log.debug("Week view rendered ({} - {})", weekStart, weekStart.plusDays(6));
     }
-    
+
     /**
-     * Render day view
+     * Render day view with hourly time slots.
      */
     private void renderDayView() {
-        // Clear existing grid
         dayGrid.getChildren().clear();
-        
-        // TODO: Implement day view with hourly time slots
-        Label placeholder = new Label("Day view coming soon");
-        placeholder.setStyle("-fx-font-size: 16; -fx-text-fill: #666;");
-        dayGrid.add(placeholder, 0, 0);
-        
-        log.debug("Day view rendered (placeholder)");
+
+        List<Task> tasksToday = filterTasksForDay(currentDate);
+
+        // 24 hourly rows
+        for (int hour = 0; hour < 24; hour++) {
+            Label timeLabel = new Label(String.format("%02d:00", hour));
+            timeLabel.getStyleClass().add("calendar-time-label");
+            dayGrid.add(timeLabel, 0, hour);
+
+            VBox slot = new VBox(2);
+            slot.getStyleClass().add("calendar-time-slot");
+
+            final int currentHour = hour;
+            tasksToday.stream()
+                .filter(t -> t.getDueTime() != null && t.getDueTime().getHour() == currentHour)
+                .forEach(t -> {
+                    Label chip = new Label((t.getDueTime() != null ? t.getDueTime() + "  " : "")
+                        + (t.getTitle() == null ? "(untitled)" : t.getTitle()));
+                    chip.getStyleClass().add("calendar-task-chip");
+                    slot.getChildren().add(chip);
+                });
+
+            dayGrid.add(slot, 1, hour);
+        }
+
+        // Untimed tasks shown at the bottom
+        List<Task> untimed = new ArrayList<>();
+        for (Task t : tasksToday) {
+            if (t.getDueTime() == null) {
+                untimed.add(t);
+            }
+        }
+        if (!untimed.isEmpty()) {
+            Label allDayLabel = new Label("All-day");
+            allDayLabel.getStyleClass().add("calendar-time-label");
+            dayGrid.add(allDayLabel, 0, 24);
+
+            VBox allDayBox = new VBox(2);
+            allDayBox.getStyleClass().add("calendar-time-slot");
+            for (Task t : untimed) {
+                Label chip = new Label(t.getTitle() == null ? "(untitled)" : t.getTitle());
+                chip.getStyleClass().add("calendar-task-chip");
+                allDayBox.getChildren().add(chip);
+            }
+            dayGrid.add(allDayBox, 1, 24);
+        }
+
+        log.debug("Day view rendered for {} ({} tasks)", currentDate, tasksToday.size());
     }
     
     /**

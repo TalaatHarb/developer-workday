@@ -83,16 +83,41 @@ public class CategoryManagementDialogController implements Initializable {
     }
     
     @FXML
-    private void handleDelete() {
+    void handleDelete() {
         Category selected = categoryListView.getSelectionModel().getSelectedItem();
-        if (selected != null && categoryFacade != null) {
-            // TODO: Add confirmation dialog
-            categoryFacade.deleteCategory(selected.getId());
-            if (eventDispatcher != null) {
-                eventDispatcher.publish(new CategoryDeletedEvent(selected, java.util.Collections.emptyList()));
-            }
-            loadCategories();
+        if (selected == null || categoryFacade == null) {
+            return;
         }
+
+        Alert confirm = createConfirmationDialog(
+            "Delete Category",
+            "Delete category: " + selected.getName() + "?",
+            "Tasks in this category will be moved to Uncategorized. This cannot be undone."
+        );
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                try {
+                    categoryFacade.deleteCategory(selected.getId());
+                    if (eventDispatcher != null) {
+                        eventDispatcher.publish(new CategoryDeletedEvent(selected, java.util.Collections.emptyList()));
+                    }
+                    loadCategories();
+                } catch (Exception e) {
+                    log.error("Failed to delete category {}", selected.getName(), e);
+                }
+            }
+        });
+    }
+
+    /**
+     * Visible-for-testing factory so tests can substitute a non-modal alert.
+     */
+    Alert createConfirmationDialog(String title, String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        return alert;
     }
     
     @FXML
@@ -223,7 +248,10 @@ public class CategoryManagementDialogController implements Initializable {
             } else {
                 String icon = item.getIcon() != null ? item.getIcon() + " " : "";
                 setText(icon + item.getName());
-                setStyle("-fx-background-color: " + item.getColor() + "20;");
+                // Use a subtle left-border based on the category color so the
+                // overall theme background (light/dark) is preserved.
+                String color = item.getColor() != null ? item.getColor() : "#95a5a6";
+                setStyle("-fx-border-color: " + color + "; -fx-border-width: 0 0 0 4;");
             }
         }
     }

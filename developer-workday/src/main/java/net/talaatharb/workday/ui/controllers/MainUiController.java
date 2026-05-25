@@ -220,16 +220,39 @@ public class MainUiController implements Initializable {
     }
     
     /**
-     * Handle add task to category action
+     * Handle add task to category action.
+     * Prompts the user for a task title and creates it pre-assigned to the
+     * given category via {@link TaskFacade#quickAddTask(String)}.
      */
     private void handleAddTaskToCategory(CategoryItem category) {
         log.info("Adding task to category: {}", category.getName());
-        // TODO: Open quick add task dialog with pre-selected category
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Add Task");
-        alert.setHeaderText("Add task to: " + category.getName());
-        alert.setContentText("Quick add task dialog will be implemented here.");
-        alert.showAndWait();
+
+        if (taskFacade == null) {
+            showError("Task creation is not available.");
+            return;
+        }
+
+        javafx.scene.control.TextInputDialog dialog = new javafx.scene.control.TextInputDialog();
+        dialog.setTitle("Add Task");
+        dialog.setHeaderText("Add task to: " + category.getName());
+        dialog.setContentText("Task title:");
+
+        dialog.showAndWait().ifPresent(title -> {
+            String trimmed = title == null ? "" : title.trim();
+            if (trimmed.isEmpty()) {
+                return;
+            }
+            try {
+                // Encode the category as a tag so quickAddTask pre-assigns it.
+                String quickAddInput = trimmed + " #" + category.getName();
+                taskFacade.quickAddTask(quickAddInput);
+                log.info("Task created for category '{}': {}", category.getName(), trimmed);
+                loadCategories();
+            } catch (Exception e) {
+                log.error("Failed to create task for category {}", category.getName(), e);
+                showError("Failed to create task: " + e.getMessage());
+            }
+        });
     }
     
     /**
@@ -301,7 +324,10 @@ public class MainUiController implements Initializable {
             VBox dialogRoot = loader.load();
             
             SettingsDialogController controller = loader.getController();
-            // TODO: Wire PreferencesFacade when available
+            // Wire PreferencesFacade from the ApplicationContext if available
+            net.talaatharb.workday.config.ApplicationContext.getInstance()
+                .getBeanOptional(net.talaatharb.workday.facade.PreferencesFacade.class)
+                .ifPresent(controller::setPreferencesFacade);
             
             Stage dialogStage = new Stage();
             dialogStage.setTitle("Settings");
@@ -727,21 +753,20 @@ public class MainUiController implements Initializable {
                 setGraphic(null);
             } else {
                 HBox container = new HBox(10);
-                container.setStyle("-fx-alignment: center-left;");
+                container.getStyleClass().add("category-cell-row");
                 
-                // Color indicator
+                // Color indicator (uses category-specific color inline since it's data-driven)
                 Label colorLabel = new Label("●");
-                colorLabel.setStyle("-fx-text-fill: " + item.getColor() + "; -fx-font-size: 16px;");
+                colorLabel.getStyleClass().add("category-cell-color");
+                colorLabel.setStyle("-fx-text-fill: " + item.getColor() + ";");
                 
                 // Category name
                 Label nameLabel = new Label(item.getName());
-                nameLabel.setStyle("-fx-font-size: 13px;");
+                nameLabel.getStyleClass().add("category-cell-name");
                 
                 // Task count badge
                 Label countLabel = new Label(String.valueOf(item.getTaskCount()));
-                countLabel.setStyle("-fx-background-color: #95a5a6; -fx-text-fill: white; " +
-                                  "-fx-background-radius: 10; -fx-padding: 2 8 2 8; " +
-                                  "-fx-font-size: 11px; -fx-font-weight: bold;");
+                countLabel.getStyleClass().add("category-count-badge");
                 
                 container.getChildren().addAll(colorLabel, nameLabel);
                 

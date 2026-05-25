@@ -46,4 +46,20 @@ class SystemTrayManagerTest {
         // Just verify the method works
         assertTrue(supported || !supported);
     }
+
+    @Test
+    @DisplayName("Quick add and show today callbacks can be set without errors")
+    void testCallbackSetters() throws Exception {
+        Platform.runLater(() -> {
+            Stage stage = new Stage();
+            SystemTrayManager manager = new SystemTrayManager(stage);
+            // Setters should accept runnables and not throw
+            manager.setOnQuickAddAction(() -> {});
+            manager.setOnShowTodayAction(() -> {});
+            // Setting null should also be permitted (clear handler)
+            manager.setOnQuickAddAction(null);
+            manager.setOnShowTodayAction(null);
+        });
+        Thread.sleep(200);
+    }
 }

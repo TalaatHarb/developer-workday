@@ -216,6 +216,17 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>${maven-testing-plugins.version}</version>
+				<configuration>
+					<!--
+					  Byte Buddy / Mockito need the experimental flag to instrument
+					  classes compiled to Java 25 bytecode. Also fork a fresh JVM per
+					  test class so JavaFX's Toolkit can be re-initialized without
+					  hitting "Toolkit already initialized".
+					-->
+					<argLine>-Dnet.bytebuddy.experimental=true</argLine>
+					<forkCount>1</forkCount>
+					<reuseForks>false</reuseForks>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

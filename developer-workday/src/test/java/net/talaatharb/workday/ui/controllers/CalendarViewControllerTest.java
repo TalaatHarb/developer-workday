@@ -2,6 +2,7 @@ package net.talaatharb.workday.ui.controllers;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 import java.net.URL;
@@ -299,6 +300,41 @@ class CalendarViewControllerTest {
             }
         });
         
+        Thread.sleep(500);
+    }
+    
+    @Test
+    @DisplayName("handleDayClick fetches tasks for clicked day and shows dialog")
+    void testHandleDayClickShowsDialog() throws Exception {
+        Platform.runLater(() -> {
+            try {
+                LocalDate clickedDay = LocalDate.now();
+                List<Task> tasks = createSampleTasks();
+                when(mockCalendarFacade.getTasksForDay(clickedDay)).thenReturn(tasks);
+                when(mockCalendarFacade.getTasksForPeriod(any(LocalDate.class), any(LocalDate.class)))
+                    .thenReturn(new ArrayList<>());
+
+                URL fxmlResource = getClass().getResource("/net/talaatharb/workday/ui/CalendarView.fxml");
+                FXMLLoader loader = new FXMLLoader(fxmlResource);
+                VBox root = loader.load();
+                CalendarViewController real = loader.getController();
+                CalendarViewController controller = spy(real);
+                controller.setCalendarFacade(mockCalendarFacade);
+                controller.setTaskFacade(mockTaskFacade);
+
+                javafx.scene.control.Alert stubAlert = mock(javafx.scene.control.Alert.class);
+                when(stubAlert.showAndWait()).thenReturn(java.util.Optional.empty());
+                doReturn(stubAlert).when(controller).createDayTasksDialog(any(LocalDate.class), anyList());
+
+                controller.handleDayClick(clickedDay);
+
+                verify(mockCalendarFacade).getTasksForDay(clickedDay);
+                verify(controller).createDayTasksDialog(eq(clickedDay), anyList());
+                verify(stubAlert).showAndWait();
+            } catch (Exception e) {
+                fail("Failed to test handleDayClick: " + e.getMessage());
+            }
+        });
         Thread.sleep(500);
     }
     
