@@ -341,6 +341,13 @@ public class TaskService {
     }
 
     /**
+     * Find upcoming tasks using dueDate as primary, scheduledDate as fallback.
+     */
+    public List<Task> findUpcomingTasks(LocalDate startDate, LocalDate endDate) {
+        return taskRepository.findUpcomingTasks(startDate, endDate);
+    }
+
+    /**
      * Find tasks whose primary calendar date falls within a date range.
      * Prefers scheduled date and falls back to due date.
      */

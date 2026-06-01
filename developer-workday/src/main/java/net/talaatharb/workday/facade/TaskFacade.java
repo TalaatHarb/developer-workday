@@ -326,12 +326,12 @@ public class TaskFacade {
     }
 
     /**
-     * Get tasks in an upcoming date range using the task's scheduled date first
-     * and falling back to its due date.
+     * Get tasks in an upcoming date range using dueDate as primary date,
+     * falling back to scheduledDate. Excludes today (starts from tomorrow).
      */
     public List<Task> getUpcomingTasks(LocalDate startDate, LocalDate endDate) {
         log.debug("Getting upcoming tasks from {} to {}", startDate, endDate);
-        return taskService.findByDateBetween(startDate.plusDays(1), endDate);
+        return taskService.findUpcomingTasks(startDate.plusDays(1), endDate);
     }
     
     /**

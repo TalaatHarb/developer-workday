@@ -106,6 +106,26 @@ public class TaskRepository {
             })
             .collect(Collectors.toList());
     }
+
+    /**
+     * Find upcoming tasks using dueDate as the primary date.
+     * Falls back to scheduledDate only when dueDate is not set.
+     * This ensures tasks with dueDate in range always appear, even if
+     * their scheduledDate falls outside the range (e.g. scheduled today, due tomorrow).
+     */
+    public List<Task> findUpcomingTasks(LocalDate startDate, LocalDate endDate) {
+        return tasksMap.values().stream()
+            .filter(task -> {
+                if (task.getDueDate() != null) {
+                    return !task.getDueDate().isBefore(startDate) && !task.getDueDate().isAfter(endDate);
+                }
+                if (task.getScheduledDate() != null) {
+                    return !task.getScheduledDate().isBefore(startDate) && !task.getScheduledDate().isAfter(endDate);
+                }
+                return false;
+            })
+            .collect(Collectors.toList());
+    }
     
     /**
      * Find overdue tasks (past due date, not completed)
