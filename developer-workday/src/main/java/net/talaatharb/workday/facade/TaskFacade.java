@@ -53,8 +53,10 @@ public class TaskFacade {
             .comparing((Task t) -> t.getDueTime() != null ? t.getDueTime() : LocalTime.MAX)
             .thenComparing((Task t) -> getPriorityValue(t.getPriority())));
         
-        // Get tasks scheduled for today (excluding snoozed)
-        List<Task> todaysTasks = taskService.findByScheduledDate(today).stream()
+        // Get tasks scheduled or due today (excluding snoozed)
+        // findByDateBetween uses scheduledDate first, falling back to dueDate,
+        // so tasks with only a dueDate of today are included.
+        List<Task> todaysTasks = taskService.findByDateBetween(today, today).stream()
             .filter(t -> !net.talaatharb.workday.model.SnoozeOption.isSnoozed(t.getSnoozeUntil()))
             .collect(Collectors.toList());
         
