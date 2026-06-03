@@ -1,10 +1,12 @@
-# Developer Workday (Still WIP)
+# Developer Workday
 
 A modern, event-driven task management application inspired by Akiflow, designed specifically for developers to efficiently manage their workday and tasks.
 
+[![Java 25](https://img.shields.io/badge/Java-25-orange)](https://www.oracle.com/java/) [![Maven](https://img.shields.io/badge/Build-Maven-success)](https://maven.apache.org/) [![License](https://img.shields.io/badge/License-Apache--2.0-blue)](LICENSE)
+
 ## 🎯 Overview
 
-Developer Workday is a powerful JavaFX-based task management system that combines intuitive UI design with robust backend architecture. Built with MapDB persistence, it offers fast file-based storage while maintaining a clean MVC architecture with event-driven state management.
+Developer Workday is a desktop task management application inspired by Akiflow. It combines a modern JavaFX UI with a robust layered architecture, MapDB persistence, and an event-driven design. All 70 planned features from `project-tasks.json` have been implemented and verified with automated tests.
 
 ## ✨ Key Features
 
@@ -54,10 +56,11 @@ Developer Workday is a powerful JavaFX-based task management system that combine
 - **Priority Indicators**: Visual color-coding (urgent-red, high-orange, medium-yellow, low-gray)
 
 ### System Integration
-- **System Tray**: Run in background with quick access menu
-- **Global Shortcuts**: System-wide keyboard shortcut (Ctrl+Shift+A) for quick add on Windows and Linux
-- **Auto-Start**: Optional startup on system boot (Windows & Linux)
-- **System Notifications**: Native OS notifications for reminders and due dates
+- **System Tray**: Run in background with quick access menu (Show, Quick Add, Today's Tasks, Exit)
+- **In-Window Shortcuts**: 9 keyboard accelerators (Ctrl+N, Ctrl+F, Ctrl+1-4, Ctrl+S, Ctrl+W, Ctrl+Q, Ctrl+Shift+P)
+- **System Notifications**: Native OS notifications for reminders (snooze UI is a stub)
+- **Auto-Start**: Stub (Windows registry / Linux `.desktop` file creation not yet implemented)
+- **Global Shortcuts**: Stub (requires JNativeHook library for full implementation)
 
 ### Data Management
 - **Import/Export**: JSON and CSV export for backup and migration
@@ -106,36 +109,58 @@ Developer Workday is a powerful JavaFX-based task management system that combine
 
 ## 🛠️ Technology Stack
 
-- **UI Framework**: JavaFX (modern, responsive UI)
-- **Build Tool**: Maven
-- **Persistence**: MapDB (fast file-based embedded database)
-- **Mapping**: MapStruct (compile-time DTO/entity mapping)
-- **Global Shortcuts**: JNativeHook / JNA (cross-platform hotkey support)
-- **Testing**: JUnit, Mockito, TestFX (UI testing)
-- **Logging**: Comprehensive application logging with configurable levels
+| Layer | Technology |
+|---|---|
+| **UI Framework** | JavaFX 26 (JavaFX Controls, FXML, Graphics, Swing interoperability) |
+| **Calendar UI** | CalendarFX 11.12.7 |
+| **Build Tool** | Maven 3.x (Java 25 bytecode) |
+| **Persistence** | MapDB 3.1.0 (file-backed HashMap, Java serialization) |
+| **Object Mapping** | MapStruct 1.6.3 (compile-time DTO ↔ Entity mapping) |
+| **Code Generation** | Lombok 1.18.42 |
+| **Serialization** | Jackson JSR310 (Java 8 Date/Time module) |
+| **Event Logging** | SLF4J Simple 2.0.17 |
+| **Unit Testing** | JUnit 5 + Mockito 5.12.0 |
+| **UI Testing** | TestFX 4.0.18 + Gluon Monocle (headless JavaFX) |
+| **Mutation Testing** | Pitest 1.22.0 |
+| **Code Quality** | JaCoCo (70% line coverage gate), PMD |
+| **Dependency Security** | OWASP Dependency-Check |
 
 ## 📦 Project Structure
 
 ```
 developer-workday/
-├── ui/
-│   └── controllers/       # JavaFX controllers
-├── facade/                # Facade layer
-├── service/               # Business logic services
-├── mapper/                # MapStruct mappers
-├── repository/            # Data access layer
-├── model/                 # Entity models (Task, Category)
-├── event/                 # Event classes and dispatcher
-├── config/                # Configuration classes
-└── utils/                 # Utility classes
+├── src/main/java/net/talaatharb/workday/
+│   ├── DeveloperWorkdayApplication.java   # Main entry point
+│   ├── JavafxApplication.java             # JavaFX bootstrap
+│   ├── config/                            # DatabaseConfig, ApplicationContext, ApplicationInitializer
+│   ├── model/                             # Task, Category, Subtask, RecurrenceRule, Priority, etc.
+│   ├── dtos/                              # TaskDTO, CategoryDTO, SubtaskDTO, FocusModeDTO, etc.
+│   ├── repository/                        # TaskRepository, CategoryRepository, EventStoreRepository, PreferencesRepository
+│   ├── service/                           # TaskService, CategoryService, ReminderService, TimeTrackingService, etc. (15 services)
+│   ├── facade/                            # TaskFacade, CategoryFacade, CalendarFacade, FocusModeFacade, etc. (7 facades)
+│   ├── mapper/                            # TaskMapper, CategoryMapper, SubtaskMapper (MapStruct)
+│   ├── event/                             # EventDispatcher, EventLogger + domain event types (8 sub-packages)
+│   ├── utils/                             # NaturalLanguageDateParser, ThemeManager, UndoRedoManager, etc. (17 utilities)
+│   └── ui/
+│       ├── controllers/                   # 11 JavaFX controllers (MainWindow, TodayView, CalendarView, etc.)
+│       ├── shortcuts/                     # KeyboardShortcutHandler, global shortcut managers
+│       ├── startup/                       # WindowsStartupManager, LinuxStartupManager
+│       ├── SystemTrayManager.java         # System tray integration
+│       └── EmptyStateFactory.java         # Empty state illustrations
+├── src/main/resources/net/talaatharb/workday/ui/
+│       # 12 FXML views + CSS themes (theme.css, theme-light.css, theme-dark.css)
+├── src/test/java/net/talaatharb/workday/
+│       # 72 test files across all layers (unit + integration + UI tests)
+├── project-tasks.json                     # Task backlog (70 tasks, all passing)
+└── copilot-ralph/                         # Ralph-style loop runner for AI-assisted development
 ```
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Java 17 or higher
-- Maven 3.8+
-- JavaFX SDK
+- **Java 25** (required — bytecode compiled with Java 25)
+- **Maven 3.8+**
+- JavaFX SDK (bundled as Maven dependencies)
 
 ### Installation
 ```bash
@@ -161,10 +186,15 @@ mvn javafx:run
 |----------|--------|
 | `Ctrl+N` | Create new task |
 | `Ctrl+F` | Focus search |
-| `Ctrl+1/2/3/4` | Switch views (Today/Upcoming/Calendar/All) |
-| `Ctrl+Shift+A` | Global quick add (system-wide) |
-| `Ctrl+Shift+P` | Quick actions menu |
-| `Ctrl+Z` / `Ctrl+Y` | Undo / Redo |
+| `Ctrl+1` | Switch to Today view |
+| `Ctrl+2` | Switch to Upcoming view |
+| `Ctrl+3` | Switch to Calendar view |
+| `Ctrl+4` | Switch to All Tasks view |
+| `Ctrl+S` | Save |
+| `Ctrl+W` | Close panel |
+| `Ctrl+Q` | Quit application |
+| `Ctrl+Shift+P` | Quick actions dialog |
+| `Ctrl+Shift+A` | Global quick add *(stub — requires JNativeHook)* |
 | `Delete` | Delete selected task(s) |
 | `Escape` | Close panel/dialog |
 | `Enter` | Open task details |
@@ -179,10 +209,10 @@ mvn javafx:run
 - **Visual Indicators**: Priority colors, category badges, overdue highlights, progress bars
 
 ### Accessibility
-- **Screen Reader Support**: Proper ARIA labels and focus announcements
-- **Keyboard Navigation**: Full keyboard accessibility
-- **High Contrast Mode**: WCAG-compliant color contrasts
-- **Clear Focus Indicators**: Always visible focus states
+- **Screen Reader Support**: `AccessibleManager` sets accessible names/help on JavaFX nodes
+- **Keyboard Navigation**: Full in-window keyboard accelerator support (9 shortcuts)
+- **High Contrast Mode**: Toggles `/styles/high-contrast.css` stylesheet *(CSS file required)*
+- **Clear Focus Indicators**: Adds `.enhanced-focus` CSS class *(CSS file required)*
 
 ## 🌍 Internationalization
 
@@ -194,21 +224,47 @@ mvn javafx:run
 ## 🧪 Testing
 
 ### Test Coverage
-- **Unit Tests**: Repository, Service, Facade, Mapper, and Controller layers
-- **Integration Tests**: Database operations, transaction handling, concurrent access
-- **UI Tests**: TestFX for JavaFX component testing
-- **Event System Tests**: Event publishing, subscription, and ordering
+
+**70 unit tests + 3 integration tests** across all layers:
+
+| Layer | Test Count | Examples |
+|---|---|---|
+| **Service** | 18 | TaskServiceTest, FocusModeServiceTest, StatisticsServiceTest |
+| **Utils** | 14 | NaturalLanguageDateParserTest, UndoRedoManagerTest, ThemeManagerTest |
+| **Controllers** | 9 | TodayViewControllerTest, CalendarViewControllerTest, QuickAddControllerTest |
+| **Facade** | 6 | TaskFacadeTest, CategoryFacadeTest, CalendarFacadeTest |
+| **Model** | 4 | TaskTest, CategoryTest, SubtaskTest, SnoozeOptionTest |
+| **Repository** | 4 | TaskRepositoryTest, CategoryRepositoryTest, EventStoreRepositoryTest |
+| **Event** | 3 | EventDispatcherTest, CategoryEventsTest, TaskEventsTest |
+| **Config** | 3 | DatabaseConfigTest, ApplicationContextTest, HelperBeansTest |
+| **UI** | 3 | DragAndDropIT, PriorityIndicatorsIT, ThemeSwitchingIT |
+| **Mapper** | 2 | TaskMapperTest, CategoryMapperTest |
+
+### Quality Gates
+- **JaCoCo**: 70% minimum line coverage per package (enforced via `mvn verify`)
+- **Pitest**: Mutation testing on all `net.talaatharb.*` classes
+- **PMD**: Static analysis excluding generated sources
+- **OWASP**: Dependency vulnerability scanning
 
 ### Running Tests
 ```bash
-# Run all tests
+# Run unit tests
 mvn test
+
+# Run integration tests
+mvn verify
 
 # Run specific test suite
 mvn test -Dtest=TaskServiceTest
 
-# Run with coverage report
+# Generate JaCoCo coverage report
 mvn test jacoco:report
+
+# Run mutation tests
+mvn pitest:mutationCoverage
+
+# Static analysis
+mvn pmd:check
 ```
 
 ## 📊 Performance
@@ -225,17 +281,78 @@ mvn test jacoco:report
 - Automatic backups before database migrations
 - Event store for complete audit trail
 
-## 🛣️ Roadmap
+## 🛣️ Development Methodology
 
-### Completed Features ✅
-All 70 planned features have been implemented, including:
-- Complete MVC architecture with event-driven design
-- Full-featured task management with natural language parsing
-- Multiple view types (Today, Upcoming, Calendar)
-- System integration (tray, global shortcuts, auto-start)
-- Rich UI with themes, animations, and accessibility
-- Comprehensive testing suite
-- Import/export and data migration
+### Ralph-Style Task-Driven Development
+
+This project is developed using a **Ralph-style loop** — a task-driven methodology where each feature is implemented via structured acceptance criteria in Gherkin format.
+
+- **Task Backlog**: `project-tasks.json` — 70 tasks, all passing ✅
+- **Acceptance Criteria**: Each task has Gherkin-style scenarios defining expected behavior
+- **One Commit Per Task**: Features are committed incrementally with `feat(#ID): <title>`
+- **Verification**: Tests must pass before marking `passes: true`
+
+### Ralph Loop Runner (`copilot-ralph/`)
+
+A bash-based orchestrator for AI-assisted development:
+
+```bash
+./copilot-ralph/run-loop.sh plan    # View progress: 70/70 tasks passing
+./copilot-ralph/run-loop.sh show 1   # View task details
+./copilot-ralph/run-loop.sh loop 1   # Start Copilot CLI for task #1
+./copilot-ralph/run-loop.sh done 1   # Mark task #1 as passing
+```
+
+**Prompt files**:
+- `prompts/00-main.md` — Global agent rules
+- `prompts/10-rules.md` — Definition of "done"
+- `prompts/20-feature-loop.md` — Per-feature implementation template
+- `prompts/30-git-and-pr.md` — Branching, commits, and PR workflow
+
+### Task Breakdown
+
+| Category | Tasks | Description |
+|---|---|---|
+| Architecture | #1-2 | Maven setup, MapDB integration |
+| Domain Models | #3-4 | Task, Category entities |
+| Event System | #5-7 | Event dispatcher, task/category events |
+| Persistence | #8-10 | Task, Category, Event Store repositories |
+| Mapping | #11-12 | MapStruct Task/Category mappers |
+| Services | #13-14 | TaskService, CategoryService |
+| Facades | #15-17 | TaskFacade, CategoryFacade, CalendarFacade |
+| Quick Add | #18-19 | Natural language parsing, quick add bar |
+| Views | #20-23 | Today, All Tasks, Upcoming, Calendar views |
+| Detail & Search | #24-25 | Task detail panel, search with filters |
+| Categories UI | #26-27 | Category management dialog |
+| Time & Notifications | #28-29 | Notification service, reminder service |
+| Focus Mode | #30-31 | Focus mode service and facade |
+| Shortcuts | #32-33 | Keyboard shortcut handler, global shortcuts |
+| System Tray | #34-35 | System tray manager |
+| Data Management | #36-37 | Import/Export service and facade |
+| Statistics | #38-40 | Statistics service, facade, view |
+| Auto-Start | #41 | Auto-start manager |
+| Theme | #42-43 | Theme manager, switching |
+| Settings | #44-45 | Settings dialog, preferences service/facade |
+| Accessibility | #46 | Accessibility manager |
+| Update Check | #47-48 | Update check service/facade |
+| Animation | #49 | Animation helper |
+| Localization | #50 | Localization manager |
+| Drag & Drop | #51 | Drag and drop helper |
+| Database Migration | #52 | Migration manager |
+| Quick Actions | #53-54 | Quick actions service and dialog |
+| Subtasks | #55 | Subtask mapper |
+| Weekly Review | #56-58 | Weekly review service, facade, view |
+| Logging & Error Handling | #59 | Logging/error handling utils |
+| Context Menu | #60 | Context menu helper |
+| Theme CSS | #61 | Theme CSS files |
+| Database Config | #62 | Database configuration |
+| Performance | #63 | Performance monitor |
+| Responsive Layout | #64 | Responsive layout manager |
+| Priority Indicators | #65 | Priority indicators |
+| Search Index | #66 | Search index manager |
+| Command Pattern | #67-68 | Delete/Update task commands |
+| Inbox | #69 | Inbox view |
+| Misc | #70 | Miscellaneous utility |
 
 ### Future Enhancements
 - Cloud sync and multi-device support
@@ -244,6 +361,10 @@ All 70 planned features have been implemented, including:
 - Mobile companion apps
 - Plugin system for extensions
 - AI-powered task suggestions
+- Full global keyboard shortcuts (JNativeHook)
+- Full auto-start on Windows/Linux (registry/.desktop files)
+- Complete accessibility (WCAG-compliant CSS files)
+- Additional database migrations for schema evolution
 
 ## 🤝 Contributing
 
